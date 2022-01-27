@@ -1,0 +1,15 @@
+{
+  "name": "dt-bv-w0",
+  "version": "0.1.0",
+  "description": "Prototype for Cityworks Work Order integration",
+  "main": "index.js",
+  "scripts": {
+    "start": "snowpack dev"
+  },
+  "author": "james.awe@autodesk.com",
+  "license": "Unlicensed",
+  "dependencies": {
+    "@adsk/lmv-double-trouble": "^7.51.5",
+    "snowpack": "^3.5.7"
+  }
+}

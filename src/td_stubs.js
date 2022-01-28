@@ -1,6 +1,5 @@
 
 import * as vw_stubs from './vw_stubs.js';
-import {getRandomInt} from './cw_stubs.js';
 import * as td_utils from './td_utils.js';
 
 
@@ -202,7 +201,7 @@ export async function setWoParameter() {
 
   console.group("STUB: setWoParameter()")
 
-  const randomNum = getRandomInt(1000); // generate some random number to update the WO ID (obviously we would need to set a valid value)
+  const randomNum = td_utils.getRandomInt(1000); // generate some random number to update the WO ID (obviously we would need to set a valid value)
   const randomStr = "RandomName_" + randomNum.toString();
   console.log("Setting Random number for Workorder ID = ", randomStr);
 

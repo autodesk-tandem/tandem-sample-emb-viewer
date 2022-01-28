@@ -1,6 +1,14 @@
 
 export const formatDateYYYYMMDD = (date) => (date ? date.toISOString().substr(0, 10).replace(/-/g, '') : '');
 
+/***************************************************
+** FUNC: getRandomInt()
+** DESC: generate a random Integer between 0 and max
+**********************/
+
+export function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
 
 /***************************************************
 ** FUNC: getCurrentFacility()

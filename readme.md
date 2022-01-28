@@ -21,4 +21,4 @@ To start the development server, run `npm start`. It's opening the browser for y
 
 The test bed app is designed to bring in as few dependencies as possible.  It is plain Javascript and HTML with the exception of jQuery and Bootstrap just to do minimal styling.  The app is designed as simple "Stubs" of functionality that for the most part just dump out results to the Chrome console window.  These interactive tests will surface useful information that you can then use in some of your other code (e.g., URNs for Facilities, Models, etc.). In cases where input is required from the user, UI is as minimal as possible, or you are expected to change the code itself that supplies that input, or put a breakpoint in the debugger and change the value temporarily.
 
-![Tandem TestBed App](./Readme_image_001.jpg)
+![Tandem TestBed App](./Readme_image_001.png)

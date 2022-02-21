@@ -27,7 +27,8 @@ async function main() {
     const app = new Autodesk.Viewing.Private.DtApp({});
     window.DT_APP = app;
     // fetch facilities (and sort by urn)
-    const facilities = await app.getFacilities();
+    const facilities = await app.getCurrentTeamsFacilities();
+    //const facilities = await app.getUsersFacilities();
     facilities.sort((a,b)=>a.urn().localeCompare(b.urn()));
 
     if(facilities.length == 0) {

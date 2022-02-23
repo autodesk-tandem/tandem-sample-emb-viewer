@@ -1,6 +1,7 @@
 
 //const tdApp_token = "eyJFbXBsb3llZVNpZCI6MTE4MzU2NywiRXhwaXJlcyI6bnVsbCwiSXNzdWVkVGltZSI6MTYyMjU3MTAxNTk5MCwiTG9naW5OYW1lIjoiYXV0b2Rlc2siLCJTaWduYXR1cmUiOiJGQjBYd3A5RXFudFJITUs2VHl3N1NBMlc4OUd6ZmJNZkhoMmQxMCtzZStjPSIsIlRva2VuIjoiOXJPa0xyZldOSk42ZkNqV0FKajRBeG96V001SWlLSEoyZ3JzR1NuZFlLcz0ifQ==";
 const tdApp_baseURL = "https://tandem-stg.autodesk.com/app/";
+//const tdApp_baseURL = "https://tandem.autodesk.com/app/";
 
 var myHeaders = new Headers();
 myHeaders.append("Authorization", "Bearer " + window.sessionStorage.token);

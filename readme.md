@@ -33,6 +33,10 @@ It is designed to bring in as few dependencies as possible.  It is plain Javascr
 3. Make sure to use the appropriate environment consistently.  Depending on whether you are using STAGING or PRODUCTION (as shown in the image above), set the Viewer to use the same environment.
 
 ![Tandem TestBed App 021](./docs/Readme_img_021.png)
+![Tandem TestBed App 022](./docs/Readme_img_022.png)
+![Tandem TestBed App 023](./docs/Readme_img_023.png)
+
+*NOTE: This process will soon be updated to use a configuration file so it isn't so difficult to manually change all these lines of code.  Sorry!*
 
 
 ## Start App

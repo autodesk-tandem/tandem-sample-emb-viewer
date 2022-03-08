@@ -1,13 +1,12 @@
+
+import { getEnv } from './env.js';
+
 const avp = Autodesk.Viewing.Private;
 const av = Autodesk.Viewing;
 
-// these are for internal Adsk staging accounts
-const forgeHost = 'developer-stg.api.autodesk.com';
-const forgeKey = 'qGQp6HR6IRjSTPebAPYSC9DSzne8NEYS';
-
-// these are for PROD
-//const forgeHost = 'developer.api.autodesk.com';
-//const forgeKey = 'RoeNvKJVPJoPr615usmL5RFSA5N81G39';
+  // get our URL and Keys from the environment.js config file
+const forgeHost = getEnv().forgeHost;
+const forgeKey = getEnv().forgeKey;
 
 const redirect = encodeURIComponent('http://localhost:8080');
 const scopes = encodeURIComponent(['data:read', 'data:write', 'data:create'].join(' '));
@@ -32,7 +31,7 @@ function parseHash() {
 export function logMeIn() {
     const token = window.sessionStorage.token || parseHash().access_token;
 
-    const loginUrl = `https://${forgeHost}/authentication/v1/authorize?response_type=token&client_id=${forgeKey}&redirect_uri=${redirect}&scope=${scopes}`;
+    const loginUrl = `${forgeHost}/authentication/v1/authorize?response_type=token&client_id=${forgeKey}&redirect_uri=${redirect}&scope=${scopes}`;
 
     if (!token || isTokenExpired(token)) {
       window.location.href = loginUrl;

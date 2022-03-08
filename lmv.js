@@ -1,11 +1,13 @@
+
+import { getEnv } from './env.js';    // get our value for STG/PROD from config file
+
 const av = Autodesk.Viewing;
 const avp = av.Private;
 
 export function initLMV() {
     return new Promise(resolve=>{
     Autodesk.Viewing.Initializer({
-        env: 'DtStaging',
-        //env: 'DtProduction',
+        env: getEnv().dtLmvEnv,
         api: 'dt',
         useCookie: avp.useCookie,
         useCredentials: true,

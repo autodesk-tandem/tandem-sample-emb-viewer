@@ -1,10 +1,9 @@
+import { getEnv } from '../env.js';
 
-//const tdApp_token = "eyJFbXBsb3llZVNpZCI6MTE4MzU2NywiRXhwaXJlcyI6bnVsbCwiSXNzdWVkVGltZSI6MTYyMjU3MTAxNTk5MCwiTG9naW5OYW1lIjoiYXV0b2Rlc2siLCJTaWduYXR1cmUiOiJGQjBYd3A5RXFudFJITUs2VHl3N1NBMlc4OUd6ZmJNZkhoMmQxMCtzZStjPSIsIlRva2VuIjoiOXJPa0xyZldOSk42ZkNqV0FKajRBeG96V001SWlLSEoyZ3JzR1NuZFlLcz0ifQ==";
-const tdApp_baseURL = "https://tandem-stg.autodesk.com/app/";
-//const tdApp_baseURL = "https://tandem.autodesk.com/app/";
+const tdApp_baseURL = getEnv().tandemAppBaseURL;  // get PROD/STG from config file
 
 var myHeaders = new Headers();
-myHeaders.append("Authorization", "Bearer " + window.sessionStorage.token);
+myHeaders.append("Authorization", "Bearer " + window.sessionStorage.token); // use our login to the app
 
 var requestOptions = {
   method: 'GET',
@@ -28,7 +27,7 @@ export async function getSavedViews() {
 
   const facilityURN = DT_APP.currentFacility.twinId;
 
-  const requestPath = tdApp_baseURL + `views/${facilityURN}`;
+  const requestPath = tdApp_baseURL + `/views/${facilityURN}`;
   console.log(requestPath);
 
   await fetch(requestPath, requestOptions)
@@ -49,7 +48,7 @@ export async function getClassifications() {
 
   const groupId = DT_APP.currentFacility.settings.accountGroup;
 
-  const requestPath = tdApp_baseURL + `groups/${groupId}/classifications`;
+  const requestPath = tdApp_baseURL + `/groups/${groupId}/classifications`;
   console.log(requestPath);
 
   await fetch(requestPath, requestOptions)
@@ -70,7 +69,7 @@ export async function getFacilityTemplates() {
 
   const groupId = DT_APP.currentFacility.settings.accountGroup;
 
-  const requestPath = tdApp_baseURL + `groups/${groupId}/facility-templates`;
+  const requestPath = tdApp_baseURL + `/groups/${groupId}/facility-templates`;
   console.log(requestPath);
 
   await fetch(requestPath, requestOptions)
@@ -92,7 +91,7 @@ export async function getFacilityTemplateByUUID() {
   const groupId = DT_APP.currentFacility.settings.accountGroup;
   const templateUUID = DT_APP.currentFacility.settings.template.data.uuid;
 
-  const requestPath = tdApp_baseURL + `groups/${groupId}/facility-templates/${templateUUID}`;
+  const requestPath = tdApp_baseURL + `/groups/${groupId}/facility-templates/${templateUUID}`;
   console.log(requestPath);
 
   await fetch(requestPath, requestOptions)
@@ -113,7 +112,7 @@ export async function getParameterSets() {
 
   const groupId = DT_APP.currentFacility.settings.accountGroup;
 
-  const requestPath = tdApp_baseURL + `groups/${groupId}/psets`;
+  const requestPath = tdApp_baseURL + `/groups/${groupId}/psets`;
   console.log(requestPath);
 
   await fetch(requestPath, requestOptions)
@@ -135,7 +134,7 @@ export async function getParameterSetByUUID() {
   const groupId = DT_APP.currentFacility.settings.accountGroup;
   const psetUUID = "U2qVqS3RSO-GYITwQfzSGg";  // NOTE: this is hardwired!!!
 
-  const requestPath = tdApp_baseURL + `groups/${groupId}/psets/${psetUUID}`;
+  const requestPath = tdApp_baseURL + `/groups/${groupId}/psets/${psetUUID}`;
   console.log(requestPath);
 
   await fetch(requestPath, requestOptions)

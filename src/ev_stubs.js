@@ -62,6 +62,14 @@ function event_DtPrimaryModelLoaded(e) {
   dumpEventInfo("DT_PRIMARY_MODEL_LOADED", e);
 }
 
+function event_DtMsgWsReconnected(e) {
+  dumpEventInfo("DT_MSG_WS_RECONNETED", e);
+}
+
+function event_DtStreamMarkerClicked(e) {
+  dumpEventInfo("DT_STREAM_MARKER_CLICKED", e);
+}
+
 
 /***************************************************
 ** FUNC: addEventListeners()
@@ -84,6 +92,8 @@ export function addEventListeners() {
   dtApp.addEventListener(Autodesk.Viewing.Private.DT_TEAM_CHANGED_EVENT, event_DtTeamChanged);
   dtApp.addEventListener(Autodesk.Viewing.Private.DT_DOCUMENTS_CHANGED_EVENT, event_DtDocumentsChanged);
   dtApp.addEventListener(Autodesk.Viewing.Private.DT_PRIMARY_MODEL_LOADED, event_DtPrimaryModelLoaded);
+  dtApp.addEventListener(Autodesk.Viewing.Private.DT_MSG_WS_RECONNETED, event_DtMsgWsReconnected);
+  dtApp.addEventListener(Autodesk.Viewing.Private.DT_STREAM_MARKER_CLICKED, event_DtStreamMarkerClicked);
 
     // toggle the menu itme in the HTML
   document.getElementById("btn_addEventListeners").classList.add('disabled');
@@ -112,6 +122,8 @@ export function removeEventListeners() {
   dtApp.removeEventListener(Autodesk.Viewing.Private.DT_USER_FACILITIES_CHANGED_EVENT, event_DtUserFacilitiesChanged);
   dtApp.removeEventListener(Autodesk.Viewing.Private.DT_TEAM_CHANGED_EVENT, event_DtTeamChanged);
   dtApp.removeEventListener(Autodesk.Viewing.Private.DT_PRIMARY_MODEL_LOADED, event_DtPrimaryModelLoaded);
+  dtApp.removeEventListener(Autodesk.Viewing.Private.DT_MSG_WS_RECONNETED, event_DtMsgWsReconnected);
+  dtApp.removeEventListener(Autodesk.Viewing.Private.DT_STREAM_MARKER_CLICKED, event_DtStreamMarkerClicked);
 
     // toggle the menu itme in the HTML
   document.getElementById("btn_addEventListeners").classList.remove('disabled');

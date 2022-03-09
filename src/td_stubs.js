@@ -315,7 +315,8 @@ export async function dumpDtFacilityInfo() {
   console.log("facility.getSharedToLocalSpaceTransform()", facility.getSharedToLocalSpaceTransform());
   console.log("facility.getLocalToSharedSpaceTransform()", facility.getLocalToSharedSpaceTransform());
   console.log("facility.getDefaultModelId()", facility.getDefaultModelId());
-
+  console.log("facility.getDefaultModel()", facility.getDefaultModel());
+  console.log("facility.getStreamManager()", facility.getStreamManager());
 
   console.groupEnd();
 
@@ -404,30 +405,35 @@ export async function dumpDtConstants() {
   console.log("getFacilityTemplatesLibrary()", await dtConst.getFacilityTemplatesLibrary());
   console.log("getClassificationsLibrary()", await dtConst.getClassificationsLibrary());
 
+  //async function getClassification(uuid) {
+
     // TBD: following call fails "ReferenceError: CAT_TO_DISC is not defined"
   //console.log("getRevitCategoryToDisciplineMapping()", await dtConst.getRevitCategoryToDisciplineMapping());
 
   //console.log("matchClassification()", await dtConst.matchClassification(a, b));
   //mapUniformatToClass(uf);
 
-  console.log("DtClass", dtConst.DtClass);
-  console.log("DtClassNames", dtConst.DtClassNames);
-  console.log("DtClassNamesToUniformat", dtConst.DtClassNamesToUniformat);
-  console.log("UniformatToDtClass", dtConst.UniformatToDtClass);
-  console.log("StreamBaseParameterSet", dtConst.StreamBaseParameterSet);
+    // TBD: these dissappeared.  Where did they go?
+  //console.log("DtClass", dtConst.DtClass);
+  //console.log("DtClassNames", dtConst.DtClassNames);
+  //console.log("DtClassNamesToUniformat", dtConst.DtClassNamesToUniformat);
+  //console.log("UniformatToDtClass", dtConst.UniformatToDtClass);
+
+
+  console.log("QC", dtConst.QC);
+  console.log("QCOverrides", dtConst.QCOverrides);
+  console.log("ColumnFamilies", dtConst.ColumnFamilies);
+  console.log("ColumnNames", dtConst.ColumnNames);
   console.log("StandardAttributes", dtConst.StandardAttributes);
+  console.log("StreamBaseParameterSet", dtConst.StreamBaseParameterSet);
   console.log("HiddenRevitCategories", dtConst.HiddenRevitCategories);
   console.log("ModelImportState", dtConst.ModelImportState);
   console.log("ImportStateLabels", dtConst.ImportStateLabels);
   console.log("DtAccessLevel", dtConst.DtAccessLevel);
   console.log("ChangeTypes", dtConst.ChangeTypes);
   console.log("SystemColumns", dtConst.SystemColumns);
-  console.log("QC", dtConst.QC);
-  console.log("QCOverrides", dtConst.QCOverrides);
-
   console.log("UNIFORMAT_UUID", dtConst.UNIFORMAT_UUID);
   console.log("MASTERFORMAT_UUID", dtConst.MASTERFORMAT_UUID);
-
   console.log("DT_URN_PREFIX", dtConst.DT_URN_PREFIX);
   console.log("DT_MODEL_URN_PREFIX", dtConst.DT_MODEL_URN_PREFIX);
   console.log("DT_TWIN_URN_PREFIX", dtConst.DT_TWIN_URN_PREFIX);
@@ -450,9 +456,8 @@ export async function dumpDtAppInfo() {
 
   console.log("getCurrentTeamsFacilities()", await dtApp.getCurrentTeamsFacilities());
   console.log("getUsersFacilities()", await dtApp.getUsersFacilities());
-  console.log("getTeams()", dtApp.getTeams());
-  console.log("getActiveTeam()", dtApp.getActiveTeam());
-  console.log("canManage()", dtApp.canManage());
+  console.log("getTeams()", await dtApp.getTeams());
+  console.log("getActiveTeam()", await dtApp.getActiveTeam());
 
   console.groupEnd();
 
@@ -575,8 +580,6 @@ async function dumpSingleModel(model) {
   console.log("label()", model.label());
   console.log("accessLevel()", model.accessLevel());
   console.log("getData()", model.getData());
-  console.log("getDocumentNode()", model.getDocumentNode());
-  console.log("getRoot()", model.getRoot());
   console.log("getRootId()", model.getRootId());
   //console.log("getUnitData()", model.getUnitData());  //deprecated!
   console.log("getUnitScale()", model.getUnitScale());
@@ -589,7 +592,6 @@ async function dumpSingleModel(model) {
   console.log("instancePolyCount()", model.instancePolyCount());
   console.log("isLoadDone()", model.isLoadDone());
   console.log("isObjectTreeCreated()", model.isObjectTreeCreated());
-  console.log("getPropertyDb()", model.getPropertyDb());
   //console.log("getObjectTree()", model.getObjectTree(onsuccesscb, onerrorCb));
 
     // TBD: should fetchTopolgy() fail badly if hasTopology() is false.  Currently it does,

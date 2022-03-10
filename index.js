@@ -66,7 +66,8 @@ async function main() {
 
 
       // bind all the callbacks from the UI to the stub functions
-    $("#btn_getParameters").click(td_stubs.getDtProperties);
+    $("#btn_getProperties").click(td_stubs.getDtProperties);
+    $("#btn_getCommonProperties").click(td_stubs.getCommonDtProperties);
     $("#btn_getSingleAppliedParameter").click(td_stubs.getSingleAppliedParameter);
     $("#btn_getMultipleAppliedParameter").click(td_stubs.getMultiModelAppliedParameter);
     $("#btn_queryAppliedParameter").click(td_stubs.queryAppliedParameter);

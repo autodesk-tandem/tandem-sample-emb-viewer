@@ -6,7 +6,8 @@ import * as td_utils from './td_utils.js';
 /***************************************************
 ** FUNC: getDtProperties()
 ** DESC: get all the Parameters attached to the selected entities.  If there is only one item selected,
-** dump out a verbose table of info.
+** dump out a verbose table of info. The query constructed will include the elements in the selSet + any
+** types they reference.  For instance, selecting a will include the Wall itself and the WallFamily (in Revit terms)
 **********************/
 
 export async function getDtProperties() {
@@ -29,7 +30,7 @@ export async function getDtProperties() {
     //DtModel.prototype.getPropertiesDt = async function(dbIds, options = {}).  Need a way
     // for user to input whether they want history or other options "on"
     const allProps = await model.getPropertiesDt(selSet, { history: false });
-    console.log("allProps", allProps);
+    console.log("all props (raw obj)", allProps);
 
       // if they only selected a single item, print out some more verbose info about the properties
       // for easy reading in the debugging console.
@@ -40,10 +41,11 @@ export async function getDtProperties() {
       console.log("type properties...");
       console.table(allProps[0].type.properties);
 
-      const woProp = allProps[0].element.properties.find(function(item) { return item.displayName === 'WO Id'; });
-      if (woProp) {
-        console.log("WO id value-->", woProp.displayValue);
-      }
+        // if we want to find a specific value only with given displayName
+      //const woProp = allProps[0].element.properties.find(function(item) { return item.displayName === 'WO Id'; });
+      //if (woProp) {
+      //  console.log("WO id value-->", woProp.displayValue);
+      //}
     }
     else {
       console.log("Multiple items in SelectionSet. Pick one item to see a table of properties.");
@@ -51,6 +53,50 @@ export async function getDtProperties() {
 
     console.groupEnd();
   }
+
+  console.groupEnd();
+}
+
+/***************************************************
+** FUNC: getCommonDtProperties()
+** DESC: get all the Parameters attached to the selected entities. The query constructed will
+** include the elements in the selSet + any types they reference.  For instance, selecting a wall
+** will include the Wall itself and the WallFamily (in Revit terms)
+**********************/
+
+export async function getCommonDtProperties() {
+
+  const facility = td_utils.getCurrentFacility();
+  if (!facility) {
+    alert("NO FACILITY CURRENTL LOADED");
+    return;
+  }
+
+  const aggrSet = vw_stubs.getAggregateSelection();
+  if (!aggrSet) {
+    alert("No objects selected");
+    return;
+  }
+
+  console.group("STUB: getCommonDtProperties()")
+
+    // The aggregate set comes back as array of pairs (Model, SelSet).  We need to get it into
+    // an array of Models and a matching array of SelSets (e.g. [m1, m2] and [[1,2,3][4,5])
+  const modelArray = [];
+  const selSetArray = [];
+  for (let i=0; i<aggrSet.length; i++) {
+    modelArray.push(aggrSet[i].model);
+    selSetArray.push(aggrSet[i].selection);
+  }
+
+  const allProps = await facility.getCommonProperties(modelArray, selSetArray);
+  console.log("all common props (raw obj)", allProps);
+
+  console.log("common element properties...");
+  console.table(allProps.element.properties);
+
+  console.log("common type properties...");
+  console.table(allProps.type.properties);
 
   console.groupEnd();
 }
@@ -499,7 +545,7 @@ export async function getLevels() {
       // extract the levelIds out of this object so we can highlight in the viewer
     const levelIds = [];
     for (let key in levelObjs)
-      levelIds.push(levelObjs[key].dbid);
+      levelIds.push(levelObjs[key].dbId);
 
       // arbitrarily get the elements on the first level of first model in the array and then isolate them
     if (levelIds.length && i==0) {

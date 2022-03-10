@@ -188,22 +188,22 @@ export async function queryAppliedParameter() {
 
 
 /***************************************************
-** FUNC: setWoParameter()
-** DESC: set the specific property we use to assign Workorder ID
+** FUNC: setNameParameter()
+** DESC: set a specific property (we'll use NAME since its commonly on all elements)
 **********************/
 
-export async function setWoParameter() {
+export async function setNameParameter() {
   const aggrSet = vw_stubs.getAggregateSelection();
   if (!aggrSet) {
     alert("No objects selected");
     return;
   }
 
-  console.group("STUB: setWoParameter()")
+  console.group("STUB: setNameParameter()")
 
   const randomNum = td_utils.getRandomInt(1000); // generate some random number to update the WO ID (obviously we would need to set a valid value)
   const randomStr = "RandomName_" + randomNum.toString();
-  console.log("Setting Random number for Workorder ID = ", randomStr);
+  console.log("Setting Random number for NAME = ", randomStr);
 
     // loop through each model and do the mutation for each one with proper hash
   for (let i=0; i<aggrSet.length; i++) {
@@ -219,7 +219,7 @@ export async function setWoParameter() {
       muts.push(["n:n", randomStr]);    // TBD: probably can't rely on the value "z:3Ao".  Might need to look that up like in function above
     });
 
-    await aggrSet[i].model.mutate(aggrSet[i].selection, muts, "WO_Tandem App Update")
+    await aggrSet[i].model.mutate(aggrSet[i].selection, muts, "EmbeddedViewerSampleApp Update")
         .then(() => {
           console.info('Update succeeded');
         })
@@ -259,7 +259,7 @@ export async function setSingleSelectionParameter() {
     const muts = [];
     muts.push([internalName, randomStr]);       // do we need 3rd arg for hash?
 
-    await aggrSet[0].model.mutate(aggrSet[0].selection, muts, "WO_Tandem App Update")
+    await aggrSet[0].model.mutate(aggrSet[0].selection, muts, "EmbeddedViewerSampleApp Update")
         .then(() => {
           console.info('Update succeeded');
         })
@@ -315,8 +315,8 @@ export async function dumpDtFacilityInfo() {
   console.log("facility.getSharedToLocalSpaceTransform()", facility.getSharedToLocalSpaceTransform());
   console.log("facility.getLocalToSharedSpaceTransform()", facility.getLocalToSharedSpaceTransform());
   console.log("facility.getDefaultModelId()", facility.getDefaultModelId());
-  console.log("facility.getDefaultModel()", facility.getDefaultModel());
-  console.log("facility.getStreamManager()", facility.getStreamManager());
+  //console.log("facility.getDefaultModel()", facility.getDefaultModel());      // TBD: currently crashes
+  //console.log("facility.getStreamManager()", facility.getStreamManager());    // TBD: currently returns "undefined"
 
   console.groupEnd();
 
@@ -495,19 +495,18 @@ export async function getLevels() {
     console.group(`Model[${i}]--> ${models[i].label()}`);
 
     const levelObjs = await models[i].getLevels();
-    console.table(levelObjs);
 
-      // extract the levelIds out of this object
+      // extract the levelIds out of this object so we can highlight in the viewer
     const levelIds = [];
     for (let key in levelObjs)
       levelIds.push(levelObjs[key].dbid);
 
-      // arbitrarily get the elements on the first level in the array and then isolate them
-    if (levelIds?.length) {
+      // arbitrarily get the elements on the first level of first model in the array and then isolate them
+    if (levelIds.length && i==0) {
+      console.table(levelObjs);
       console.log("isolating levels[0] in viewer...");
       const levelElementIds = models[i].getElementsForLevel(levelIds[0]);
 
-      //console.log("levelIds", levelIds);
       NOP_VIEWER.isolate(levelElementIds, models[i]); // isolate them so we can visualize them.
     }
     else {
@@ -543,20 +542,20 @@ export async function getRooms() {
     console.group(`Model[${i}]--> ${models[i].label()}`);
 
     const roomObjs = await models[i].getRooms();
-    if (roomObjs.length === 0) {
-      console.log("There are no rooms in this model");
-      NOP_VIEWER.isolate([0], models[i]); // ghost the entire model, because we found nothing
+
+      // extract the roomIds out of this object so we can highlight in the viewer
+    const roomIds = [];
+    for (let key in roomObjs)
+      roomIds.push(roomObjs[key].dbId); // NOTE: getLevels uses "dbid" but getRooms uses "dbId"
+
+    if (roomIds.length) {
+      console.table(roomObjs);
+      console.log("isolating rooms in viewer...");
+      NOP_VIEWER.isolate(roomIds, models[i]); // isolate them so we can visualize them.
     }
     else {
-      console.table(roomObjs);
-
-        // extract all the dbids from the array of objects returned
-        // TBD: note that getRooms() returns an array, but getLevels() returns something array-like
-        // also, the property names are inconsistent (dbid and dbId)
-      let roomIds = roomObjs.map(a => a.dbId);
-
-      console.log("roomIds", roomIds);
-      NOP_VIEWER.isolate(roomIds, models[i]); // isolate them so we can visualize them.
+      console.log("No rooms found in this model.");
+      NOP_VIEWER.isolate([0], models[i]); // ghost the entire model, because we found nothing
     }
 
     console.groupEnd();
@@ -726,7 +725,6 @@ export async function getDtModelUsageMetrics() {
   const start = td_utils.formatDateYYYYMMDD(startDate);
   const end = td_utils.formatDateYYYYMMDD(endDate);
 
-
   console.group("STUB: getUsageMetrics()");
 
   for (let i=0; i<models.length; i++) {
@@ -760,45 +758,6 @@ export async function loadFacilityUsageMetrics() {
   console.groupEnd();
 }
 
-
-
-/***************************************************
-** FUNC: getElementClass()
-** DESC: dump out the history for this model
-**********************/
-
-export async function getElementClass() {
-  const aggrSet = vw_stubs.getAggregateSelection();
-  if (!aggrSet) {
-    alert("NOTHING SELECTED");
-    return;
-  }
-
-  console.group("STUB: getElementClass()");
-
-  for (let i=0; i<aggrSet.length; i++) {
-    const model = aggrSet[i].model;
-    const selSet = aggrSet[i].selection;
-
-    console.group(`Model[${i}]--> ${model.label()}`);
-
-      // NOTE: these return a DtConstants::class() and DtConstants::className()
-      // iterate through the selection set and make a new array that has the {dbid, class, className}
-      // so we can dump a table to the console window.
-    let selSetInfo = [];
-    selSet.forEach((item, index) => {
-      let newObj = {};
-      newObj.dbid = item;
-      newObj.dtClass = model.getElementClass(item);
-      newObj.dtClassName = model.getElementClassName(item);
-      selSetInfo.push(newObj);
-    });
-    console.table(selSetInfo);
-    console.groupEnd();
-  }
-
-  console.groupEnd();
-}
 
 /***************************************************
 ** FUNC: dbIdsToExternalIds()
@@ -923,7 +882,7 @@ export async function search() {
 
   console.group("STUB: search()");
 
-  const searchStr = "New Construction";  // arbitrarily string; change here or put debugger breakpoint to change in console.
+  const searchStr = "New Construction";  // arbitrary string; change here or put debugger breakpoint to change in console.
 
   for (let i=0; i<models.length; i++) {
     console.group(`Model[${i}]--> ${models[i].label()}`);

@@ -70,20 +70,19 @@ async function main() {
     $("#btn_getSingleAppliedParameter").click(td_stubs.getSingleAppliedParameter);
     $("#btn_getMultipleAppliedParameter").click(td_stubs.getMultiModelAppliedParameter);
     $("#btn_queryAppliedParameter").click(td_stubs.queryAppliedParameter);
-    $("#btn_setWoParameter").click(td_stubs.setWoParameter);
+    $("#btn_setNameParameter").click(td_stubs.setNameParameter);
     $("#btn_setSingleSelectionParameter").click(td_stubs.setSingleSelectionParameter);
     $("#btn_dumpFacilityInfo").click(td_stubs.dumpDtFacilityInfo);
     $("#btn_dumpModelInfo").click(td_stubs.dumpDtModelInfo);
     $("#btn_dumpAppInfo").click(td_stubs.dumpDtAppInfo);
     $("#btn_dumpDtConstants").click(td_stubs.dumpDtConstants);
-    $("#btn_getElementClass").click(td_stubs.getElementClass);
     $("#btn_getParameterSets").click(td_stubs.getParameterSets);
     $("#btn_getLevels").click(td_stubs.getLevels);
     $("#btn_getRooms").click(td_stubs.getRooms);
     $("#btn_getModelHistory").click(td_stubs.getDtModelHistory);
     $("#btn_getModelUsageMetrics").click(td_stubs.getDtModelUsageMetrics);
-    $("#btn_dbIdsToPersistentIds").click(td_stubs.dbIdsToExternalIds);
     $("#btn_loadFacilityUsageMetrics").click(td_stubs.loadFacilityUsageMetrics);
+    $("#btn_dbIdsToPersistentIds").click(td_stubs.dbIdsToExternalIds);
     $("#btn_search").click(td_stubs.search);
 
     $("#btn_getFacilityDocuments").click(td_stubs.getFacilityDocuments);

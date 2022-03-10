@@ -73,10 +73,10 @@ function getBounds(model, dbId) {
 function spheresForObjects(model, dbIds) {
    window.NOP_VIEWER.overlays.addScene('WO_sprites');
    const material = new THREE.MeshBasicMaterial( { color: 0xffff00, depthTest: false, depthWrite: false } );
-   const geom = new THREE.SphereGeometry(1, 32, 32);
+   const geom = new THREE.SphereBufferGeometry(1, 32, 32);
    for (const dbId of dbIds) {
      const box = getBounds(model, dbId);
-     const cen = box.center();
+     const cen = box.getCenter();
      const sphere = new THREE.Mesh(geom, material);
      const translate = new THREE.Matrix4().makeTranslation(cen.x, cen.y, cen.z);
      sphere.applyMatrix(translate);

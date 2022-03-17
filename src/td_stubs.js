@@ -4,20 +4,74 @@ import * as td_utils from './td_utils.js';
 
 
 /***************************************************
-** FUNC: getDtProperties()
-** DESC: get all the Parameters attached to the selected entities.  If there is only one item selected,
+** FUNC: getQualifiedPropName()
+** DESC: from a CategoryName and PropName (human-readable), look up the internal or "qualified" name that is
+** needed in calls to query() or mutate().  NOTE: the same propertyName can have different qualified names for
+** each model (i.e., names are model-dependent)
+**********************/
+
+export async function getQualifiedPropName() {
+
+  const models = td_utils.getLoadedModels();
+  if (!models) {
+    alert("NO MODEL LOADED");
+    return;
+  }
+
+  console.group("STUB: getQualifiedPropName()");
+
+    // this is a user-defined property that won't exist in all models
+  //const propCategory = "Test 2 - Concrete"; // change this in the debugger if you want a different property retrieved
+  //const propName = "Param A"; // change this in the debugger if you want a different property retrieved
+
+    // something like "Common | Name" should exist in all models
+  const propCategory = "Common"; // change this in the debugger if you want a different property retrieved
+  const propName = "Name"; // change this in the debugger if you want a different property retrieved
+  //debugger;
+
+    // loop through each model and get the attributes (aka properties) schema
+  for (let i=0; i<models.length; i++) {
+    console.group(`Model[${i}]--> ${models[i].label()}`);
+
+    const attrs = await models[i].getHash2Attr();
+    if (attrs) {
+      for (let key in attrs) {
+        const value = attrs[key];
+        if ((value.category === propCategory) && (value.name === propName)) {
+          console.log(`Found property [${propCategory} | ${propName}]: `, value);
+        }
+      }
+        // NOTE: getHash2Attr() returns a map-like structure, but not one with iterators
+        // so not all Javascript functions will work with it.
+      //console.log("entries", Object.values(attrs));   // works
+      //console.log("entries", attrs.values());       // does NOT work
+        // iterate over map until we find our Property Name
+      //for (let [key, value] of attrs) {
+      //  if ((value.category === "propCategory") && (value.name === "propName")) {
+      //    console.log(`Found property [${propCategory} | ${propName}]: `, value);
+      //  }
+      //}
+    }
+
+    console.groupEnd();
+  }
+}
+
+/***************************************************
+** FUNC: getDtPropertiesImpl()
+** DESC: get all the Properties attached to the selected entities.  If there is only one item selected,
 ** dump out a verbose table of info. The query constructed will include the elements in the selSet + any
 ** types they reference.  For instance, selecting a will include the Wall itself and the WallFamily (in Revit terms)
 **********************/
 
-export async function getDtProperties() {
+export async function getDtPropertiesImpl(withHistory) {
   const aggrSet = vw_stubs.getAggregateSelection();
   if (!aggrSet) {
     alert("No objects selected");
     return;
   }
 
-  console.group("STUB: getDtProperties()")
+  console.group(`STUB: getDtProperties(withHistory=${withHistory})`);
 
     // The aggregate set comes back as array of pairs (Model, SelSet)
   for (let i=0; i<aggrSet.length; i++) {
@@ -27,18 +81,17 @@ export async function getDtProperties() {
     console.group(`Model[${i}]--> ${model.label()}`);
 
       // TBD: what does options do here?
-    //DtModel.prototype.getPropertiesDt = async function(dbIds, options = {}).  Need a way
-    // for user to input whether they want history or other options "on"
-    const allProps = await model.getPropertiesDt(selSet, { history: false });
+    //DtModel.prototype.getPropertiesDt = async function(dbIds, options = {}).
+    const allProps = await model.getPropertiesDt(selSet, { history: withHistory });
     console.log("all props (raw obj)", allProps);
 
       // if they only selected a single item, print out some more verbose info about the properties
       // for easy reading in the debugging console.
     if (selSet.length === 1) {
-      console.log("element properties...");
+      console.log("element properties:", allProps[0].element.properties);
       console.table(allProps[0].element.properties);
 
-      console.log("type properties...");
+      console.log("type properties:", allProps[0].type.properties);
       console.table(allProps[0].type.properties);
 
         // if we want to find a specific value only with given displayName
@@ -57,6 +110,25 @@ export async function getDtProperties() {
   console.groupEnd();
 }
 
+
+/***************************************************
+** FUNC: getDtProperties()
+** DESC: call model.getDtProperties() with history flag set to false
+**********************/
+
+export async function getDtProperties() {
+  getDtPropertiesImpl(false);
+}
+
+/***************************************************
+** FUNC: getDtPropertiesWithHistory()
+** DESC: call model.getDtProperties() with history flag set to true
+**********************/
+
+export async function getDtPropertiesWithHistory() {
+  getDtPropertiesImpl(true);
+}
+
 /***************************************************
 ** FUNC: getCommonDtProperties()
 ** DESC: get all the Parameters attached to the selected entities. The query constructed will
@@ -68,7 +140,7 @@ export async function getCommonDtProperties() {
 
   const facility = td_utils.getCurrentFacility();
   if (!facility) {
-    alert("NO FACILITY CURRENTL LOADED");
+    alert("NO FACILITY CURRENTLY LOADED");
     return;
   }
 
@@ -103,11 +175,11 @@ export async function getCommonDtProperties() {
 
 
 /***************************************************
-** FUNC: getSingleAppliedParameter()
-** DESC: get the specific property that we use to assign Workorder ID
+** FUNC: getPropertySingleElement()
+** DESC: get a specific property value that we are interested in
 **********************/
 
-export async function getSingleAppliedParameter() {
+export async function getPropertySingleElement() {
   const aggrSet = vw_stubs.getAggregateSelection();
   if (!aggrSet) {
     alert("No objects selected");
@@ -124,15 +196,23 @@ export async function getSingleAppliedParameter() {
     return;
   }
 
-  console.group("STUB: getSingleAppliedParameter()");
+  console.group("STUB: getPropertySingleElement()");
 
-  //const propName = "WO Id"; // change this in the debugger if you want a different property retrieved
-  //const propName = "Param A"; // change this in the debugger if you want a different property retrieved
-  const propCategory = "Common"; // change this in the debugger if you want a different property retrieved
-  const propName = "Name"; // change this in the debugger if you want a different property retrieved
+  const propCategory = "Test 2 - Concrete"; // change this in the debugger if you want a different property retrieved
+  const propName = "Param A"; // change this in the debugger if you want a different property retrieved
+  //const propCategory = "Common"; // change this in the debugger if you want a different property retrieved
+  //const propName = "Name"; // change this in the debugger if you want a different property retrieved
   //debugger;
 
-  const propValue = await td_utils.getAppliedParameterSingleElement(propCategory, propName, aggrSet[0].model, aggrSet[0].selection[0]);
+    // TBD: not sure yet exactly how all the options work or why to use model.query() over model.getDtProperties()
+    // You can experiment by changing flags
+  const queryInfo = {
+    dbIds: aggrSet[0].selection,
+    //classificationId: facility.settings?.template?.classificationId,
+    includes: { standard: true, applied: true, element: true, type: false, compositeChildren: false }
+  };
+
+  const propValue = await td_utils.getAppliedParameterSingleElement(propCategory, propName, aggrSet[0].model, queryInfo);
   if (propValue)
     console.log(`Property \"${propName}\" = ${propValue}`);
   else
@@ -142,28 +222,37 @@ export async function getSingleAppliedParameter() {
 }
 
 /***************************************************
-** FUNC: getMultiModelAppliedParameter()
+** FUNC: getPropertySelSet()
 ** DESC: get a specific property across multiple items sselected
 **********************/
 
-export async function getMultiModelAppliedParameter() {
+export async function getPropertySelSet() {
   const aggrSet = vw_stubs.getAggregateSelection();
   if (!aggrSet) {
     alert("No objects selected");
     return;
   }
 
-  console.group("STUB: getMultiModelAppliedParameter()");
+  console.group("STUB: getPropertySelSet()");
 
-  //const propName = "WO Id"; // change this in the debugger if you want a different property retrieved
-  const propCategory = "Common"; // change this in the debugger if you want a different property retrieved
-  const propName = "Name"; // change this in the debugger if you want a different property retrieved
+  const propCategory = "Test 2 - Concrete"; // change this in the debugger if you want a different property retrieved
+  const propName = "Param A"; // change this in the debugger if you want a different property retrieved
+  //const propCategory = "Common"; // change this in the debugger if you want a different property retrieved
+  //const propName = "Name"; // change this in the debugger if you want a different property retrieved
   //debugger;
 
   for (let i=0; i<aggrSet.length; i++) {
     console.group(`Model[${i}]--> ${aggrSet[i].model.label()}`);
 
-    const propValues = await td_utils.getAppliedParameterMultipleElements(propCategory, propName, aggrSet[i].model, aggrSet[i].selection);
+      // TBD: not sure yet exactly how all the options work or why to use model.query() over model.getDtProperties()
+      // You can experiment by changing flags
+    const queryInfo = {
+      dbIds: aggrSet[i].selection,
+      //classificationId: facility.settings?.template?.classificationId,
+      includes: { standard: false, applied: true, element: true, type: false, compositeChildren: false }
+    };
+
+    const propValues = await td_utils.getAppliedParameterMultipleElements(propCategory, propName, aggrSet[i].model, queryInfo);
     if (propValues) {
       console.log("Property values -->");
       console.table(propValues);
@@ -179,20 +268,21 @@ export async function getMultiModelAppliedParameter() {
 
 
 /***************************************************
-** FUNC: queryAppliedParameter()
-** DESC: get a specific property across multiple items sselected
+** FUNC: findElementsWherePropValueEqualsX()
+** DESC: get a specific property across multiple items selected where the property value is what
+** we are looking for.   EXAMPLE: find all elements where "Common | Name" = "Basic Wall"
 **********************/
 
-export async function queryAppliedParameter() {
+export async function findElementsWherePropValueEqualsX() {
+    // here we are searching just through the selected objects, not every object in the database
   const aggrSet = vw_stubs.getAggregateSelection();
   if (!aggrSet) {
     alert("No objects selected");
     return;
   }
 
-  console.group("STUB: queryAppliedParameter()");
+  console.group("STUB: findElementsWherePropValueEqualsX()");
 
-  //const propName = "WO Id"; // change this in the debugger if you want a different property retrieved
   const propCategory = "Common"; // change this in the debugger if you want a different property retrieved
   const propName = "Name"; // change this in the debugger if you want a different property retrieved
   const matchStr = "Basic Wall";  // trying to find things where NAME="Basic showAll"
@@ -204,7 +294,15 @@ export async function queryAppliedParameter() {
   for (let i=0; i<aggrSet.length; i++) {
     console.group(`Model[${i}]--> ${aggrSet[i].model.label()}`);
 
-    const propValues = await td_utils.queryAppliedParameterMultipleElements(propCategory, propName, aggrSet[i].model, aggrSet[i].selection);
+      // TBD: not sure yet exactly how all the options work or why to use model.query() over model.getDtProperties()
+      // You can experiment by changing flags
+    const queryInfo = {
+      dbIds: aggrSet[i].selection,
+      //classificationId: facility.settings?.template?.classificationId,
+      includes: { standard: false, applied: true, element: true, type: false, compositeChildren: false }
+    };
+
+    const propValues = await td_utils.queryAppliedParameterMultipleElements(propCategory, propName, aggrSet[i].model, queryInfo);
     if (propValues) {
       const matchingProps = propValues.filter(prop => prop.value === matchStr);   // filter out the ones that match our query
 
@@ -232,59 +330,36 @@ export async function queryAppliedParameter() {
   console.groupEnd();
 }
 
-
 /***************************************************
-** FUNC: setNameParameter()
-** DESC: set a specific property (we'll use NAME since its commonly on all elements)
+** FUNC: setPropertyOnElements()
+** DESC: common bit of code to wrap the call to mutate() once you isolate the model and qualified property
 **********************/
 
-export async function setNameParameter() {
-  const aggrSet = vw_stubs.getAggregateSelection();
-  if (!aggrSet) {
-    alert("No objects selected");
-    return;
-  }
+export async function setPropertyOnElements(model, dbIds, qualifiedPropName, newValue) {
+  const muts = [];
 
-  console.group("STUB: setNameParameter()")
+    // NOTE: number of mutations and elements must match (even if mutation is the same each time)
+  for (let i=0; i<dbIds.length; i++)
+    muts.push([qualifiedPropName, newValue]);       // do we need 3rd arg for hash?
 
-  const randomNum = td_utils.getRandomInt(1000); // generate some random number to update the WO ID (obviously we would need to set a valid value)
-  const randomStr = "RandomName_" + randomNum.toString();
-  console.log("Setting Random number for NAME = ", randomStr);
-
-    // loop through each model and do the mutation for each one with proper hash
-  for (let i=0; i<aggrSet.length; i++) {
-    console.group(`Model[${i}]--> ${aggrSet[i].model.label()}`);
-
-      // NOTE: number of mutations has to match number of dbIds in selSet, so create an array of muts the same
-      // size to match each dbId.  This current code is not good enough for multi-model situations where a hash is needed
-      // as the 3rd argument in the mutation.  TODO: figure out how to find the hash.
-      // Also: the value "z:3Ao" needs to be looked up dynamically from the column name.
-    const muts = [];
-    aggrSet[i].selection.forEach((dbId) => {
-          // look up attribute name, and use hash as 3rd argument
-      muts.push(["n:n", randomStr]);    // TBD: probably can't rely on the value "z:3Ao".  Might need to look that up like in function above
-    });
-
-    await aggrSet[i].model.mutate(aggrSet[i].selection, muts, "EmbeddedViewerSampleApp Update")
-        .then(() => {
-          console.info('Update succeeded');
-        })
-        .catch((err) => {
-          console.error('Update failed', err);
-        });
-
-    console.groupEnd();
-  }
-
-  console.groupEnd();
+  await model.mutate(dbIds, muts, "EmbeddedViewerSampleApp Update")
+      .then(() => {
+        console.info('Update succeeded');
+      })
+      .catch((err) => {
+        console.error('Update failed', err);
+      });
 }
 
 /***************************************************
-** FUNC: setSingleSelectionParameter()
-** DESC: set the specific property we are interested in
+** FUNC: setPropertySingleElement()
+** DESC: set the specific property we are interested in.  If the property is already applied to the
+** given element, it will update it.  If the property does not exist yet, it will add it.  NOTE: This
+** does not take into account "Classification" logic.  It applies the property regardless of whether
+** it is mapped to a classification in the Facility Template.
 **********************/
 
-export async function setSingleSelectionParameter() {
+export async function setPropertySingleElement() {
     // NOTE: this is just to demonstrate for a test.  Normally you would already know the [model, dbId] and not have to
     // retrieve it from the user.  Example; you had a list of objects that were identified by some other logic that needed
     // this property set.  See contrast with the way setMultipleSelectionParameter() works.
@@ -294,31 +369,98 @@ export async function setSingleSelectionParameter() {
     return;
   }
 
-  console.group("STUB: setSingleSelectionParameter()")
+  console.group("STUB: setPropertySingleElement()");
 
-  const internalName = await td_utils.lookupPropertyInternalName("Common", "Name", aggrSet[0].model, aggrSet[0].selection[0]);
-  if (internalName) {
-    const randomNum = getRandomInt(1000); // generate some random number to update the WO ID (obviously we would need to set a valid value)
-    const randomStr = "RandomName_" + randomNum.toString();
-    console.log("Setting Random number for Name property = ", randomStr);
+  const propCategory = "Test 2 - Concrete"; // change this in the debugger if you want a different property retrieved
+  const propName = "Param A"; // change this in the debugg  er if you want a different property retrieved
+  //const propCategory = "Common"; // change this in the debugger if you want a different property retrieved
+  //const propName = "Name"; // change this in the debugger if you want a different property retrieved
+  //debugger;
 
-    const muts = [];
-    muts.push([internalName, randomStr]);       // do we need 3rd arg for hash?
+  const attr = await td_utils.getQualifiedProperty(aggrSet[0].model, propCategory, propName);
+  console.log("attr", attr);
 
-    await aggrSet[0].model.mutate(aggrSet[0].selection, muts, "EmbeddedViewerSampleApp Update")
-        .then(() => {
-          console.info('Update succeeded');
-        })
-        .catch((err) => {
-          console.error('Update failed', err);
-        });
+  if (attr) {
+    if (attr.dataType == Autodesk.Tandem.AttributeType.String) {    // check data type is string
+      let fullyQualifiedPropName = "";
+      if ((attr.flags & Autodesk.Tandem.AttributeFlags.afDtParam) !== 0)  // should be a attr.isNative() function!
+        fullyQualifiedPropName = Autodesk.Tandem.DtConstants.ColumnFamilies.DtProperties + ":" + attr.id; // prepend with "z:" to get fully qualified
+      else
+        fullyQualifiedPropName = attr.id;
+
+      const randomNum = td_utils.getRandomInt(1000); // generate some random number to update the string property
+      const randomStr = "RandomName_" + randomNum.toString();
+      console.log(`Setting Random number string for "${propCategory} | ${propName}" = `, randomStr);
+
+      const muts = [];
+      muts.push([fullyQualifiedPropName, randomStr]);       // do we need 3rd arg for hash?
+
+      await aggrSet[0].model.mutate(aggrSet[0].selection, muts, "EmbeddedViewerSampleApp Update")
+          .then(() => {
+            console.info('Update succeeded');
+          })
+          .catch((err) => {
+            console.error('Update failed', err);
+          });
+    }
+    else {
+      console.log("Property not of type String. This stub is setup to work only with strings.");
+    }
+  }
+  else {
+    console.log(`Property named "${categoryName} | ${propName}" not found.`);
+  }
+
+  console.groupEnd();
+}
+
+/***************************************************
+** FUNC: setPropertySelSet()
+** DESC: set the specific property we are interested in.  If the property is already applied to the
+** given element, it will update it.  If the property does not exist yet, it will add it.  NOTE: This
+** does not take into account "Classification" logic.  It applies the property regardless of whether
+** it is mapped to a classification in the Facility Template.
+**********************/
+
+export async function setPropertySelSet() {
+
+  const aggrSet = vw_stubs.getAggregateSelection();
+  if (!aggrSet) {
+    alert("No objects selected");  // alert message already displayed by utility funciton
+    return;
+  }
+
+  console.group("STUB: setPropertySelSet()");
+
+  const propCategory = "Test 2 - Concrete"; // change this in the debugger if you want a different property retrieved
+  const propName = "Param A"; // change this in the debugg  er if you want a different property retrieved
+  //const propCategory = "Common"; // change this in the debugger if you want a different property retrieved
+  //const propName = "Name"; // change this in the debugger if you want a different property retrieved
+  //debugger;
+
+  const randomNum = td_utils.getRandomInt(1000); // generate some random number to update the string property
+  const randomStr = "RandomName_" + randomNum.toString();
+  console.log(`Setting Random number string for "${propCategory} | ${propName}" = `, randomStr);
+
+    // loop through the models individually and set the property to something new
+  for (let i=0; i<aggrSet.length; i++) {
+    console.group(`Model[${i}]--> ${aggrSet[i].model.label()}`);
+
+      // look up the fullyQualifiedPropName.  We should get back something like "z:zAc" or "n:n"
+    const fullyQualifiedPropName = await td_utils.getQualifiedPropertyName(aggrSet[i].model, propCategory, propName, Autodesk.Tandem.AttributeType.String);
+
+    if (fullyQualifiedPropName) {
+      setPropertyOnElements(aggrSet[i].model, aggrSet[i].selection, fullyQualifiedPropName, randomStr);
+    }
+    else {
+      console.log(`Property named "${categoryName} | ${propName}" not found, or not expected dataType.`);
+    }
 
     console.groupEnd();
   }
 
   console.groupEnd();
 }
-
 
 /***************************************************
 ** FUNC: dumpDtFacilityInfo()
@@ -335,7 +477,7 @@ export async function dumpDtFacilityInfo() {
   console.group("STUB: dumpDtFacilityInfo()")
 
   console.log("getCurrentFacility()", facility);
-  console.log("facility.urn", facility.urn());
+  console.log("facility.urn()", facility.urn());
   console.log("facility.settings", facility.settings);
   console.log("facility.thumbnailUrl", facility.thumbnailUrl);
   //console.log("facility.getThumbnail()", await facility.getThumbnail());    TBD: this fails if there is no thumbnail (even if thumnailURL returns something)
@@ -355,14 +497,11 @@ export async function dumpDtFacilityInfo() {
   console.log("facility.isOwner()", facility.isOwner());
   console.log("facility._getAccessLevel()", facility._getAccessLevel());
 
-  console.log("facility.getAttributeDefinitions()");
-  console.table(await facility.getAttributeDefinitions());
-
   console.log("facility.getSharedToLocalSpaceTransform()", facility.getSharedToLocalSpaceTransform());
   console.log("facility.getLocalToSharedSpaceTransform()", facility.getLocalToSharedSpaceTransform());
   console.log("facility.getDefaultModelId()", facility.getDefaultModelId());
   //console.log("facility.getDefaultModel()", facility.getDefaultModel());      // TBD: currently crashes
-  //console.log("facility.getStreamManager()", facility.getStreamManager());    // TBD: currently returns "undefined"
+  console.log("facility.getStreamManager()", facility.getStreamManager());    // TBD: currently returns "undefined"
 
   console.groupEnd();
 
@@ -631,7 +770,7 @@ async function dumpSingleModel(model) {
   console.log("getUnitString()", model.getUnitString());
   console.log("getDisplayUnit()", model.getDisplayUnit());
   console.log("getDefaultCamera()", model.getDefaultCamera());
-  console.log("isAEC()", model.isAEC());
+  //console.log("isAEC()", model.isAEC());
   console.log("getUpVector()", model.getUpVector());
   console.log("geomPolyCount()", model.geomPolyCount());
   console.log("instancePolyCount()", model.instancePolyCount());

@@ -52,20 +52,69 @@ export function getLoadedModels() {
 }
 
 /***************************************************
+** FUNC: getQualifiedProperty(model, categoryName, propName)
+** DESC: look up the internal, qualified name from a Display Name.  Return the full property object
+** if found, or else return null
+**********************/
+
+export async function getQualifiedProperty(model, categoryName, propName) {
+  const attrs = await model.getHash2Attr();
+  if (attrs) {
+    for (let key in attrs) {
+      const value = attrs[key];
+      if ((value.category === categoryName) && (value.name === propName)) {
+        return value;
+      }
+    }
+  }
+  return null;
+}
+
+/***************************************************
+** FUNC: getQualifiedPropertyName(model, categoryName, propName)
+** DESC: look up the internal, qualified name from a Display Name.  Return just the
+** qualified name.  Will add a "z:" prefix if necessary and will check to see if the
+** expectec type is correct.
+**********************/
+
+export async function getQualifiedPropertyName(model, categoryName, propName, expectedType) {
+
+  const attr = await getQualifiedProperty(model, categoryName, propName); // get the raw property
+  console.log("raw attr", attr);
+
+  if (attr) {
+    if (attr.dataType == expectedType) {    // check data type is the same as expectedType
+      let fullyQualifiedPropName = "";
+      if ((attr.flags & Autodesk.Tandem.AttributeFlags.afDtParam) !== 0)  // should be a attr.isNative() function!
+        fullyQualifiedPropName = Autodesk.Tandem.DtConstants.ColumnFamilies.DtProperties + ":" + attr.id; // prepend with "z:" to get fully qualified
+      else
+        fullyQualifiedPropName = attr.id;
+
+      return fullyQualifiedPropName;
+    }
+    else {
+      console.log(`Property "${categoryName} | ${propertyName}" was found, but was not the expected dataType!`);
+    }
+  }
+
+  return null;
+}
+
+/***************************************************
 ** FUNC: getAppliedParameterSingleElement()
 ** DESC: utility function to dig out a specific property from an object.  Requires there to be only one item to get from
 **********************/
 
-export async function getAppliedParameterSingleElement(propCategory, propName, model, dbId) {
+export async function getAppliedParameterSingleElement(propCategory, propName, model, queryInfo) {
     // find all the objects in the selection set and get the properties that have been applied as custom parameters
-  const queryInfo = { dbIds: [dbId], includes: { standard: false, applied: true, element: false } };
+  //const queryInfo = { dbIds: [dbId], includes: { standard: true, applied: true, element: true } };
   const props = await model.query(queryInfo);
   console.log("Raw properties returned-->", props);
 
   if (props) {
     const prop = props.cols.find(function(item) { return ((item.category === propCategory) && (item.name === propName)); });
     if (prop) {
-      console.log(`Raw property (dbId=${dbId})-->`, prop);
+      console.log(`Raw property -->`, prop);
         // now dig the value out of the property row
       if (props.rows.length === 1) {
         const rowObj = props.rows[0];
@@ -87,9 +136,8 @@ export async function getAppliedParameterSingleElement(propCategory, propName, m
 ** RETURN: array of objects { modelName, dbId, propValue }
 **********************/
 
-export async function getAppliedParameterMultipleElements(propCategory, propName, model, dbIds) {
+export async function getAppliedParameterMultipleElements(propCategory, propName, model, queryInfo) {
     // find all the objects in the selection set and get the properties that have been applied as custom parameters
-  const queryInfo = { dbIds: dbIds, includes: { standard: false, applied: true, element: false } };
   const props = await model.query(queryInfo);
   console.log("Raw properties returned-->", props);
 
@@ -98,12 +146,12 @@ export async function getAppliedParameterMultipleElements(propCategory, propName
   if (props) {
     const prop = props.cols.find(function(item) { return ((item.category === propCategory) && (item.name === propName)); });
     if (prop) {
-      console.log("Raw property-->", prop);
+      console.log("Raw property requested-->", prop);
         // now dig the value out of the property row
       for (let i=0; i<props.rows.length; i++) {
         const rowObj = props.rows[i];
         if (rowObj)
-          propValues.push({ modelName: model.label(), dbId: dbIds[i], value: rowObj[prop.id] });  // push a new object that keeps track of the triple
+          propValues.push({ modelName: model.label(), dbId: queryInfo.dbIds[i], value: rowObj[prop.id] });  // push a new object that keeps track of the triple
         else
           propValues.push(null);
       }
@@ -122,9 +170,9 @@ export async function getAppliedParameterMultipleElements(propCategory, propName
 ** RETURN: array of objects { dbId, propValue }
 **********************/
 
-export async function queryAppliedParameterMultipleElements(propCategory, propName, model, dbIds) {
+export async function queryAppliedParameterMultipleElements(propCategory, propName, model, queryInfo) {
     // find all the objects in the selection set and get the properties that have been applied as custom parameters
-  const queryInfo = { dbIds: dbIds, includes: { standard: false, applied: true, element: false } };
+  //const queryInfo = { dbIds: dbIds, includes: { standard: false, applied: true, element: false } };
   const props = await model.query(queryInfo);
   console.log("Raw properties returned-->", props);
 
@@ -133,41 +181,17 @@ export async function queryAppliedParameterMultipleElements(propCategory, propNa
   if (props) {
     const prop = props.cols.find(function(item) { return ((item.category === propCategory) && (item.name === propName)); });
     if (prop) {
-      console.log("Raw property-->", prop);
+      console.log("Raw property requested-->", prop);
         // now dig the value out of the property row
       for (let i=0; i<props.rows.length; i++) {
         const rowObj = props.rows[i];
         if (rowObj)
-          propValues.push({ dbId: dbIds[i], value: rowObj[prop.id] });  // push a new object that keeps track of the triple
+          propValues.push({ modelName: model.label(), dbId: queryInfo.dbIds[i], value: rowObj[prop.id] });  // push a new object that keeps track of the triple
       }
 
       return propValues;
     }
   }
 
-  return null;
-}
-
-/***************************************************
-** FUNC: lookupPropertyInternalName()
-** DESC: utility function to retrieve the internal name for a given Property
-** RETURN: the internalName (like: "z:q32", or return null if not found)
-**********************/
-
-export async function lookupPropertyInternalName(propCategory, propName, model, dbId) {
-    // for the given entity, return the Parameters applied to this
-  const queryInfo = { dbIds: [dbId], includes: { standard: false, applied: true, element: false } };
-  const props = await model.query(queryInfo);
-  console.log("Raw properties returned-->", props);
-
-  if (props) {
-    const prop = props.cols.find(function(item) { return ((item.category === propCategory) && (item.name === propName)); });
-    if (prop) {
-      console.log(`Found internalName for [${propCategory} | ${propName}]-->`, prop.id);
-      return prop.id;
-    }
-  }
-
-  console.log(`Property named [${propCategory} | ${propName}] not found`);
   return null;
 }

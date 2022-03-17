@@ -66,13 +66,15 @@ async function main() {
 
 
       // bind all the callbacks from the UI to the stub functions
+    $("#btn_getQualifiedPropName").click(td_stubs.getQualifiedPropName);
     $("#btn_getProperties").click(td_stubs.getDtProperties);
+    $("#btn_getPropertiesWithHistory").click(td_stubs.getDtPropertiesWithHistory);
     $("#btn_getCommonProperties").click(td_stubs.getCommonDtProperties);
-    $("#btn_getSingleAppliedParameter").click(td_stubs.getSingleAppliedParameter);
-    $("#btn_getMultipleAppliedParameter").click(td_stubs.getMultiModelAppliedParameter);
-    $("#btn_queryAppliedParameter").click(td_stubs.queryAppliedParameter);
-    $("#btn_setNameParameter").click(td_stubs.setNameParameter);
-    $("#btn_setSingleSelectionParameter").click(td_stubs.setSingleSelectionParameter);
+    $("#btn_getPropertySingleElement").click(td_stubs.getPropertySingleElement);
+    $("#btn_getPropertySelSet").click(td_stubs.getPropertySelSet);
+    $("#btn_findElementsWherePropValueEqualsX").click(td_stubs.findElementsWherePropValueEqualsX);
+    $("#btn_setPropertySingleElement").click(td_stubs.setPropertySingleElement);
+    $("#btn_setPropertySelSet").click(td_stubs.setPropertySelSet);
     $("#btn_dumpFacilityInfo").click(td_stubs.dumpDtFacilityInfo);
     $("#btn_dumpModelInfo").click(td_stubs.dumpDtModelInfo);
     $("#btn_dumpAppInfo").click(td_stubs.dumpDtAppInfo);

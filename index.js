@@ -75,6 +75,7 @@ async function main() {
     $("#btn_findElementsWherePropValueEqualsX").click(td_stubs.findElementsWherePropValueEqualsX);
     $("#btn_setPropertySingleElement").click(td_stubs.setPropertySingleElement);
     $("#btn_setPropertySelSet").click(td_stubs.setPropertySelSet);
+    $("#btn_assignClassification").click(td_stubs.assignClassification);
     $("#btn_dumpFacilityInfo").click(td_stubs.dumpDtFacilityInfo);
     $("#btn_dumpModelInfo").click(td_stubs.dumpDtModelInfo);
     $("#btn_dumpAppInfo").click(td_stubs.dumpDtAppInfo);

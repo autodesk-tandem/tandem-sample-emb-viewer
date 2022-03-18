@@ -91,8 +91,13 @@ export async function getDtPropertiesImpl(withHistory) {
       console.log("element properties:", allProps[0].element.properties);
       console.table(allProps[0].element.properties);
 
-      console.log("type properties:", allProps[0].type.properties);
-      console.table(allProps[0].type.properties);
+      if (allProps[0].type != null) {   // Not everything has Type properties (e.g., Rooms)
+        console.log("type properties:", allProps[0].type.properties);
+        console.table(allProps[0].type.properties);
+      }
+      else {
+        console.log("type properties: NONE");
+      }
 
         // if we want to find a specific value only with given displayName
       //const woProp = allProps[0].element.properties.find(function(item) { return item.displayName === 'WO Id'; });
@@ -274,10 +279,10 @@ export async function getPropertySelSet() {
 **********************/
 
 export async function findElementsWherePropValueEqualsX() {
-    // here we are searching just through the selected objects, not every object in the database
-  const aggrSet = vw_stubs.getAggregateSelection();
-  if (!aggrSet) {
-    alert("No objects selected");
+    // we are going to try to search all elements in the database (that are loaded/visible in the viewer)
+  const models = td_utils.getLoadedModels();
+  if (!models) {
+    alert("NO MODEL LOADED");
     return;
   }
 
@@ -291,18 +296,21 @@ export async function findElementsWherePropValueEqualsX() {
 
   NOP_VIEWER.clearSelection(); // start with nothing selected so its correct when we call isoloate()
 
-  for (let i=0; i<aggrSet.length; i++) {
-    console.group(`Model[${i}]--> ${aggrSet[i].model.label()}`);
+  for (let i=0; i<models.length; i++) {
+    console.group(`Model[${i}]--> ${models[i].label()}`);
+
+      // get all the elements that are currently visible in the viewer
+    const visObjs = models[i].getVisibleDbIds();   // NOTE: this takes an ElementType flag (null = physcial objects)(see worker/dt-schema.js line 80+)
 
       // TBD: not sure yet exactly how all the options work or why to use model.query() over model.getDtProperties()
       // You can experiment by changing flags
     const queryInfo = {
-      dbIds: aggrSet[i].selection,
+      dbIds: visObjs,
       //classificationId: facility.settings?.template?.classificationId,
       includes: { standard: false, applied: true, element: true, type: false, compositeChildren: false }
     };
 
-    const propValues = await td_utils.queryAppliedParameterMultipleElements(propCategory, propName, aggrSet[i].model, queryInfo);
+    const propValues = await td_utils.queryAppliedParameterMultipleElements(propCategory, propName, models[i], queryInfo);
     if (propValues) {
       const matchingProps = propValues.filter(prop => prop.value === matchStr);   // filter out the ones that match our query
 
@@ -312,16 +320,16 @@ export async function findElementsWherePropValueEqualsX() {
 
           // extract all the dbids from the array of objects returned
         const dbIds = matchingProps.map(a => a.dbId);
-        NOP_VIEWER.isolate(dbIds, aggrSet[i].model); // isolate them so we can visualize them.
+        NOP_VIEWER.isolate(dbIds, models[i]); // isolate them so we can visualize them.
       }
       else {
         console.log("No elements found with that value");
-        NOP_VIEWER.isolate([0], aggrSet[i].model); // ghost the entire model, because we found nothing
+        NOP_VIEWER.isolate([0], models[i]); // ghost the entire model, because we found nothing
       }
     }
     else {
       console.log("Could not find any elements with that property: ", propName);
-      NOP_VIEWER.isolate([0], aggrSet[i].model); // ghost the entire model, because we found nothing
+      NOP_VIEWER.isolate([0], models[i]); // ghost the entire model, because we found nothing
     }
 
     console.groupEnd();
@@ -455,6 +463,43 @@ export async function setPropertySelSet() {
     else {
       console.log(`Property named "${categoryName} | ${propName}" not found, or not expected dataType.`);
     }
+
+    console.groupEnd();
+  }
+
+  console.groupEnd();
+}
+
+/***************************************************
+** FUNC: assignClassification()
+** DESC: apply a Classification to the selected elements, which will determine which Properties
+** are associated with the element. NOTE: the act of applying the classification will cause the
+** associated properties to show up in subsequent calls to get the property, but as of now, the value
+** is "undefined".  To give the value a default or initial value, you have to make a subsequent call
+** via some code like setPropertySingleElement() in the above example.
+**********************/
+
+export async function assignClassification() {
+
+  const aggrSet = vw_stubs.getAggregateSelection();
+  if (!aggrSet) {
+    alert("No objects selected");
+    return;
+  }
+
+  console.group("STUB: assignClassification()");
+
+  const classificationStr = "03 00 00";   // Concrete in masterformat
+  //debugger;     // uncomment if you want to change classificationStr without changing code
+  const fullyQualifiedPropName = "n:!v";  // classification attribute (hardwired in system)
+
+  console.log(`Setting classifiction to "${classificationStr}"`);
+
+    // loop through the models individually and set the "Classification" property to a new value
+  for (let i=0; i<aggrSet.length; i++) {
+    console.group(`Model[${i}]--> ${aggrSet[i].model.label()}`);
+
+    setPropertyOnElements(aggrSet[i].model, aggrSet[i].selection, fullyQualifiedPropName, classificationStr);
 
     console.groupEnd();
   }
@@ -765,6 +810,7 @@ async function dumpSingleModel(model) {
   console.log("accessLevel()", model.accessLevel());
   console.log("getData()", model.getData());
   console.log("getRootId()", model.getRootId());
+  console.log("getRoot()", model.getRoot());
   //console.log("getUnitData()", model.getUnitData());  //deprecated!
   console.log("getUnitScale()", model.getUnitScale());
   console.log("getUnitString()", model.getUnitString());
@@ -791,6 +837,7 @@ async function dumpSingleModel(model) {
   console.log("getLevels()");
   console.table(await model.getLevels());
 
+  console.log("hasRooms()", model.hasRooms());
   console.log("getRooms()");
   console.table(await model.getRooms());
 
@@ -907,16 +954,19 @@ export async function getDtModelUsageMetrics() {
   const startDate = new Date(2020, 0, 1);  // arbitrarily the beginning of 2020
   const endDate = new Date();  // today
 
-  const start = td_utils.formatDateYYYYMMDD(startDate);
-  const end = td_utils.formatDateYYYYMMDD(endDate);
+  //const start = td_utils.formatDateYYYYMMDD(startDate);
+  //const end = td_utils.formatDateYYYYMMDD(endDate);
+  const from = new Date().toISOString().split('T')[0].replace(/-/g, '');
 
   console.group("STUB: getUsageMetrics()");
 
   for (let i=0; i<models.length; i++) {
-    const usage = await models[i].getUsageMetrics(start, end);
+    //const usage = await models[i].getUsageMetrics(start, end);
+    const usage = await models[i].getUsageMetrics(from);
     console.group(`Model[${i}]--> ${models[i].label()}`);
+    console.log('Received metrics', JSON.stringify(usage));
 
-    console.table(usage);
+    //console.table(usage);
     console.groupEnd();
   }
 

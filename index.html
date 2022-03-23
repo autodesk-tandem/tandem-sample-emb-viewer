@@ -7,6 +7,7 @@
         <script src="https://tandem-stg.autodesk.com/viewer/viewer3D.js"></script>
         <script src="./3rdParty/jquery-3.6.0.min.js"></script>
         <script src="./3rdParty/bootstrap-4.0.0/dist/js/bootstrap.bundle.js"></script>
+
         <!-- CSS only -->
         <!--<link href="node_modules/@adsk/lmv-double-trouble/build/style.min.css" rel="stylesheet" type="text/css">-->
         <!--<link href="https://tandem.autodesk.com/viewer/style.min.css" rel="stylesheet" type="text/css">-->
@@ -134,7 +135,6 @@
                     <button class="dropdown-item" type="button" id="btn_getHiddenElementsByModel">Get Hidden Elements By Model</button>
                     <button class="dropdown-item" type="button" id="btn_hideModel">Hide Model</button>
                     <button class="dropdown-item" type="button" id="btn_showModel">Show Model</button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -142,7 +142,24 @@
         </div>
       </div>
 
-      <script type=module src="./index.js">
+      <script type=module src="./index.js"></script>
+
+        <!--  The following mechanism loads in partial HTML that defines a modal dialog to get input for
+              some of the stub funcitons. It will inject the HTML from the given path and then then the
+              bound JS functions in index.js will retrieve the values and call the appropriate functions
+              with the given input -->
+      <script>
+         $(function(){
+           $("#stubInputInject_GetPropertyName").load("./stubInput/getPropertyName.html", "#stubInput_getPropertyName");
+           $("#stubInputInject_GetPropertyFilter").load("./stubInput/getPropertyFilter.html", "#stubInput_getPropertyFilter");
+           $("#stubInputInject_SetPropertyValue").load("./stubInput/setPropertyValue.html", "#stubInput_setPropertyValue");
+           $("#stubInputInject_SetClassification").load("./stubInput/setClassification.html", "#stubInput_setClassification");
+         });
       </script>
+      <div id="stubInputInject_GetPropertyName"></div>
+      <div id="stubInputInject_GetPropertyFilter"></div>
+      <div id="stubInputInject_SetPropertyValue"></div>
+      <div id="stubInputInject_SetClassification"></div>
+
     </body>
 </html>

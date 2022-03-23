@@ -2,7 +2,6 @@
 import * as vw_stubs from './vw_stubs.js';
 import * as td_utils from './td_utils.js';
 
-
 /***************************************************
 ** FUNC: getQualifiedPropName()
 ** DESC: from a CategoryName and PropName (human-readable), look up the internal or "qualified" name that is
@@ -10,7 +9,7 @@ import * as td_utils from './td_utils.js';
 ** each model (i.e., names are model-dependent)
 **********************/
 
-export async function getQualifiedPropName() {
+export async function getQualifiedPropName(propCategory, propName) {
 
   const models = td_utils.getLoadedModels();
   if (!models) {
@@ -19,15 +18,6 @@ export async function getQualifiedPropName() {
   }
 
   console.group("STUB: getQualifiedPropName()");
-
-    // this is a user-defined property that won't exist in all models
-  //const propCategory = "Test 2 - Concrete"; // change this in the debugger if you want a different property retrieved
-  //const propName = "Param A"; // change this in the debugger if you want a different property retrieved
-
-    // something like "Common | Name" should exist in all models
-  const propCategory = "Common"; // change this in the debugger if you want a different property retrieved
-  const propName = "Name"; // change this in the debugger if you want a different property retrieved
-  //debugger;
 
     // loop through each model and get the attributes (aka properties) schema
   for (let i=0; i<models.length; i++) {
@@ -184,7 +174,7 @@ export async function getCommonDtProperties() {
 ** DESC: get a specific property value that we are interested in
 **********************/
 
-export async function getPropertySingleElement() {
+export async function getPropertySingleElement(propCategory, propName) {
   const aggrSet = vw_stubs.getAggregateSelection();
   if (!aggrSet) {
     alert("No objects selected");
@@ -202,12 +192,6 @@ export async function getPropertySingleElement() {
   }
 
   console.group("STUB: getPropertySingleElement()");
-
-  const propCategory = "Test 2 - Concrete"; // change this in the debugger if you want a different property retrieved
-  const propName = "Param A"; // change this in the debugger if you want a different property retrieved
-  //const propCategory = "Common"; // change this in the debugger if you want a different property retrieved
-  //const propName = "Name"; // change this in the debugger if you want a different property retrieved
-  //debugger;
 
     // TBD: not sure yet exactly how all the options work or why to use model.query() over model.getDtProperties()
     // You can experiment by changing flags
@@ -231,7 +215,7 @@ export async function getPropertySingleElement() {
 ** DESC: get a specific property across multiple items sselected
 **********************/
 
-export async function getPropertySelSet() {
+export async function getPropertySelSet(propCategory, propName) {
   const aggrSet = vw_stubs.getAggregateSelection();
   if (!aggrSet) {
     alert("No objects selected");
@@ -239,12 +223,6 @@ export async function getPropertySelSet() {
   }
 
   console.group("STUB: getPropertySelSet()");
-
-  const propCategory = "Test 2 - Concrete"; // change this in the debugger if you want a different property retrieved
-  const propName = "Param A"; // change this in the debugger if you want a different property retrieved
-  //const propCategory = "Common"; // change this in the debugger if you want a different property retrieved
-  //const propName = "Name"; // change this in the debugger if you want a different property retrieved
-  //debugger;
 
   for (let i=0; i<aggrSet.length; i++) {
     console.group(`Model[${i}]--> ${aggrSet[i].model.label()}`);
@@ -257,7 +235,7 @@ export async function getPropertySelSet() {
       includes: { standard: false, applied: true, element: true, type: false, compositeChildren: false }
     };
 
-    const propValues = await td_utils.getAppliedParameterMultipleElements(propCategory, propName, aggrSet[i].model, queryInfo);
+    const propValues = await td_utils.queryAppliedParameterMultipleElements(propCategory, propName, aggrSet[i].model, queryInfo);
     if (propValues) {
       console.log("Property values -->");
       console.table(propValues);
@@ -278,7 +256,7 @@ export async function getPropertySelSet() {
 ** we are looking for.   EXAMPLE: find all elements where "Common | Name" = "Basic Wall"
 **********************/
 
-export async function findElementsWherePropValueEqualsX() {
+export async function findElementsWherePropValueEqualsX(propCategory, propName, matchStr) {
     // we are going to try to search all elements in the database (that are loaded/visible in the viewer)
   const models = td_utils.getLoadedModels();
   if (!models) {
@@ -288,19 +266,14 @@ export async function findElementsWherePropValueEqualsX() {
 
   console.group("STUB: findElementsWherePropValueEqualsX()");
 
-  const propCategory = "Common"; // change this in the debugger if you want a different property retrieved
-  const propName = "Name"; // change this in the debugger if you want a different property retrieved
-  const matchStr = "Basic Wall";  // trying to find things where NAME="Basic showAll"
-  //const matchStr = "Rectangular Duct";  // trying to find things where NAME="Rectangular Duct"
-  //debugger;
-
   NOP_VIEWER.clearSelection(); // start with nothing selected so its correct when we call isoloate()
 
   for (let i=0; i<models.length; i++) {
     console.group(`Model[${i}]--> ${models[i].label()}`);
 
       // get all the elements that are currently visible in the viewer
-    const visObjs = models[i].getVisibleDbIds();   // NOTE: this takes an ElementType flag (null = physcial objects)(see worker/dt-schema.js line 80+)
+      const visObjs = models[i].getVisibleDbIds();   // NOTE: this takes an ElementType flag (null = physcial objects)(see worker/dt-schema.js line 80+)
+      //const allObjs = models[i].getElementIds();   // use this one instead if you want ALL elements in the model regardless of visibility
 
       // TBD: not sure yet exactly how all the options work or why to use model.query() over model.getDtProperties()
       // You can experiment by changing flags
@@ -367,52 +340,34 @@ export async function setPropertyOnElements(model, dbIds, qualifiedPropName, new
 ** it is mapped to a classification in the Facility Template.
 **********************/
 
-export async function setPropertySingleElement() {
+export async function setPropertySingleElement(propCategory, propName, propValue) {
     // NOTE: this is just to demonstrate for a test.  Normally you would already know the [model, dbId] and not have to
     // retrieve it from the user.  Example; you had a list of objects that were identified by some other logic that needed
     // this property set.  See contrast with the way setMultipleSelectionParameter() works.
   const aggrSet = vw_stubs.getSingleSelectedItem();
   if (!aggrSet) {
-    // alert("No objects selected");  // alert message already displayed by utility funciton
     return;
   }
 
   console.group("STUB: setPropertySingleElement()");
 
-  const propCategory = "Test 2 - Concrete"; // change this in the debugger if you want a different property retrieved
-  const propName = "Param A"; // change this in the debugg  er if you want a different property retrieved
-  //const propCategory = "Common"; // change this in the debugger if you want a different property retrieved
-  //const propName = "Name"; // change this in the debugger if you want a different property retrieved
-  //debugger;
-
   const attr = await td_utils.getQualifiedProperty(aggrSet[0].model, propCategory, propName);
   console.log("attr", attr);
 
   if (attr) {
-    if (attr.dataType == Autodesk.Tandem.AttributeType.String) {    // check data type is string
+    const typedValue = td_utils.convertStrToDataType(attr.dataType, propValue)
+    if (typedValue != null) {    // check data type was expected and we could convert to it
       let fullyQualifiedPropName = "";
       if ((attr.flags & Autodesk.Tandem.AttributeFlags.afDtParam) !== 0)  // should be a attr.isNative() function!
         fullyQualifiedPropName = Autodesk.Tandem.DtConstants.ColumnFamilies.DtProperties + ":" + attr.id; // prepend with "z:" to get fully qualified
       else
         fullyQualifiedPropName = attr.id;
 
-      const randomNum = td_utils.getRandomInt(1000); // generate some random number to update the string property
-      const randomStr = "RandomName_" + randomNum.toString();
-      console.log(`Setting Random number string for "${propCategory} | ${propName}" = `, randomStr);
-
-      const muts = [];
-      muts.push([fullyQualifiedPropName, randomStr]);       // do we need 3rd arg for hash?
-
-      await aggrSet[0].model.mutate(aggrSet[0].selection, muts, "EmbeddedViewerSampleApp Update")
-          .then(() => {
-            console.info('Update succeeded');
-          })
-          .catch((err) => {
-            console.error('Update failed', err);
-          });
+      console.log(`Setting value for "${propCategory} | ${propName}" = `, typedValue);
+      setPropertyOnElements(aggrSet[0].model, aggrSet[0].selection, fullyQualifiedPropName, typedValue);
     }
     else {
-      console.log("Property not of type String. This stub is setup to work only with strings.");
+      console.log("Property value could not be converted to expected type.");
     }
   }
   else {
@@ -430,38 +385,41 @@ export async function setPropertySingleElement() {
 ** it is mapped to a classification in the Facility Template.
 **********************/
 
-export async function setPropertySelSet() {
+export async function setPropertySelSet(propCategory, propName, propValue) {
 
   const aggrSet = vw_stubs.getAggregateSelection();
   if (!aggrSet) {
-    alert("No objects selected");  // alert message already displayed by utility funciton
+    alert("No objects selected");
     return;
   }
 
   console.group("STUB: setPropertySelSet()");
 
-  const propCategory = "Test 2 - Concrete"; // change this in the debugger if you want a different property retrieved
-  const propName = "Param A"; // change this in the debugg  er if you want a different property retrieved
-  //const propCategory = "Common"; // change this in the debugger if you want a different property retrieved
-  //const propName = "Name"; // change this in the debugger if you want a different property retrieved
-  //debugger;
-
-  const randomNum = td_utils.getRandomInt(1000); // generate some random number to update the string property
-  const randomStr = "RandomName_" + randomNum.toString();
-  console.log(`Setting Random number string for "${propCategory} | ${propName}" = `, randomStr);
-
     // loop through the models individually and set the property to something new
   for (let i=0; i<aggrSet.length; i++) {
     console.group(`Model[${i}]--> ${aggrSet[i].model.label()}`);
 
-      // look up the fullyQualifiedPropName.  We should get back something like "z:zAc" or "n:n"
-    const fullyQualifiedPropName = await td_utils.getQualifiedPropertyName(aggrSet[i].model, propCategory, propName, Autodesk.Tandem.AttributeType.String);
+    const attr = await td_utils.getQualifiedProperty(aggrSet[i].model, propCategory, propName);
+    console.log("attr", attr);
 
-    if (fullyQualifiedPropName) {
-      setPropertyOnElements(aggrSet[i].model, aggrSet[i].selection, fullyQualifiedPropName, randomStr);
+    if (attr) {
+      const typedValue = td_utils.convertStrToDataType(attr.dataType, propValue)
+      if (typedValue != null) {    // check data type was expected and we could convert to it
+        let fullyQualifiedPropName = "";
+        if ((attr.flags & Autodesk.Tandem.AttributeFlags.afDtParam) !== 0)  // should be a attr.isNative() function!
+          fullyQualifiedPropName = Autodesk.Tandem.DtConstants.ColumnFamilies.DtProperties + ":" + attr.id; // prepend with "z:" to get fully qualified
+        else
+          fullyQualifiedPropName = attr.id;
+
+        console.log(`Setting value for "${propCategory} | ${propName}" = `, typedValue);
+        setPropertyOnElements(aggrSet[i].model, aggrSet[i].selection, fullyQualifiedPropName, typedValue);
+      }
+      else {
+        console.log("Property value could not be converted to expected type.");
+      }
     }
     else {
-      console.log(`Property named "${categoryName} | ${propName}" not found, or not expected dataType.`);
+      console.log(`Property named "${categoryName} | ${propName}" not found.`);
     }
 
     console.groupEnd();
@@ -479,7 +437,18 @@ export async function setPropertySelSet() {
 ** via some code like setPropertySingleElement() in the above example.
 **********************/
 
-export async function assignClassification() {
+export async function assignClassification(classificationStr) {
+
+  const facility = td_utils.getCurrentFacility();
+  if (!facility) {
+    alert("NO FACILITY CURRENTL LOADED");
+    return;
+  }
+  const classificationNode = await td_utils.findClassificationNode(facility, classificationStr);
+  if (classificationNode == null) {
+    alert("Could not find that classification in the current Facility Template.");
+    return;
+  }
 
   const aggrSet = vw_stubs.getAggregateSelection();
   if (!aggrSet) {
@@ -489,10 +458,9 @@ export async function assignClassification() {
 
   console.group("STUB: assignClassification()");
 
-  const classificationStr = "03 00 00";   // Concrete in masterformat
-  //debugger;     // uncomment if you want to change classificationStr without changing code
   const fullyQualifiedPropName = "n:!v";  // classification attribute (hardwired in system)
 
+  console.log("classificationNode-->", classificationNode);
   console.log(`Setting classifiction to "${classificationStr}"`);
 
     // loop through the models individually and set the "Classification" property to a new value

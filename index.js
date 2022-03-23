@@ -31,7 +31,7 @@ async function main() {
     //const facilities = await app.getUsersFacilities();
     facilities.sort((a,b)=>a.urn().localeCompare(b.urn()));
 
-    if(facilities.length == 0) {
+    if (facilities.length == 0) {
         Autodesk.Viewing.Private.AlertBox.displayError(
             viewer.container,
             'Make sure you are have access to at least one facility in Autodesk Tandem.',
@@ -41,12 +41,12 @@ async function main() {
         return;
     }
 
-    // load preferred or random facility
+      // load preferred or random facility
     const preferredFacilityUrn = window.localStorage.getItem('dt-demo-app-preferred');
     const preferredFacility = facilities.find(f=>f.urn() === preferredFacilityUrn) || facilities[0];
     app.displayFacility(preferredFacility, false, viewer);
 
-    // setup facility picker UI
+      // setup facility picker UI
     await Promise.all(facilities.map(f=>f.load()));
     const facilityPicker = document.getElementById('facilityPicker');
     for(let facility of facilities) {
@@ -66,16 +66,45 @@ async function main() {
 
 
       // bind all the callbacks from the UI to the stub functions
-    $("#btn_getQualifiedPropName").click(td_stubs.getQualifiedPropName);
+    var modalFuncCallbackNum = 0;
+
+    $("#btn_getQualifiedPropName").click(function() {
+        $('#stubInput_getPropertyName').modal('show');
+        modalFuncCallbackNum = 0;
+      });
+
     $("#btn_getProperties").click(td_stubs.getDtProperties);
     $("#btn_getPropertiesWithHistory").click(td_stubs.getDtPropertiesWithHistory);
     $("#btn_getCommonProperties").click(td_stubs.getCommonDtProperties);
-    $("#btn_getPropertySingleElement").click(td_stubs.getPropertySingleElement);
-    $("#btn_getPropertySelSet").click(td_stubs.getPropertySelSet);
-    $("#btn_findElementsWherePropValueEqualsX").click(td_stubs.findElementsWherePropValueEqualsX);
-    $("#btn_setPropertySingleElement").click(td_stubs.setPropertySingleElement);
-    $("#btn_setPropertySelSet").click(td_stubs.setPropertySelSet);
-    $("#btn_assignClassification").click(td_stubs.assignClassification);
+
+    $("#btn_getPropertySingleElement").click(function() {
+        $('#stubInput_getPropertyName').modal('show');
+        modalFuncCallbackNum = 1;
+      });
+
+    $("#btn_getPropertySelSet").click(function() {
+        $('#stubInput_getPropertyName').modal('show');
+        modalFuncCallbackNum = 2;
+      });
+
+    $("#btn_findElementsWherePropValueEqualsX").click(function() {
+        $('#stubInput_getPropertyFilter').modal('show');
+      });
+
+    $("#btn_setPropertySingleElement").click(function() {
+        $('#stubInput_setPropertyValue').modal('show');
+        modalFuncCallbackNum = 0;
+      });
+
+    $("#btn_setPropertySelSet").click(function() {
+        $('#stubInput_setPropertyValue').modal('show');
+        modalFuncCallbackNum = 1;
+      });
+
+    $("#btn_assignClassification").click(function() {
+        $('#stubInput_setClassification').modal('show');
+      });
+
     $("#btn_dumpFacilityInfo").click(td_stubs.dumpDtFacilityInfo);
     $("#btn_dumpModelInfo").click(td_stubs.dumpDtModelInfo);
     $("#btn_dumpAppInfo").click(td_stubs.dumpDtAppInfo);
@@ -116,6 +145,52 @@ async function main() {
     $("#btn_hideModel").click(vw_stubs.hideModel);
     $("#btn_showModel").click(vw_stubs.showModel);
 
+      // this gets called from above via modal dialog (#btn_getQualifiedPropName, and others)
+    $('#stubInput_getPropertyName_OK').click(function() {
+      const propCategory = $("#stubInput_propCategory").val();
+      const propName = $("#stubInput_propName").val();
+
+      if (modalFuncCallbackNum == 0)
+        td_stubs.getQualifiedPropName(propCategory, propName);
+      else if (modalFuncCallbackNum == 1)
+        td_stubs.getPropertySingleElement(propCategory, propName);
+      else if (modalFuncCallbackNum == 2)
+        td_stubs.getPropertySelSet(propCategory, propName);
+      else {
+        alert("ASSERT: modalFuncCallbackNum not expected.");
+      }
+    });
+
+      // this gets called from above via modal dialog (#btn_setPropertySelSet, and others)
+    $('#stubInput_setPropertyValue_OK').click(function() {
+      const propCategory = $("#stubInput_propCategorySet").val();
+      const propName = $("#stubInput_propNameSet").val();
+      const propVal = $("#stubInput_propValSet").val();
+
+      if (modalFuncCallbackNum == 0)
+        td_stubs.setPropertySingleElement(propCategory, propName, propVal);
+      else if (modalFuncCallbackNum == 1)
+        td_stubs.setPropertySelSet(propCategory, propName, propVal);
+      else {
+        alert("ASSERT: modalFuncCallbackNum not expected.");
+      }
+    });
+
+      // this gets called from above via modal dialog (#btn_findElementsWherePropValueEqualsX)
+    $('#stubInput_getPropertyFilter_OK').click(function() {
+      const propCategory = $("#stubInput_propCategoryFilter").val();
+      const propName = $("#stubInput_propNameFilter").val();
+      const matchStr = $("#stubInput_propValFilter").val();
+
+      td_stubs.findElementsWherePropValueEqualsX(propCategory, propName, matchStr);
+    });
+
+      // this gets called from above via modal dialog (#btn_findElementsWherePropValueEqualsX)
+    $('#stubInput_setClassification_OK').click(function() {
+      const classificationStr = $("#stubInput_classificationStr").val();
+
+      td_stubs.assignClassification(classificationStr);
+    });
 };
 
 main();

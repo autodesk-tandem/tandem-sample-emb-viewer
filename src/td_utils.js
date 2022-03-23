@@ -11,6 +11,46 @@ export function getRandomInt(max) {
 }
 
 /***************************************************
+** FUNC: convertStrToDataType()
+** DESC: based on the expected datatype of an attribute/property, convert the input string
+**********************/
+
+export function convertStrToDataType(dataType, strValue) {
+  if (dataType == Autodesk.Tandem.AttributeType.String)
+    return strValue;
+  else if (dataType == Autodesk.Tandem.AttributeType.Integer)
+    return parseInt(strValue);
+  else if (dataType == Autodesk.Tandem.AttributeType.Double)
+    return parseFloat(strValue);
+  else if (dataType == Autodesk.Tandem.AttributeType.Float)
+    return parseFloat(strValue);
+  else {
+    console.log("ERROR: this func only supports data types STRING, INT, FLOAT, or DOUBLE");
+    return null;
+  }
+}
+
+/***************************************************
+** FUNC: findClassificationNode()
+** DESC: look up a specifc node in the Facility Template
+**********************/
+
+export async function findClassificationNode(facility, classificationStr) {
+  const templ = await facility.getClassificationTemplate();
+  if (templ == null) {
+    console.log("ERROR: expected this facility to have a template!");
+    return null;
+  }
+
+  for (let i=0; i<templ.rows.length; i++) {
+    const rowObj = templ.rows[i];   // rowObj is an Array[3], that looks like: ['01 30 00', 'Administrative Requirements', 2]
+    if (rowObj[0] === classificationStr)
+      return rowObj;
+  }
+  return null;
+}
+
+/***************************************************
 ** FUNC: getCurrentFacility()
 ** DESC: get the currently loaded facility
 **********************/
@@ -172,7 +212,6 @@ export async function getAppliedParameterMultipleElements(propCategory, propName
 
 export async function queryAppliedParameterMultipleElements(propCategory, propName, model, queryInfo) {
     // find all the objects in the selection set and get the properties that have been applied as custom parameters
-  //const queryInfo = { dbIds: dbIds, includes: { standard: false, applied: true, element: false } };
   const props = await model.query(queryInfo);
   console.log("Raw properties returned-->", props);
 
@@ -185,7 +224,7 @@ export async function queryAppliedParameterMultipleElements(propCategory, propNa
         // now dig the value out of the property row
       for (let i=0; i<props.rows.length; i++) {
         const rowObj = props.rows[i];
-        if (rowObj)
+        if (rowObj && (rowObj[prop.id] != null))
           propValues.push({ modelName: model.label(), dbId: queryInfo.dbIds[i], value: rowObj[prop.id] });  // push a new object that keeps track of the triple
       }
 

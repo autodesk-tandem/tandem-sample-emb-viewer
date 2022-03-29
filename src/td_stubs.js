@@ -168,48 +168,6 @@ export async function getCommonDtProperties() {
   console.groupEnd();
 }
 
-
-/***************************************************
-** FUNC: getPropertySingleElement()
-** DESC: get a specific property value that we are interested in
-**********************/
-
-export async function getPropertySingleElement(propCategory, propName) {
-  const aggrSet = vw_stubs.getAggregateSelection();
-  if (!aggrSet) {
-    alert("No objects selected");
-    return;
-  }
-
-  if (aggrSet.length > 1) {
-    alert("Select only one element");
-    return;
-  }
-
-  if (aggrSet.length && (aggrSet[0].selection.length > 1)) {
-    alert("Select only one element");
-    return;
-  }
-
-  console.group("STUB: getPropertySingleElement()");
-
-    // TBD: not sure yet exactly how all the options work or why to use model.query() over model.getDtProperties()
-    // You can experiment by changing flags
-  const queryInfo = {
-    dbIds: aggrSet[0].selection,
-    //classificationId: facility.settings?.template?.classificationId,
-    includes: { standard: true, applied: true, element: true, type: false, compositeChildren: false }
-  };
-
-  const propValue = await td_utils.getAppliedParameterSingleElement(propCategory, propName, aggrSet[0].model, queryInfo);
-  if (propValue)
-    console.log(`Property \"${propName}\" = ${propValue}`);
-  else
-    console.log("Could not find property: ", propName);
-
-  console.groupEnd();
-}
-
 /***************************************************
 ** FUNC: getPropertySelSet()
 ** DESC: get a specific property across multiple items sselected
@@ -248,7 +206,6 @@ export async function getPropertySelSet(propCategory, propName) {
 
   console.groupEnd();
 }
-
 
 /***************************************************
 ** FUNC: findElementsWherePropValueEqualsX()
@@ -333,51 +290,6 @@ export async function setPropertyOnElements(model, dbIds, qualifiedPropName, new
 }
 
 /***************************************************
-** FUNC: setPropertySingleElement()
-** DESC: set the specific property we are interested in.  If the property is already applied to the
-** given element, it will update it.  If the property does not exist yet, it will add it.  NOTE: This
-** does not take into account "Classification" logic.  It applies the property regardless of whether
-** it is mapped to a classification in the Facility Template.
-**********************/
-
-export async function setPropertySingleElement(propCategory, propName, propValue) {
-    // NOTE: this is just to demonstrate for a test.  Normally you would already know the [model, dbId] and not have to
-    // retrieve it from the user.  Example; you had a list of objects that were identified by some other logic that needed
-    // this property set.  See contrast with the way setMultipleSelectionParameter() works.
-  const aggrSet = vw_stubs.getSingleSelectedItem();
-  if (!aggrSet) {
-    return;
-  }
-
-  console.group("STUB: setPropertySingleElement()");
-
-  const attr = await td_utils.getQualifiedProperty(aggrSet[0].model, propCategory, propName);
-  console.log("attr", attr);
-
-  if (attr) {
-    const typedValue = td_utils.convertStrToDataType(attr.dataType, propValue)
-    if (typedValue != null) {    // check data type was expected and we could convert to it
-      let fullyQualifiedPropName = "";
-      if ((attr.flags & Autodesk.Tandem.AttributeFlags.afDtParam) !== 0)  // should be a attr.isNative() function!
-        fullyQualifiedPropName = Autodesk.Tandem.DtConstants.ColumnFamilies.DtProperties + ":" + attr.id; // prepend with "z:" to get fully qualified
-      else
-        fullyQualifiedPropName = attr.id;
-
-      console.log(`Setting value for "${propCategory} | ${propName}" = `, typedValue);
-      setPropertyOnElements(aggrSet[0].model, aggrSet[0].selection, fullyQualifiedPropName, typedValue);
-    }
-    else {
-      console.log("Property value could not be converted to expected type.");
-    }
-  }
-  else {
-    console.log(`Property named "${categoryName} | ${propName}" not found.`);
-  }
-
-  console.groupEnd();
-}
-
-/***************************************************
 ** FUNC: setPropertySelSet()
 ** DESC: set the specific property we are interested in.  If the property is already applied to the
 ** given element, it will update it.  If the property does not exist yet, it will add it.  NOTE: This
@@ -406,7 +318,7 @@ export async function setPropertySelSet(propCategory, propName, propValue) {
       const typedValue = td_utils.convertStrToDataType(attr.dataType, propValue)
       if (typedValue != null) {    // check data type was expected and we could convert to it
         let fullyQualifiedPropName = "";
-        if ((attr.flags & Autodesk.Tandem.AttributeFlags.afDtParam) !== 0)  // should be a attr.isNative() function!
+        if (attr.isNative())  // is this user-defined in Tandem?
           fullyQualifiedPropName = Autodesk.Tandem.DtConstants.ColumnFamilies.DtProperties + ":" + attr.id; // prepend with "z:" to get fully qualified
         else
           fullyQualifiedPropName = attr.id;
@@ -744,7 +656,7 @@ export async function getRooms() {
       // extract the roomIds out of this object so we can highlight in the viewer
     const roomIds = [];
     for (let key in roomObjs)
-      roomIds.push(roomObjs[key].dbId); // NOTE: getLevels uses "dbid" but getRooms uses "dbId"
+      roomIds.push(roomObjs[key].dbId);
 
     if (roomIds.length) {
       console.table(roomObjs);
@@ -757,6 +669,70 @@ export async function getRooms() {
     }
 
     console.groupEnd();
+  }
+
+  console.groupEnd();
+}
+
+/***************************************************
+** FUNC: showElementsInRoom()
+** DESC: find the elements that are part of a room and isolate them in the viewer
+**********************/
+
+export async function showElementsInRoom() {
+  const aggrSet = vw_stubs.getSingleSelectedItem();
+  if (!aggrSet) {
+    return;
+  }
+
+  const roomDbId = aggrSet[0].selection[0];
+
+    // first, lets make sure they actually selected a room object
+  let flags = aggrSet[0].model.getData().dbId2flags[roomDbId];
+  //if ((flags & Autodesk.Tandem.ElementFlags.Room) === 0) {
+  if ((flags & 0x00000005) === 0) { //0x00000005
+    alert("Selected object is not of type Room");
+    return;
+  }
+
+  console.group("STUB: showElementsInRoom()");
+
+  const roomMap = aggrSet[0].model.getData().dbId2roomIds;
+  console.log("Room Map", roomMap);
+
+  const elementsInRoom = [];
+  for (let key in roomMap) {
+    let value = roomMap[key];
+      // NOTE: the value in the map could be a single dbId, or an array of dbIds.
+    if (Array.isArray(value) && value.find(r => r === roomDbId)) {
+      elementsInRoom.push(parseInt(key));
+    }
+    else if (value === roomDbId) {
+      elementsInRoom.push(parseInt(key));
+    }
+  }
+
+  if (elementsInRoom.length == 0) {
+    console.log("No elements found in this room.");
+  }
+  else {
+      // now we will go through and display those in the viewer and hide everything else
+      // nned to get all the models in the facility so we can hide the ones that we aren't interested in
+    const models = td_utils.getLoadedModels();
+
+    NOP_VIEWER.clearSelection();  // start the viewer in a clean slate
+    //NOP_VIEWER.showAll();  // start the viewer in a clean slate
+
+    for (let i=0; i<models.length; i++) {
+      if (models[i] === aggrSet[0].model) {  // if this is the same model from which our room came...
+        console.log("elementsInRoom", elementsInRoom);
+        console.log("isolating elements in viewer...");
+        NOP_VIEWER.isolate(elementsInRoom, aggrSet[0].model); // isolate them so we can visualize them.
+      }
+      else {
+        NOP_VIEWER.isolate([0], models[i]); // ghost the entire model, because we aren't interested
+      }
+    }
   }
 
   console.groupEnd();
@@ -1058,42 +1034,6 @@ export async function deleteDocument() {
   const docId = "urn:adsk.dtd:SqzGFsAfS3CcknEqlON_gA"; // change this to something valid (you can get by calling getFacilityDocuments() first and console window)
 
   const doc = await facility.deleteDocument(docId);
-
-  console.groupEnd();
-}
-
-
-function onSearchSuccessCB(results) {
-  console.log("Results", results);
-}
-
-function onSearchErrorCB(e) {
-  console.log("ERROR", e);
-}
-
-/***************************************************
-** FUNC: search()
-** DESC: search the object property database
-**********************/
-
-export async function search() {
-  const models = td_utils.getLoadedModels();
-  if (!models) {
-    alert("NO MODEL LOADED");
-    return;
-  }
-
-  console.group("STUB: search()");
-
-  const searchStr = "New Construction";  // arbitrary string; change here or put debugger breakpoint to change in console.
-
-  for (let i=0; i<models.length; i++) {
-    console.group(`Model[${i}]--> ${models[i].label()}`);
-
-    await models[i].search(searchStr, onSearchSuccessCB, onSearchErrorCB, ["r:8gI"]);
-
-    console.groupEnd();
-  }
 
   console.groupEnd();
 }

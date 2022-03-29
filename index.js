@@ -66,6 +66,9 @@ async function main() {
 
 
       // bind all the callbacks from the UI to the stub functions
+      // TBD: not super happy about how this callback mechanism works... I did trial and error
+      // forever to get these partial HTML snippets to work for the modal input.  Will try later
+      // to make a more elegant mechanism.  (JMA - 03/28/22)
     var modalFuncCallbackNum = 0;
 
     $("#btn_getQualifiedPropName").click(function() {
@@ -77,28 +80,18 @@ async function main() {
     $("#btn_getPropertiesWithHistory").click(td_stubs.getDtPropertiesWithHistory);
     $("#btn_getCommonProperties").click(td_stubs.getCommonDtProperties);
 
-    $("#btn_getPropertySingleElement").click(function() {
-        $('#stubInput_getPropertyName').modal('show');
-        modalFuncCallbackNum = 1;
-      });
-
     $("#btn_getPropertySelSet").click(function() {
         $('#stubInput_getPropertyName').modal('show');
-        modalFuncCallbackNum = 2;
+        modalFuncCallbackNum = 1;
       });
 
     $("#btn_findElementsWherePropValueEqualsX").click(function() {
         $('#stubInput_getPropertyFilter').modal('show');
       });
 
-    $("#btn_setPropertySingleElement").click(function() {
-        $('#stubInput_setPropertyValue').modal('show');
-        modalFuncCallbackNum = 0;
-      });
-
     $("#btn_setPropertySelSet").click(function() {
         $('#stubInput_setPropertyValue').modal('show');
-        modalFuncCallbackNum = 1;
+        modalFuncCallbackNum = 0;
       });
 
     $("#btn_assignClassification").click(function() {
@@ -112,11 +105,11 @@ async function main() {
     $("#btn_getParameterSets").click(td_stubs.getParameterSets);
     $("#btn_getLevels").click(td_stubs.getLevels);
     $("#btn_getRooms").click(td_stubs.getRooms);
+    $("#btn_showElementsInRoom").click(td_stubs.showElementsInRoom);
     $("#btn_getModelHistory").click(td_stubs.getDtModelHistory);
     $("#btn_getModelUsageMetrics").click(td_stubs.getDtModelUsageMetrics);
     $("#btn_loadFacilityUsageMetrics").click(td_stubs.loadFacilityUsageMetrics);
     $("#btn_dbIdsToPersistentIds").click(td_stubs.dbIdsToExternalIds);
-    $("#btn_search").click(td_stubs.search);
 
     $("#btn_getFacilityDocuments").click(td_stubs.getFacilityDocuments);
     $("#btn_getDocument").click(td_stubs.getDocument);
@@ -153,8 +146,6 @@ async function main() {
       if (modalFuncCallbackNum == 0)
         td_stubs.getQualifiedPropName(propCategory, propName);
       else if (modalFuncCallbackNum == 1)
-        td_stubs.getPropertySingleElement(propCategory, propName);
-      else if (modalFuncCallbackNum == 2)
         td_stubs.getPropertySelSet(propCategory, propName);
       else {
         alert("ASSERT: modalFuncCallbackNum not expected.");
@@ -168,8 +159,6 @@ async function main() {
       const propVal = $("#stubInput_propValSet").val();
 
       if (modalFuncCallbackNum == 0)
-        td_stubs.setPropertySingleElement(propCategory, propName, propVal);
-      else if (modalFuncCallbackNum == 1)
         td_stubs.setPropertySelSet(propCategory, propName, propVal);
       else {
         alert("ASSERT: modalFuncCallbackNum not expected.");

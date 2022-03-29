@@ -125,7 +125,7 @@ export async function getQualifiedPropertyName(model, categoryName, propName, ex
   if (attr) {
     if (attr.dataType == expectedType) {    // check data type is the same as expectedType
       let fullyQualifiedPropName = "";
-      if ((attr.flags & Autodesk.Tandem.AttributeFlags.afDtParam) !== 0)  // should be a attr.isNative() function!
+      if (attr.isNative())  // is this user-defined in tandem
         fullyQualifiedPropName = Autodesk.Tandem.DtConstants.ColumnFamilies.DtProperties + ":" + attr.id; // prepend with "z:" to get fully qualified
       else
         fullyQualifiedPropName = attr.id;

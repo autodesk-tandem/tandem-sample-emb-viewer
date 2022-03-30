@@ -675,6 +675,72 @@ export async function getRooms() {
 }
 
 /***************************************************
+** FUNC: getElementsInRoom()
+** DESC: find the elements that are part of a room. We have to look for elements
+** that are part of the same model as the room, AND we have to look for elements
+** that belong to an xref model, but reside in this room.
+**********************/
+
+function getElementsInRoom(roomModel, roomDbId) {
+
+  let roomInfo = roomModel.getRooms()[roomDbId];
+  console.log("roomInfo", roomInfo);
+
+  let elementsInRoom = [];
+
+    // walk through all the models that are part of this facility
+  let models = td_utils.getLoadedModels();
+  for (let i=0; i<models.length; i++) {
+    let tmpModel = models[i];
+    let dbIdsPerModel = []; // keeping track of dbIds for each model separately
+
+    if (tmpModel === roomModel) {      // elements that are part of the same model as the room
+      let dbIdToRoomId = tmpModel.getData().dbId2roomIds;
+
+        // walk the list of entries and find ones with our roomId
+        // NOTE: it can return either a single dbId, or an array of dbIds
+      for (let dbId in dbIdToRoomId) {
+        let elementRooms = dbIdToRoomId[dbId];
+        if (typeof elementRooms === "number") {   // single dbId
+          if (elementRooms === roomDbId) {
+            dbIdsPerModel.push(parseInt(dbId));
+          }
+        }
+        else {      // array of dbIds
+          if (elementRooms.includes(roomDbId)) {
+            dbIdsPerModel.push(parseInt(dbId));
+          }
+        }
+      }
+    }
+    else {  // elements from an xref that are part or this room
+      let xrefs = tmpModel.getData().xrefs[roomModel.urn()]; //find the local integer ID of this room in the current model
+      let localRoomXref = xrefs[roomInfo.externalId];
+      let dbIdToXRoomId = tmpModel.getData().dbId2xroomIds;
+
+      for (let dbId in dbIdToXRoomId) {
+        let elementRooms = dbIdToXRoomId[dbId];
+        if (typeof elementRooms === "number") { // single dbId
+          if (elementRooms === localRoomXref) {
+            dbIdsPerModel.push(parseInt(dbId));
+          }
+        }
+        else {     // array of dbIds
+          if (elementRooms.includes(localRoomXref)) {
+            dbIdsPerModel.push(parseInt(dbId));
+          }
+        }
+      }
+    }
+
+      // add the dbIds we collected for this particular model
+    elementsInRoom.push({model:tmpModel, dbIds:dbIdsPerModel});
+  }
+
+  return elementsInRoom;
+}
+
+/***************************************************
 ** FUNC: showElementsInRoom()
 ** DESC: find the elements that are part of a room and isolate them in the viewer
 **********************/
@@ -690,49 +756,26 @@ export async function showElementsInRoom() {
     // first, lets make sure they actually selected a room object
   let flags = aggrSet[0].model.getData().dbId2flags[roomDbId];
   //if ((flags & Autodesk.Tandem.ElementFlags.Room) === 0) {
-  if ((flags & 0x00000005) === 0) { //0x00000005
+  if ((flags & 0x00000005) === 0) {
     alert("Selected object is not of type Room");
     return;
   }
 
   console.group("STUB: showElementsInRoom()");
 
-  const roomMap = aggrSet[0].model.getData().dbId2roomIds;
-  console.log("Room Map", roomMap);
+  const elementsInRoom = getElementsInRoom(aggrSet[0].model, roomDbId);
+  console.log("elementsInRoom", elementsInRoom);
 
-  const elementsInRoom = [];
-  for (let key in roomMap) {
-    let value = roomMap[key];
-      // NOTE: the value in the map could be a single dbId, or an array of dbIds.
-    if (Array.isArray(value) && value.find(r => r === roomDbId)) {
-      elementsInRoom.push(parseInt(key));
-    }
-    else if (value === roomDbId) {
-      elementsInRoom.push(parseInt(key));
-    }
-  }
+    // now we will go through and display those in the viewer and hide everything else
+    // need to get all the models in the facility so we can hide the ones that we aren't interested in
+  NOP_VIEWER.clearSelection();  // start the viewer in a clean slate
+  console.log("isolating elements in viewer...");
 
-  if (elementsInRoom.length == 0) {
-    console.log("No elements found in this room.");
-  }
-  else {
-      // now we will go through and display those in the viewer and hide everything else
-      // nned to get all the models in the facility so we can hide the ones that we aren't interested in
-    const models = td_utils.getLoadedModels();
-
-    NOP_VIEWER.clearSelection();  // start the viewer in a clean slate
-    //NOP_VIEWER.showAll();  // start the viewer in a clean slate
-
-    for (let i=0; i<models.length; i++) {
-      if (models[i] === aggrSet[0].model) {  // if this is the same model from which our room came...
-        console.log("elementsInRoom", elementsInRoom);
-        console.log("isolating elements in viewer...");
-        NOP_VIEWER.isolate(elementsInRoom, aggrSet[0].model); // isolate them so we can visualize them.
-      }
-      else {
-        NOP_VIEWER.isolate([0], models[i]); // ghost the entire model, because we aren't interested
-      }
-    }
+  for (let i=0; i<elementsInRoom.length; i++) {
+    if (elementsInRoom[i].dbIds.length === 0)
+      NOP_VIEWER.isolate([0], elementsInRoom[i].model); // ghost the entire model
+    else
+      NOP_VIEWER.isolate(elementsInRoom[i].dbIds, elementsInRoom[i].model); // isolate them so we can visualize them.
   }
 
   console.groupEnd();

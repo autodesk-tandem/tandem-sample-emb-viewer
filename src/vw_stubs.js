@@ -327,3 +327,119 @@ export async function showModel() {
 
   console.groupEnd();
 }
+
+
+/***************************************************
+** FUNC: exportMesh()
+** DESC: iterate over the LMV geometry of selected elements and output
+** the collected geometry to OBJ format and display in a n
+**********************/
+
+export function exportMesh(aggrSet, useWorldSpace) {
+
+    let VE = Autodesk.Viewing.Private.VertexEnumerator;
+
+    let mtx = new Autodesk.Viewing.Private.LmvMatrix4(true);
+
+    let obj = ["# Produced by LMV OBJ export", "\n\n\n"];
+
+      // iterate over all the selected objects, one model at a time
+    for (var i=0; i<aggrSet.length; i++) {
+
+        let model = aggrSet[i].model;
+        let fl = model.getFragmentList();
+        let it = model.getInstanceTree();
+
+        let selection = aggrSet[i].selection;
+
+        console.group(`Model[${i}]--> ${model.label()}`);
+        console.log("scraping geometry for dbIds", selection);
+
+        let baseVertexIndex = 1; //OBJ indices are 1-based
+
+        selection.forEach(dbId => {
+
+            obj.push(`o ${dbId}`);
+
+            it.enumNodeFragments(dbId, fragId => {
+
+                obj.push(`g ${fragId}`);
+
+                let geom = fl.getGeometry(fragId);
+
+                fl.getOriginalWorldMatrix(fragId, mtx);
+
+                let vcount = 0;
+                let hasN = false;
+                let hasUV = false;
+
+                VE.enumMeshVertices(geom, (p, n, uv, idx) => {
+
+                    vcount++;
+
+                    if (p) {
+                        obj.push(`v ${p.x} ${p.y} ${p.z}`);
+                    }
+
+                    if (n) {
+                        obj.push(`vn ${n.x} ${n.y} ${n.z}`);
+                        hasN = true;
+                    }
+
+                    if (uv) {
+                        obj.push(`vt ${uv.x} ${uv.y}`);
+                        hasUV = true;
+                    }
+                }
+                , useWorldSpace ? mtx : undefined);
+
+                obj.push("\n");
+
+                VE.enumMeshIndices(geom, (a, b, c) => {
+                    a += baseVertexIndex;
+                    b += baseVertexIndex;
+                    c += baseVertexIndex;
+
+                    if (hasN && hasUV) {
+                        obj.push(`f ${a}/${a}/${a} ${b}/${b}/${b} ${c}/${c}/${c}`);
+                    } else if (hasN) {
+                        obj.push(`f ${a}//${a} ${b}//${b} ${c}//${c}`);
+                    } else if (hasUV) {
+                        obj.push(`f ${a}/${a} ${b}/${b} ${c}/${c}`);
+                    } else {
+                        obj.push(`f ${a} ${b} ${c}`);
+                    }
+                });
+
+                baseVertexIndex += vcount;
+
+            }, true);
+        });
+
+        console.groupEnd();
+    }
+
+    return obj;
+}
+
+/***************************************************
+** FUNC: scrapeGeometry()
+** DESC: iterate over the LMV geometry of a selected element
+**********************/
+
+export function scrapeGeometry() {
+  const aggrSet = getAggregateSelection();
+  if (aggrSet == null)
+    return;
+
+  console.group("STUB: scrapeGeometry()");
+
+  let geomExportObj = exportMesh(aggrSet, true);
+  if (geomExportObj) {
+    console.log("OBJ format opening in new browser tab.");
+    let blob = URL.createObjectURL(new Blob([geomExportObj.join("\n")], {type: "text/plain"}));
+    window.open(blob);
+  }
+
+  console.groupEnd();
+}

@@ -137,6 +137,7 @@ async function main() {
     $("#btn_getHiddenElementsByModel").click(vw_stubs.getHiddenElementsByModel);
     $("#btn_hideModel").click(vw_stubs.hideModel);
     $("#btn_showModel").click(vw_stubs.showModel);
+    $("#btn_scrapeGeometry").click(vw_stubs.scrapeGeometry);
 
       // this gets called from above via modal dialog (#btn_getQualifiedPropName, and others)
     $('#stubInput_getPropertyName_OK').click(function() {

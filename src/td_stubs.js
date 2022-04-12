@@ -1043,7 +1043,7 @@ export async function getFacilityDocuments() {
 ** DESC: get a specific document by ID
 **********************/
 
-export async function getDocument() {
+export async function getDocument(docURN) {
   const facility = td_utils.getCurrentFacility();
   if (!facility) {
     alert("NO FACILITY LOADED");
@@ -1053,9 +1053,8 @@ export async function getDocument() {
   // TBD: this function is a little whack.  If you pass in a bad docId, it will just crap out in the REST call,
   // when it should probably return NULL to javascript or something.
   console.group("STUB: getDocument()");
-  const docId = "urn:adsk.dtd:SqzGFsAfS3CcknEqlON_gA"; // change this to something valid (you can get by calling getFacilityDocuments() first and console window)
 
-  const doc = await facility.getDocument(docId);
+  const doc = await facility.getDocument(docURN);
   console.log("Document", doc);
 
   console.groupEnd();
@@ -1066,7 +1065,7 @@ export async function getDocument() {
 ** DESC: get a specific document by ID
 **********************/
 
-export async function deleteDocument() {
+export async function deleteDocument(docURN) {
   const facility = td_utils.getCurrentFacility();
   if (!facility) {
     alert("NO FACILITY LOADED");
@@ -1074,9 +1073,8 @@ export async function deleteDocument() {
   }
 
   console.group("STUB: deleteDocument()");
-  const docId = "urn:adsk.dtd:SqzGFsAfS3CcknEqlON_gA"; // change this to something valid (you can get by calling getFacilityDocuments() first and console window)
 
-  const doc = await facility.deleteDocument(docId);
+  const doc = await facility.deleteDocument(docURN);
 
   console.groupEnd();
 }

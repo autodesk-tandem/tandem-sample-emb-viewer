@@ -112,8 +112,18 @@ async function main() {
     $("#btn_dbIdsToPersistentIds").click(td_stubs.dbIdsToExternalIds);
 
     $("#btn_getFacilityDocuments").click(td_stubs.getFacilityDocuments);
-    $("#btn_getDocument").click(td_stubs.getDocument);
-    $("#btn_deleteDocument").click(td_stubs.deleteDocument);
+    //$("#btn_getDocument").click(td_stubs.getDocument);
+
+    $("#btn_getDocument").click(function() {
+        $('#stubInput_getURN').modal('show');
+        modalFuncCallbackNum = 0;
+      });
+
+    //$("#btn_deleteDocument").click(td_stubs.deleteDocument);
+    $("#btn_deleteDocument").click(function() {
+        $('#stubInput_getURN').modal('show');
+        modalFuncCallbackNum = 1;
+      });
 
     $("#btn_getSavedViews").click(tdApp_stubs.getSavedViews);
     $("#btn_getClassifications").click(tdApp_stubs.getClassifications);
@@ -180,6 +190,18 @@ async function main() {
       const classificationStr = $("#stubInput_classificationStr").val();
 
       td_stubs.assignClassification(classificationStr);
+    });
+
+    $('#stubInput_getURN_OK').click(function() {
+      const urn = $("#stubInput_urn").val();
+
+      if (modalFuncCallbackNum == 0)
+        td_stubs.getDocument(urn);
+      else if (modalFuncCallbackNum == 1)
+          td_stubs.deleteDocument(urn);
+      else {
+        alert("ASSERT: modalFuncCallbackNum not expected.");
+      }
     });
 };
 

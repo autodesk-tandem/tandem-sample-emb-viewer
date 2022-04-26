@@ -7,8 +7,9 @@ const av = Autodesk.Viewing;
   // get our URL and Keys from the environment.js config file
 const forgeHost = getEnv().forgeHost;
 const forgeKey = getEnv().forgeKey;
+const loginRedirect = getEnv().loginRedirect;
 
-const redirect = encodeURIComponent('http://localhost:8080');
+const redirect = encodeURIComponent(loginRedirect);
 const scopes = encodeURIComponent(['data:read', 'data:write', 'data:create'].join(' '));
 
 function isTokenExpired(token) {

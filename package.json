@@ -4,11 +4,11 @@
   "description": "Demonstration of Embedded Viewer API",
   "main": "index.js",
   "scripts": {
-    "start": "snowpack dev"
+    "start": "static -p 8080"
   },
   "author": "james.awe@autodesk.com",
   "license": "Unlicensed",
   "dependencies": {
-    "snowpack": "^3.5.7"
+    "node-static": "^0.7.11"
   }
 }

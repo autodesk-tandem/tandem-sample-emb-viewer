@@ -14,9 +14,8 @@ It is designed to bring in as few dependencies as possible.  It is plain Javascr
 ## Pre-requisites
 
 1. Install npm: https://www.npmjs.com
-2. Install snowpack: https://www.snowpack.dev
-3. Make sure you have an account and access to at least one facility at https://tandem.autodesk.com (PRODUCTION environment) or https://tandem-stg.autodesk.com (STAGING environment).
-4. Create a new Application on the Forge Developer Portal to get your Client_ID: https://forge.autodesk.com
+2. Make sure you have an account and access to at least one facility at https://tandem.autodesk.com (PRODUCTION environment) or https://tandem-stg.autodesk.com (STAGING environment).
+3. Create a new Application on the Forge Developer Portal to get your Client_ID: https://forge.autodesk.com
 
 ![Tandem TestBed App 010](./docs/Readme_img_010.png)
 ![Tandem TestBed App 011](./docs/Readme_img_011.png)

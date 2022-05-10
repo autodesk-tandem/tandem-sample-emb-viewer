@@ -8,12 +8,19 @@ It is designed to bring in as few dependencies as possible.  It is plain Javascr
 
 *NOTE: The Javascript SDK that supports the Embedded Viewer is not yet official. It is an ALPHA version for early preview. This app is not a complete description of the API and is evolving over time as the API evolves.  Any use of this API should be for prototype purposes only.*
 
-If you just want to run the application without modifying source code, please visit: autodesk-tandem.github.io/tandem-sample-emb-viewer/
-
 ![Tandem TestBed App 001](./docs/Readme_img_001.png)
 
 
-## Pre-requisites
+## Live Demo
+
+If you just want to run the application without modifying source code, please visit: https://autodesk-tandem.github.io/tandem-sample-emb-viewer/
+
+Login with your Autodesk ID and then choose one of the Facilities you have access to.  If you have not setup any Facilities yet, please use the Tandem application to do so: https://tandem.autodesk.com
+
+
+## Running Locally
+
+If you would like to use the source to debug or extend with your own test stub functions, follow these steps:
 
 1. Install npm: https://www.npmjs.com
 2. Make sure you have an account and access to at least one facility at https://tandem.autodesk.com (PRODUCTION environment) or https://tandem-stg.autodesk.com (STAGING environment).

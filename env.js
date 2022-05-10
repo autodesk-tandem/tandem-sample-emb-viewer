@@ -5,7 +5,7 @@ const stgEnvironment = {
   name: "stg",
   oxygenHost: "https://accounts-staging.autodesk.com",
   forgeHost: "https://developer-stg.api.autodesk.com",
-  forgeKey: "qGQp6HR6IRjSTPebAPYSC9DSzne8NEYS", // TODO: Replace with your Forge Key
+  forgeKey: "qGQp6HR6IRjSTPebAPYSC9DSzne8NEYS", // TODO: Replace with your Forge Key to develop locally
   loginRedirect: "http://localhost:8080",
   tandemDbBaseURL: "https://tandem-stg.autodesk.com/api",
   tandemAppBaseURL: "https://tandem-stg.autodesk.com/app",
@@ -16,8 +16,8 @@ const prodEnvironment = {
   name: "prod",
   oxygenHost: "https://accounts.autodesk.com",
   forgeHost: "https://developer.api.autodesk.com",
-  forgeKey: "RoeNvKJVPJoPr615usmL5RFSA5N81G39", // TODO: Replace with your Forge Key
-  loginRedirect: "TODO",
+  forgeKey: "RoeNvKJVPJoPr615usmL5RFSA5N81G39", // TODO: Replace with your Forge Key to develop locally
+  loginRedirect: "http://localhost:8080",
   tandemDbBaseURL: "https://tandem.autodesk.com/api",
   tandemAppBaseURL: "https://tandem.autodesk.com/app",
   dtLmvEnv: "DtProduction",
@@ -27,7 +27,7 @@ const githubPages = {
   name: "prod",
   oxygenHost: "https://accounts.autodesk.com",
   forgeHost: "https://developer.api.autodesk.com",
-  forgeKey: "RoeNvKJVPJoPr615usmL5RFSA5N81G39", // TODO: Replace with your Forge Key
+  forgeKey: "DUmM9UILrlq43GT7U48SDnG9lwAgYToc", // Do not replace, this is for deployed version
   loginRedirect: "https://autodesk-tandem.github.io/sample-emb-viewer/index.html",
   tandemDbBaseURL: "https://tandem.autodesk.com/api",
   tandemAppBaseURL: "https://tandem.autodesk.com/app",

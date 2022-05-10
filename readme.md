@@ -6,7 +6,9 @@ This sample is a test bed application for exercising the Tandem Viewer in an emb
 
 It is designed to bring in as few dependencies as possible.  It is plain Javascript and HTML with the exception of jQuery and Bootstrap just to do minimal styling.  The app is designed as simple "Stubs" of functionality that for the most part just dump out results to the Chrome console window.  These interactive tests will surface useful information that you can then use in some of your other code (e.g., URNs for Facilities, Models, etc.). In cases where input is required from the user, the UI is as minimal as possible, or you are expected to change the code itself that supplies that input, or put a breakpoint in the debugger and change the value temporarily.
 
-*NOTE: The Javascript SDK that supports the Embedded Viewer is not yet official.  This app is not a complete description of the API and is evolving over time as the API evolves.  Any use of this API should be for prototype purposes only.*
+*NOTE: The Javascript SDK that supports the Embedded Viewer is not yet official. It is an ALPHA version for early preview. This app is not a complete description of the API and is evolving over time as the API evolves.  Any use of this API should be for prototype purposes only.*
+
+If you just want to run the application without modifying source code, please visit: autodesk-tandem.github.io/tandem-sample-emb-viewer/
 
 ![Tandem TestBed App 001](./docs/Readme_img_001.png)
 

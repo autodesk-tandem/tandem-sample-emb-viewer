@@ -36,8 +36,10 @@ const githubPages = {
 
 export function getEnv() {
   if (window.location.hostname === "autodesk-tandem.github.io") {
+    console.log("TANDEM_ENV: using GitHubPages environment");
     return githubPages;
   } else {
+    console.log("TANDEM_ENV: using STG environment");
     //return prodEnvironment;       // TODO: comment/uncomment as appropriate
     return stgEnvironment;
   }

@@ -24,14 +24,14 @@ const prodEnvironment = {
 };
 
 const githubPages = {
-  name: "stg",
-  oxygenHost: "https://accounts-staging.autodesk.com",
-  forgeHost: "https://developer-stg.api.autodesk.com",
-  forgeKey: "qGQp6HR6IRjSTPebAPYSC9DSzne8NEYS", // TODO: Replace with your Forge Key
+  name: "prod",
+  oxygenHost: "https://accounts.autodesk.com",
+  forgeHost: "https://developer.api.autodesk.com",
+  forgeKey: "RoeNvKJVPJoPr615usmL5RFSA5N81G39", // TODO: Replace with your Forge Key
   loginRedirect: "https://autodesk-tandem.github.io/sample-emb-viewer/index.html",
-  tandemDbBaseURL: "https://tandem-stg.autodesk.com/api",
-  tandemAppBaseURL: "https://tandem-stg.autodesk.com/app",
-  dtLmvEnv: "DtStaging",
+  tandemDbBaseURL: "https://tandem.autodesk.com/api",
+  tandemAppBaseURL: "https://tandem.autodesk.com/app",
+  dtLmvEnv: "DtProduction",
 };
 
 export function getEnv() {

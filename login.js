@@ -5,11 +5,9 @@ const avp = Autodesk.Viewing.Private;
 const av = Autodesk.Viewing;
 
   // get our URL and Keys from the environment.js config file
-const forgeHost = getEnv().forgeHost;
-const forgeKey = getEnv().forgeKey;
-const loginRedirect = getEnv().loginRedirect;
+const env = getEnv();
 
-const redirect = encodeURIComponent(loginRedirect);
+const redirect = encodeURIComponent(env.loginRedirect);
 const scopes = encodeURIComponent(['data:read', 'data:write', 'data:create'].join(' '));
 
 function isTokenExpired(token) {
@@ -32,7 +30,7 @@ function parseHash() {
 export function logMeIn() {
     const token = window.sessionStorage.token || parseHash().access_token;
 
-    const loginUrl = `${forgeHost}/authentication/v1/authorize?response_type=token&client_id=${forgeKey}&redirect_uri=${redirect}&scope=${scopes}`;
+    const loginUrl = `${env.forgeHost}/authentication/v1/authorize?response_type=token&client_id=${env.forgeKey}&redirect_uri=${redirect}&scope=${scopes}`;
 
     if (!token || isTokenExpired(token)) {
       window.location.href = loginUrl;

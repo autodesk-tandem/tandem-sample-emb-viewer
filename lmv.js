@@ -1,6 +1,8 @@
 
 import { getEnv } from './env.js';    // get our value for STG/PROD from config file
 
+//console.log("ENV", getEnv());
+
 const av = Autodesk.Viewing;
 const avp = av.Private;
 

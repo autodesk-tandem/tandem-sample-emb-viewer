@@ -3,19 +3,44 @@
     <head>
         <title>Tandem SDK Test Bed</title>
         <!--<script src="node_modules/@adsk/lmv-double-trouble/build/viewer3D.js"></script>-->
-        <!--<script src="https://tandem.autodesk.com/viewer/viewer3D.js"></script>-->
-        <script src="https://tandem-stg.autodesk.com/viewer/viewer3D.js"></script>
+        <script src="https://tandem.autodesk.com/viewer/viewer3D.js"></script>
+        <!--<script src="https://tandem-stg.autodesk.com/viewer/viewer3D.js"></script>-->
         <script src="./3rdParty/jquery-3.6.0.min.js"></script>
         <script src="./3rdParty/bootstrap-4.0.0/dist/js/bootstrap.bundle.js"></script>
 
         <!-- CSS only -->
         <!--<link href="node_modules/@adsk/lmv-double-trouble/build/style.min.css" rel="stylesheet" type="text/css">-->
-        <!--<link href="https://tandem.autodesk.com/viewer/style.min.css" rel="stylesheet" type="text/css">-->
-        <link href="https://tandem-stg.autodesk.com/viewer/style.min.css" rel="stylesheet" type="text/css">
+        <link href="https://tandem.autodesk.com/viewer/style.min.css" rel="stylesheet" type="text/css">
+        <!--<link href="https://tandem-stg.autodesk.com/viewer/style.min.css" rel="stylesheet" type="text/css">-->
         <link href="./3rdParty/bootstrap-4.0.0/dist/css/bootstrap.css" rel="stylesheet" type="text/css">
     </head>
-    <body style="margin-top:10px">
-      <div class="container">
+    <body>
+      <nav class="navbar navbar-light bg-light justify-content-between">
+        <form class="form-inline">
+          <a class="btn my-2 my-sm-0" target="_blank" rel="noreferrer noopener" href="https://intandem.autodesk.com">
+            <img src="./images/autodesk-tandem-small-social-400.png" width="30" height="30" class="d-inline-block align-top" alt="Tandem">
+          </a>
+          <p>Tandem Test Bed</p>
+        </form>
+        <form class="form-inline">
+            <label class="mr-sm-2" for="facilityPicker">Facility</label>
+            <select id="facilityPicker" class="form-control custom-select custom-select-sm" name="facilityToLoad">
+                <!-- Options filled in by function in LoadModel.js -->
+            </select>
+        </form>
+        <form class="form-inline">
+          <a class="btn btn-outline-success btn-sm" href="#" id="btn_login">Login</a>
+          <a class="btn btn-outline-dark btn-sm" href="#" id="btn_logout">Logout</a>
+          <a class="btn" target="_blank" rel="noreferrer noopener" href="https://google.com">
+            <img style="" src="./images/genericProfile.png" width="40" height="40" class="rounded-circle" alt="User" id="btn_userProfile"/>
+          </a>
+          <a class="btn" target="_blank" rel="noreferrer noopener" href="https://github.com/autodesk-tandem/tandem-sample-emb-viewer">
+            <img style="" src="https://github.githubassets.com/favicons/favicon.png"/>
+          </a>
+        </form>
+      </nav>
+
+    <!--  <div class="container">
         <div class="row form-group">
           <div class="col-sm-8">
             <img id="img_logo" src="./images/adsk_logo.png" alt="Autodesk, Inc.">
@@ -23,18 +48,16 @@
         </div>
         <div class="row">
             <div class="col-md-4">
-              <!--<h5>Tandem Work Orders</h5>-->
               <h5>Tandem Test Bed</h5>
             </div>
             <div class="col-md-6">
                 <label for="facilityPicker">Facility</label>
                 <select id="facilityPicker" class="form-control-sm" name="facilityToLoad">
-                    <!-- Options filled in by function in LoadModel.js -->
                 </select>
             </div>
         </div>
-    </div>
-    <div class="container">
+    </div>-->
+    <div class="container" style="margin-top:10px">
       <div class="row">
         <div style="position: absolute; display: flex; padding: 10px; align-items: stretch; height: calc(100% - 100px); width: calc(100% - 100px);">
             <div style="position:relative; flex-grow: 1;">
@@ -141,7 +164,8 @@
         </div>
       </div>
 
-      <script type=module src="./index.js"></script>
+      <script type="module" src="./index.js"></script>
+
 
         <!--  The following mechanism loads in partial HTML that defines a modal dialog to get input for
               some of the stub funcitons. It will inject the HTML from the given path and then then the
@@ -161,6 +185,12 @@
       <div id="stubInputInject_SetPropertyValue"></div>
       <div id="stubInputInject_SetClassification"></div>
       <div id="stubInputInject_GetURN"></div>
+
+      <!--<script type="module">  // trigger Login for this page
+        import { checkLogin } from './login2.js';
+        checkLogin("btn_login", "btn_userProfile", "viewer"); // IDs for HTML elements that will be set during login/logout
+      </script>-->
+
 
     </body>
 </html>

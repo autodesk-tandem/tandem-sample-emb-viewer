@@ -1,5 +1,6 @@
 
-import { logMeIn } from './login.js';
+//import { logMeIn } from './login.js';
+import { checkLogin } from './login2.js';
 import { initLMV, startViewer } from './lmv.js';
 import * as vw_stubs from './src/vw_stubs.js';
 import * as td_stubs from './src/td_stubs.js';
@@ -15,8 +16,8 @@ async function main() {
     await initLMV();
     console.log('LMV is up and running');
 
-    await logMeIn();
-    console.log('Successfully logged in');
+    await checkLogin("btn_login", "btn_logout", "btn_userProfile", "viewer");
+    //console.log('Successfully logged in');
 
     // init viewer
     const container = document.getElementById('viewer');

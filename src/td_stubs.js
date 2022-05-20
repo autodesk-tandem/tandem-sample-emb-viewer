@@ -331,7 +331,7 @@ export async function setPropertySelSet(propCategory, propName, propValue) {
       }
     }
     else {
-      console.log(`Property named "${categoryName} | ${propName}" not found.`);
+      console.log(`Property named "${propCategory} | ${propName}" not found.`);
     }
 
     console.groupEnd();

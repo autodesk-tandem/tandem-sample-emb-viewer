@@ -47,34 +47,3 @@ export function startViewer(container) {
 
     return viewer;
 }
-
-/*export function startViewer(viewerElement) {
-    const viewer = new av.GuiViewer3D(viewerElement, {
-        extensions: ['Autodesk.BoxSelection'],
-        screenModeDelegate: av.NullScreenModeDelegate,
-        theme: 'light-theme',
-      });
-
-    viewer.start();
-    window.viewer = viewer;
-    return viewer;
-}*/
-
-export async function openFacility(facilityURN) {
-    Autodesk.Viewing.endpoint.HTTP_REQUEST_HEADERS['Authorization'] = 'Bearer ' + window.sessionStorage.token;
-
-    const app = new Autodesk.Viewing.Private.DtApp({});
-    window.DT_APP = app;
-    const facilities = await app.getCurrentTeamsFacilities();
-    //const facilities = await app.getUsersFacilities();
-    app.displayFacility(facilities[1], false, window.viewer);
-}
-
-// From MB: not sure if I need this.
-export async function loadViewer(viewerElement, facilityURN) {
-    await initLMV();
-    const container = document.getElementById(viewerElement);
-
-    const viewer = startViewer(container);
-    openFacility(facilityURN);
-}

@@ -1,7 +1,7 @@
-import { loadViewer } from './lmv.js';
+import { getEnv } from './env.js';
 
-const forge_clientID = "rZboPCXwdKnmxeByCWbX7Fz1YGmIjGja";    // TODO: use your own Forge ClientID
-const defaultFacilityURN = "adsk.dtt:xtjxkHI-TZu58yBNTArt6A"; // TODO: use your own Facility
+// get our URL and Keys from the environment.js config file
+const env = getEnv();
 
   // helper functions to get/show/hide HTML elements
 const getElem = (id) => {return document.getElementById(id)};
@@ -10,7 +10,10 @@ const hide = (id) => { getElem(id).style.display="none"};
 
 
 export function login() {
-  doRedirection(forge_clientID, "data:read");
+  const scope = encodeURIComponent(['data:read', 'data:write', 'data:create'].join(' '));
+
+  //doRedirection(env.forgeKey, "data:read");
+  doRedirection(env.forgeKey, scope);
 }
 
 export function logout() {
@@ -33,17 +36,20 @@ export function checkLogin(idStr_login, idStr_logout, idStr_userProfile, idStr_v
     show(idStr_userProfile);
     loadUserProfileImg(idStr_userProfile);
     location.hash="";
-    //loadViewer(idStr_viewer, defaultFacilityURN);
+
+    return true;  // they are logged in
   }
   else {
     hide(idStr_logout);
     hide(idStr_userProfile);
+
+    return false; // they are not logged in
   }
 }
 
 export function doRedirection(forge_clientID, scope) {
     const redirect_uri = encodeURIComponent(location.href.split('#')[0]);
-    location.href = `https://developer.api.autodesk.com/authentication/v1/authorize?response_type=token&client_id=${forge_clientID}&redirect_uri=${redirect_uri}&scope=${encodeURIComponent(scope)}`;
+    location.href = `${env.forgeHost}/authentication/v1/authorize?response_type=token&client_id=${env.forgeKey}&redirect_uri=${redirect_uri}&scope=${scope}`;
 }
 
 export function setTokenStorage() {
@@ -56,7 +62,7 @@ export function setTokenStorage() {
 
   // look up the profile image for this user's Autodesk ID and put in the specified <div> in the DOM
 export async function loadUserProfileImg(div) {
-    const res = await fetch( 'https://developer.api.autodesk.com/userprofile/v1/users/@me', {
+    const res = await fetch( `${env.forgeHost}/userprofile/v1/users/@me`, {
         headers : { "Authorization":`Bearer ${window.sessionStorage.token}`}
     });
     const user = await res.json();

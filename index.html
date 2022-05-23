@@ -3,15 +3,15 @@
   <head>
       <title>Tandem SDK Test Bed</title>
       <!--<script src="node_modules/@adsk/lmv-double-trouble/build/viewer3D.js"></script>-->
-      <script src="https://tandem.autodesk.com/viewer/viewer3D.js"></script>
-      <!--<script src="https://tandem-stg.autodesk.com/viewer/viewer3D.js"></script>-->
+      <!--<script src="https://tandem.autodesk.com/viewer/viewer3D.js"></script>-->
+      <script src="https://tandem-stg.autodesk.com/viewer/viewer3D.js"></script>
       <script src="./3rdParty/jquery-3.6.0.min.js"></script>
       <script src="./3rdParty/bootstrap-4.0.0/dist/js/bootstrap.bundle.js"></script>
 
       <!-- CSS only -->
       <!--<link href="node_modules/@adsk/lmv-double-trouble/build/style.min.css" rel="stylesheet" type="text/css">-->
-      <link href="https://tandem.autodesk.com/viewer/style.min.css" rel="stylesheet" type="text/css">
-      <!--<link href="https://tandem-stg.autodesk.com/viewer/style.min.css" rel="stylesheet" type="text/css">-->
+      <!--<link href="https://tandem.autodesk.com/viewer/style.min.css" rel="stylesheet" type="text/css">-->
+      <link href="https://tandem-stg.autodesk.com/viewer/style.min.css" rel="stylesheet" type="text/css">
       <link href="./3rdParty/bootstrap-4.0.0/dist/css/bootstrap.css" rel="stylesheet" type="text/css">
   </head>
   <body>
@@ -41,8 +41,8 @@
       </form>
     </nav>
       <!-- the rest is the Viewer window and the Stub Menus -->
-    <div class="container">
-      <div class="row d-flex flex-row">
+    <div class="container d-flex justify-content-start">
+      <div class="row">
         <div style="position: absolute; display: flex; align-items: stretch; height: calc(100% - 75px); width: calc(100%);">
             <div style="position:relative; flex-grow: 1;">
                 <div id="viewer" style="height: 100%; width: 100%;">
@@ -146,7 +146,7 @@
             </div>
             <div class="row form-group mt-5">
               <div class="col-md-8">
-                  <p class="text-muted bg-light font-italic">NOTE: output from stub functions goes to the Chrome debugger window.  Open the Chrome Developer Tools.</p>
+                  <p class="text-muted bg-light font-italic">NOTE: output from stub functions goes to the Chrome debugger window.  Make sure to open the Chrome Developer Tools.</p>
               </div>
             </div>
           </div>

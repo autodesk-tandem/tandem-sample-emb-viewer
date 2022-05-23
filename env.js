@@ -5,7 +5,7 @@ const stgEnvironment = {
   name: "stg",
   oxygenHost: "https://accounts-staging.autodesk.com",
   forgeHost: "https://developer-stg.api.autodesk.com",
-  forgeKey: "qGQp6HR6IRjSTPebAPYSC9DSzne8NEYS", // TODO: Replace with your Forge Key to develop locally
+  forgeKey: "hZy6ABuq8STldhv3X6IDrgyXUOVZZHtW", // TODO: Replace with your Forge Key to develop locally
   loginRedirect: "http://localhost:8000",
   tandemDbBaseURL: "https://tandem-stg.autodesk.com/api",
   tandemAppBaseURL: "https://tandem-stg.autodesk.com/app",
@@ -27,11 +27,10 @@ const githubPages = {
   name: "githubPages",
   oxygenHost: "https://accounts-staging.autodesk.com",
   forgeHost: "https://developer-stg.api.autodesk.com",
-  //forgeKey: "DUmM9UILrlq43GT7U48SDnG9lwAgYToc", // Do not replace, this is for deployed version
-  forgeKey: "qGQp6HR6IRjSTPebAPYSC9DSzne8NEYS", // Do not replace, this is for deployed version
+  forgeKey: "DUmM9UILrlq43GT7U48SDnG9lwAgYToc", // Do not replace, this is for deployed version
   loginRedirect: "https://autodesk-tandem.github.io/sample-emb-viewer/index.html",
-  tandemDbBaseURL: "https://tandem-stg.autodesk.com/api",
-  tandemAppBaseURL: "https://tandem-stg.autodesk.com/app",
+  tandemDbBaseURL: "https://tandem.autodesk.com/api",
+  tandemAppBaseURL: "https://tandem.autodesk.com/app",
   dtLmvEnv: "DtStaging",
 };
 
@@ -42,7 +41,7 @@ export function getEnv() {
   }
   else {
     //console.log("TANDEM_ENV: using PROD environment");
-    return prodEnvironment;       // TODO: comment/uncomment as appropriate
-    //return stgEnvironment;
+    //return prodEnvironment;       // TODO: comment/uncomment as appropriate
+    return stgEnvironment;
   }
 }

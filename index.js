@@ -14,6 +14,11 @@ import * as ev_stubs from './src/ev_stubs.js';
 **********************/
 
 async function bootstrap() {
+    // login in the user and set UI elements appropriately (args are HTML elementIDs)
+  const userLoggedIn = await checkLogin("btn_login", "btn_logout", "btn_userProfile", "viewer");
+  if (!userLoggedIn)
+    return;   // when user does login, it will go through the bootstrap process again
+
   await initLMV();
 
     // init viewer
@@ -24,11 +29,6 @@ async function bootstrap() {
     // init app
   const app = new Autodesk.Viewing.Private.DtApp({});
   window.DT_APP = app;
-
-    // login in the user and set UI elements appropriately (args are HTML elementIDs)
-  const userLoggedIn = await checkLogin("btn_login", "btn_logout", "btn_userProfile", "viewer");
-  if (!userLoggedIn)
-    return;   // when user does login, it will go through the bootstrap process again
 
     // fetch facilities (and sort by urn)
   const facilities = await app.getCurrentTeamsFacilities();

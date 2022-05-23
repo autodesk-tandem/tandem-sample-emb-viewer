@@ -10,9 +10,7 @@ const hide = (id) => { getElem(id).style.display="none"};
 
 
 export function login() {
-  const scope = encodeURIComponent(['data:read', 'data:write', 'data:create'].join(' '));
-
-  //doRedirection(env.forgeKey, "data:read");
+  const scope = encodeURIComponent('data:read');
   doRedirection(env.forgeKey, scope);
 }
 

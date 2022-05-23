@@ -25,8 +25,8 @@ const prodEnvironment = {
 
 const githubPages = {
   name: "githubPages",
-  oxygenHost: "https://accounts-staging.autodesk.com",
-  forgeHost: "https://developer-stg.api.autodesk.com",
+  oxygenHost: "https://accounts.autodesk.com",
+  forgeHost: "https://developer.api.autodesk.com",
   forgeKey: "DUmM9UILrlq43GT7U48SDnG9lwAgYToc", // Do not replace, this is for deployed version
   loginRedirect: "https://autodesk-tandem.github.io/sample-emb-viewer/index.html",
   tandemDbBaseURL: "https://tandem.autodesk.com/api",
@@ -41,7 +41,7 @@ export function getEnv() {
   }
   else {
     //console.log("TANDEM_ENV: using PROD environment");
-    //return prodEnvironment;       // TODO: comment/uncomment as appropriate
-    return stgEnvironment;
+    return prodEnvironment;       // TODO: comment/uncomment as appropriate
+    //return stgEnvironment;
   }
 }

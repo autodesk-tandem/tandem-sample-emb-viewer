@@ -1,55 +1,68 @@
-
 import { getEnv } from './env.js';
 
-const avp = Autodesk.Viewing.Private;
-const av = Autodesk.Viewing;
-
-  // get our URL and Keys from the environment.js config file
+// get our URL and Keys from the environment.js config file
 const env = getEnv();
 
-const redirect = encodeURIComponent(env.loginRedirect);
-const scopes = encodeURIComponent(['data:read', 'data:write', 'data:create'].join(' '));
+  // helper functions to get/show/hide HTML elements
+const getElem = (id) => {return document.getElementById(id)};
+const show = (id) => { getElem(id).style.display="block"};
+const hide = (id) => { getElem(id).style.display="none"};
 
-function isTokenExpired(token) {
-  const { exp = 0 } = JSON.parse(atob(token.split('.')[1])) || {};
-  const expirationMilliSeconds = exp * 1000;
-  return expirationMilliSeconds < Date.now();
+
+export function login() {
+  const scope = encodeURIComponent('data:read');
+  doRedirection(env.forgeKey, scope);
 }
 
-function parseHash() {
-  let params = {},
-    queryString = window.location.hash.substring(1),
-    regex = /([^&=]+)=([^&]*)/g,
-    m;
-  while ((m = regex.exec(queryString))) {
-    params[m[1]] = m[2];
+export function logout() {
+  delete(window.sessionStorage.token);
+  location.reload();
+};
+
+  // when HTML page opens up, attach callbacks for login.logout and set values for current state UI
+export function checkLogin(idStr_login, idStr_logout, idStr_userProfile, idStr_viewer) {
+
+  getElem(idStr_login).addEventListener("click", login);
+  getElem(idStr_logout).addEventListener("click", logout);
+
+  if (!!location.hash)
+      setTokenStorage();
+
+  if (window.sessionStorage.token) {
+    hide(idStr_login);
+    show(idStr_logout);
+    show(idStr_userProfile);
+    loadUserProfileImg(idStr_userProfile);
+    location.hash="";
+
+    return true;  // they are logged in
   }
-  return params;
+  else {
+    hide(idStr_logout);
+    hide(idStr_userProfile);
+
+    return false; // they are not logged in
+  }
 }
 
-export function logMeIn() {
-    const token = window.sessionStorage.token || parseHash().access_token;
+export function doRedirection(forge_clientID, scope) {
+    const redirect_uri = encodeURIComponent(location.href.split('#')[0]);
+    location.href = `${env.forgeHost}/authentication/v1/authorize?response_type=token&client_id=${env.forgeKey}&redirect_uri=${redirect_uri}&scope=${scope}`;
+}
 
-    const loginUrl = `${env.forgeHost}/authentication/v1/authorize?response_type=token&client_id=${env.forgeKey}&redirect_uri=${redirect}&scope=${scopes}`;
-
-    if (!token || isTokenExpired(token)) {
-      window.location.href = loginUrl;
-      return;
-    } else {
-      window.sessionStorage.token = token;
-      window.location.hash = '';
+export function setTokenStorage() {
+    const params = location.hash.slice(1).split('&').map(i=>{
+        return i.split('=') });
+    if (params[0][0]=="access_token") {
+        window.sessionStorage.token = params[0][1];
     }
+}
 
-    let cookie;
-    if (avp.useCookie) {
-      cookie = new Promise((resolve, reject) => {
-        av.refreshCookie(token, resolve, reject);
-      });
-    } else {
-      //If cookie is not used, store the access token in the global authorization header var
-      av.endpoint.HTTP_REQUEST_HEADERS['Authorization'] = 'Bearer ' + token;
-      cookie = Promise.resolve();
-    }
-
-    return cookie;
+  // look up the profile image for this user's Autodesk ID and put in the specified <div> in the DOM
+export async function loadUserProfileImg(div) {
+    const res = await fetch( `${env.forgeHost}/userprofile/v1/users/@me`, {
+        headers : { "Authorization":`Bearer ${window.sessionStorage.token}`}
+    });
+    const user = await res.json();
+    getElem(div).src = user.profileImages.sizeX40;
 }

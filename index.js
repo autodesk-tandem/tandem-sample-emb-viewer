@@ -1,6 +1,5 @@
 
-//import { logMeIn } from './login.js';
-import { checkLogin } from './login2.js';
+import { checkLogin } from './login.js';
 import { initLMV, startViewer } from './lmv.js';
 import * as vw_stubs from './src/vw_stubs.js';
 import * as td_stubs from './src/td_stubs.js';

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This sample is a test bed application for exercising the Tandem Viewer in an embedded viewer scenario.
+This sample is a test bed application for exercising the Tandem SDK in an embedded viewer scenario.
 
 It is designed to bring in as few dependencies as possible.  It is plain Javascript and HTML with the exception of jQuery and Bootstrap just to do minimal styling.  The app is designed as simple "Stubs" of functionality that for the most part just dump out results to the Chrome console window.  These interactive tests will surface useful information that you can then use in some of your other code (e.g., URNs for Facilities, Models, etc.). In cases where input is required from the user, the UI is as minimal as possible, or you are expected to change the code itself that supplies that input, or put a breakpoint in the debugger and change the value temporarily.
 
@@ -24,8 +24,8 @@ Login with your Autodesk ID and then choose one of the Facilities you have acces
 
 If you would like to use the source to debug or extend with your own test stub functions, follow these steps:
 
-1. Install npm: https://www.npmjs.com
-2. Make sure you have an account and access to at least one facility at https://tandem.autodesk.com (PRODUCTION environment) or https://tandem-stg.autodesk.com (STAGING environment).
+1. Clone the repository to your local machine
+2. Make sure you have an account and access to at least one facility at https://tandem.autodesk.com
 3. Create a new Application on the Forge Developer Portal to get your Client_ID: https://forge.autodesk.com
 
 ![Tandem TestBed App 010](./docs/Readme_img_010.png)
@@ -35,12 +35,11 @@ If you would like to use the source to debug or extend with your own test stub f
 
 ## Setup and Configuration
 
-1. After cloning this repo, run `npm install`.
-2. Add your application Client_ID to the code.  Find the appropriate lines in the file `env.js` as shown in the image below.
+1. Add your application Client_ID to the code.  Find the appropriate lines in the file `env.js` as shown in the image below.
 
 ![Tandem TestBed App 020](./docs/Readme_img_020.png)
 
-3. Make sure to use the appropriate environment consistently.  Depending on whether you are using STAGING or PRODUCTION (as shown in the image above), set the Viewer to load into the HTML page using the same environment.
+2. If you are developing internally at Autodesk, make sure to use the appropriate environment consistently.  Depending on whether you are using STAGING or PRODUCTION (as shown in the image above), set the Viewer to load into the HTML page using the same environment.
 
 ![Tandem TestBed App 021](./docs/Readme_img_021.png)
 
@@ -48,13 +47,18 @@ If you would like to use the source to debug or extend with your own test stub f
 
 ## Start App
 
-To start the development server, run `npm start`. The browser should open for you at http://localhost:8080 and take you to the login first, and then back to your app.
+Start a local server by running `python3 -m http.server` in a terminal window. Then open the Chrome browser and go to http://localhost:8000
 
-*NOTE: token refresh doesn't always work.  If you reload the app and find it in an infinite refresh loop, delete the token as shown in the image below. (this will be fixed at a later date)*
+Login to your account to get access to your Facilities.  If you don't have any facilities yet, create one using the Tandem product.
 
-![Tandem TestBed App 030](./docs/Readme_img_030.png)
 
 
 ## Using the App
 
 ![Tandem TestBed App 040](./docs/Readme_img_040.png)
+
+Many of the functions will not be interesting until you have setup a Facility with a Template and Classifications.  For example, to set user-defined property data on an asset, like in the following example, that property has to exist in the Facility Template and the asset must have been classified correctly to use it.
+
+![Tandem TestBed App 041](./docs/Readme_img_041.png)
+
+*NOTE: if you are testing the REST API using the Postman collection, this Test Bed App is very useful for retrieving URNS, and other information that needs to be supplied to the REST API.*

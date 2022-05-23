@@ -1,8 +1,6 @@
 
 import { getEnv } from './env.js';    // get our value for STG/PROD from config file
 
-//console.log("ENV", getEnv());
-
 const av = Autodesk.Viewing;
 const avp = av.Private;
 
@@ -11,7 +9,7 @@ export function initLMV() {
     Autodesk.Viewing.Initializer({
         env: getEnv().dtLmvEnv,
         api: 'dt',
-        useCookie: avp.useCookie,
+        useCookie: false,
         useCredentials: true,
         shouldInitializeAuth: false,
         opt_out_tracking_by_default: true,
@@ -39,5 +37,9 @@ export function startViewer(container) {
       });
 
     viewer.start();
+    window.viewer = viewer;
+
+    av.endpoint.HTTP_REQUEST_HEADERS['Authorization'] = 'Bearer ' + window.sessionStorage.token;
+
     return viewer;
 }

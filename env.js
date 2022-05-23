@@ -31,7 +31,7 @@ const githubPages = {
   loginRedirect: "https://autodesk-tandem.github.io/sample-emb-viewer/index.html",
   tandemDbBaseURL: "https://tandem.autodesk.com/api",
   tandemAppBaseURL: "https://tandem.autodesk.com/app",
-  dtLmvEnv: "DtStaging",
+  dtLmvEnv: "DtProduction",
 };
 
 export function getEnv() {

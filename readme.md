@@ -16,7 +16,10 @@ It is designed to bring in as few dependencies as possible.  It is plain Javascr
 
 If you just want to run the application without modifying source code, please visit: https://autodesk-tandem.github.io/tandem-sample-emb-viewer/
 
-Login with your Autodesk ID and then choose one of the Facilities you have access to.  If you have not setup any Facilities yet, please use the Tandem application to do so: https://tandem.autodesk.com
+Login with your Autodesk ID and then choose one of the Facilities you have access to.  If you have not yet used Tandem, you will first need to do the following:
+1. Sign up for a free Tandem account: [Tandem signup](https://intandem.autodesk.com/contact-us/?form_type=account#contact-forms)
+2. Set up a Facility by importing models and assigning Parameters via Classificaiton: https://tandem.autodesk.com
+3. See https://intandem.autodesk.com/resources/ for more information on how to do this.
 
 
 

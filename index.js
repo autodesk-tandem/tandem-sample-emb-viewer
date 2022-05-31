@@ -8,6 +8,17 @@ import * as ev_stubs from './src/ev_stubs.js';
 
 
 /***************************************************
+** FUNC: getAllFacilities()
+** DESC: get the list of all facilities we own directly or that are shared with us.
+**********************/
+
+async function getAllFacilities(app) {
+  const ownedByMe = await app.getCurrentTeamsFacilities();
+  const sharedWithMe = await app.getUsersFacilities();
+  return [].concat(ownedByMe, sharedWithMe);
+}
+
+/***************************************************
 ** FUNC: bootstrap()
 ** DESC: init the Tandem viewer and get the user to login via their Autodesk ID.
 **********************/
@@ -29,10 +40,11 @@ async function bootstrap() {
   const app = new Autodesk.Viewing.Private.DtApp({});
   window.DT_APP = app;
 
+  const facilities = await getAllFacilities(app);
     // fetch facilities (and sort by urn)
-  const facilities = await app.getCurrentTeamsFacilities();
+  //const facilities = await app.getCurrentTeamsFacilities();
     //const facilities = await app.getUsersFacilities();
-  facilities.sort((a,b)=>a.urn().localeCompare(b.urn()));
+  //facilities.sort((a,b)=>a.urn().localeCompare(b.urn()));
 
   if (facilities.length == 0) {
       Autodesk.Viewing.Private.AlertBox.displayError(
@@ -52,13 +64,15 @@ async function bootstrap() {
     // setup facility picker UI
   await Promise.all(facilities.map(f=>f.load()));
   const facilityPicker = document.getElementById('facilityPicker');
-  for(let facility of facilities) {
+
+  for (let facility of facilities) {
       const option = document.createElement('option');
       option.text = facility.settings.props["Identity Data"]["Building Name"];
       option.selected = facility == preferredFacility;
 
       facilityPicker.appendChild(option);
   }
+
   facilityPicker.onchange = ()=>{
       const newFacility = facilities[facilityPicker.selectedIndex];
       window.localStorage.setItem('tandem-testbed-last-facility', newFacility.urn());

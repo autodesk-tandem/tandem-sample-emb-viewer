@@ -41,11 +41,6 @@ async function bootstrap() {
   window.DT_APP = app;
 
   const facilities = await getAllFacilities(app);
-    // fetch facilities (and sort by urn)
-  //const facilities = await app.getCurrentTeamsFacilities();
-    //const facilities = await app.getUsersFacilities();
-  //facilities.sort((a,b)=>a.urn().localeCompare(b.urn()));
-
   if (facilities.length == 0) {
       Autodesk.Viewing.Private.AlertBox.displayError(
           viewer.container,

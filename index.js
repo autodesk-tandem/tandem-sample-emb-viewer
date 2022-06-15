@@ -127,25 +127,42 @@ async function main() {
   $("#btn_dbIdsToPersistentIds").click(td_stubs.dbIdsToExternalIds);
 
   $("#btn_getFacilityDocuments").click(td_stubs.getFacilityDocuments);
-  //$("#btn_getDocument").click(td_stubs.getDocument);
 
   $("#btn_getDocument").click(function() {
       $('#stubInput_getURN').modal('show');
       modalFuncCallbackNum = 0;
     });
 
-  //$("#btn_deleteDocument").click(td_stubs.deleteDocument);
   $("#btn_deleteDocument").click(function() {
       $('#stubInput_getURN').modal('show');
       modalFuncCallbackNum = 1;
     });
 
   $("#btn_getSavedViews").click(tdApp_stubs.getSavedViews);
+  $("#btn_getSavedViewByUUID").click(function() {
+      $('#stubInput_getUUID').modal('show');
+      modalFuncCallbackNum = 0;
+    });
+
   $("#btn_getClassifications").click(tdApp_stubs.getClassifications);
+  $("#btn_getClassificationByUUID").click(function() {
+      $('#stubInput_getUUID').modal('show');
+      modalFuncCallbackNum = 1;
+    });
+
   $("#btn_getFacilityTemplates").click(tdApp_stubs.getFacilityTemplates);
-  $("#btn_getFacilityTemplateByUUID").click(tdApp_stubs.getFacilityTemplateByUUID);
-  $("#btn_getParameterSetsApp").click(tdApp_stubs.getParameterSets);
-  $("#btn_getParameterSetByUUID").click(tdApp_stubs.getParameterSetByUUID);
+  $("#btn_getFacilityTemplateByUUID").click(function() {
+      $('#stubInput_getUUID').modal('show');
+      modalFuncCallbackNum = 2;
+    });
+
+  $("#btn_getParameters").click(tdApp_stubs.getParameters);
+  $("#btn_getParameterByUUID").click(function() {
+      $('#stubInput_getUUID').modal('show');
+      modalFuncCallbackNum = 3;
+    });
+
+  $("#btn_getPreferences").click(tdApp_stubs.getPreferences);
 
   $("#btn_addEventListeners").click(ev_stubs.addEventListeners);
   $("#btn_removeEventListeners").click(ev_stubs.removeEventListeners);
@@ -214,6 +231,22 @@ async function main() {
       td_stubs.getDocument(urn);
     else if (modalFuncCallbackNum == 1)
         td_stubs.deleteDocument(urn);
+    else {
+      alert("ASSERT: modalFuncCallbackNum not expected.");
+    }
+  });
+
+  $('#stubInput_getUUID_OK').click(function() {
+    const uuid = $("#stubInput_uuid").val();
+
+    if (modalFuncCallbackNum == 0)
+      tdApp_stubs.getSavedViewByUUID(uuid);
+    else if (modalFuncCallbackNum == 1)
+        tdApp_stubs.getClassificationByUUID(uuid);
+    else if (modalFuncCallbackNum == 2)
+      tdApp_stubs.getFacilityTemplateByUUID(uuid);
+    else if (modalFuncCallbackNum == 3)
+      tdApp_stubs.getParameterByUUID(uuid);
     else {
       alert("ASSERT: modalFuncCallbackNum not expected.");
     }

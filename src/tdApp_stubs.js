@@ -39,6 +39,27 @@ export async function getSavedViews() {
 };
 
 /***************************************************
+** FUNC: getSavedViewByUUID()
+** DESC: Call the TandemAppServer and get the Saved View with the given ID
+**********************/
+
+export async function getSavedViewByUUID(viewUUID) {
+  console.group("STUB: getSavedViews()");
+
+  const facilityURN = DT_APP.currentFacility.twinId;
+
+  const requestPath = tdApp_baseURL + `/views/${facilityURN}/${viewUUID}`;
+  console.log(requestPath);
+
+  await fetch(requestPath, requestOptions)
+    .then(response => response.text())
+    .then(result => showResult(result))
+    .catch(error => console.log('error', error));
+
+  console.groupEnd();
+};
+
+/***************************************************
 ** FUNC: getClassifications()
 ** DESC: Call the TandemAppServer and get the Classifications associated with the current group
 **********************/
@@ -49,6 +70,27 @@ export async function getClassifications() {
   const groupId = DT_APP.currentFacility.settings.accountGroup;
 
   const requestPath = tdApp_baseURL + `/groups/${groupId}/classifications`;
+  console.log(requestPath);
+
+  await fetch(requestPath, requestOptions)
+    .then(response => response.text())
+    .then(result => showResult(result))
+    .catch(error => console.log('error', error));
+
+  console.groupEnd();
+};
+
+/***************************************************
+** FUNC: getClassificationByUUID()
+** DESC: Call the TandemAppServer and get the Classification with given UUID
+**********************/
+
+export async function getClassificationByUUID(classifUUID) {
+  console.group("STUB: getClassificationByUUID()");
+
+  const groupId = DT_APP.currentFacility.settings.accountGroup;
+
+  const requestPath = tdApp_baseURL + `/groups/${groupId}/classifications/${classifUUID}`;
   console.log(requestPath);
 
   await fetch(requestPath, requestOptions)
@@ -85,11 +127,11 @@ export async function getFacilityTemplates() {
 ** DESC: Call the TandemAppServer and get the FacilityTemplate with the given UUID
 **********************/
 
-export async function getFacilityTemplateByUUID() {
+export async function getFacilityTemplateByUUID(templateUUID) {
   console.group("STUB: getFacilityTemplateByUUID()");
 
   const groupId = DT_APP.currentFacility.settings.accountGroup;
-  const templateUUID = DT_APP.currentFacility.settings.template.data.uuid;
+  //const templateUUID = DT_APP.currentFacility.settings.template.uuid; // NOTE: you can look for a potential value here
 
   const requestPath = tdApp_baseURL + `/groups/${groupId}/facility-templates/${templateUUID}`;
   console.log(requestPath);
@@ -103,16 +145,16 @@ export async function getFacilityTemplateByUUID() {
 };
 
 /***************************************************
-** FUNC: getParameterSets()
-** DESC: Call the TandemAppServer and get the ParameterSets associated with the current group
+** FUNC: getParameters()
+** DESC: Call the TandemAppServer and get the Parameters associated with the current group
 **********************/
 
-export async function getParameterSets() {
-  console.group("STUB: getParameterSets()");
+export async function getParameters() {
+  console.group("STUB: getParameters()");
 
   const groupId = DT_APP.currentFacility.settings.accountGroup;
 
-  const requestPath = tdApp_baseURL + `/groups/${groupId}/psets`;
+  const requestPath = tdApp_baseURL + `/groups/${groupId}/params`;
   console.log(requestPath);
 
   await fetch(requestPath, requestOptions)
@@ -124,17 +166,36 @@ export async function getParameterSets() {
 };
 
 /***************************************************
-** FUNC: getParameterSetByUUID()
+** FUNC: getParameterByUUID()
 ** DESC: Call the TandemAppServer and get the ParameterSet with the given UUID
 **********************/
 
-export async function getParameterSetByUUID() {
-  console.group("STUB: getParameterSetByUUID()");
+export async function getParameterByUUID(paramUUID) {
+  console.group("STUB: getParameterByUUID()");
 
   const groupId = DT_APP.currentFacility.settings.accountGroup;
-  const psetUUID = "U2qVqS3RSO-GYITwQfzSGg";  // NOTE: this is hardwired!!!
+  //const paramUUID = "c42548f5-ee6f-44c2-8cf7-395512ee83e4";  // NOTE: it will look something like this
 
-  const requestPath = tdApp_baseURL + `/groups/${groupId}/psets/${psetUUID}`;
+  const requestPath = tdApp_baseURL + `/groups/${groupId}/params/${paramUUID}`;
+  console.log(requestPath);
+
+  await fetch(requestPath, requestOptions)
+    .then(response => response.text())
+    .then(result => showResult(result))
+    .catch(error => console.log('error', error));
+
+  console.groupEnd();
+};
+
+/***************************************************
+** FUNC: getPreferences()
+** DESC: Call the TandemAppServer and get the Preferences associated with the current user
+**********************/
+
+export async function getPreferences() {
+  console.group("STUB: getPreferences()");
+
+  const requestPath = tdApp_baseURL + `/preferences`;
   console.log(requestPath);
 
   await fetch(requestPath, requestOptions)

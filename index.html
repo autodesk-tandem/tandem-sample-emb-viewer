@@ -103,11 +103,14 @@
                   </button>
                   <div class="dropdown-menu" aria-labelledby="dropdownMenuTdApp">
                     <button class="dropdown-item" type="button" id="btn_getSavedViews">Get Saved Views</button>
+                    <button class="dropdown-item" type="button" id="btn_getSavedViewByUUID">Get Saved View By UUID</button>
                     <button class="dropdown-item" type="button" id="btn_getClassifications">Get Classifications</button>
+                    <button class="dropdown-item" type="button" id="btn_getClassificationByUUID">Get Classification By UUID</button>
                     <button class="dropdown-item" type="button" id="btn_getFacilityTemplates">Get Facility Templates</button>
                     <button class="dropdown-item" type="button" id="btn_getFacilityTemplateByUUID">Get Facility Template By UUID</button>
-                    <button class="dropdown-item" type="button" id="btn_getParameterSetsApp">Get Parameter Sets</button>
-                    <button class="dropdown-item" type="button" id="btn_getParameterSetByUUID">Get Parameter Set By UUID</button>
+                    <button class="dropdown-item" type="button" id="btn_getParameters">Get Parameters</button>
+                    <button class="dropdown-item" type="button" id="btn_getParameterByUUID">Get Parameter By UUID</button>
+                    <button class="dropdown-item" type="button" id="btn_getPreferences">Get Preferences</button>
                   </div>
                 </div>
               </div>
@@ -164,6 +167,7 @@
            $("#stubInputInject_SetPropertyValue").load("./stubInput/setPropertyValue.html", "#stubInput_setPropertyValue");
            $("#stubInputInject_SetClassification").load("./stubInput/setClassification.html", "#stubInput_setClassification");
            $("#stubInputInject_GetURN").load("./stubInput/getURN.html", "#stubInput_getURN");
+           $("#stubInputInject_GetUUID").load("./stubInput/getUUID.html", "#stubInput_getUUID");
          });
       </script>
       <div id="stubInputInject_GetPropertyName"></div>
@@ -171,6 +175,7 @@
       <div id="stubInputInject_SetPropertyValue"></div>
       <div id="stubInputInject_SetClassification"></div>
       <div id="stubInputInject_GetURN"></div>
+      <div id="stubInputInject_GetUUID"></div>
 
         <!-- this is the JS module that kicks off login and loading of the Tandem Viewer -->
       <script type="module" src="./index.js"></script>

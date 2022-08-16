@@ -427,6 +427,7 @@ export async function dumpDtFacilityInfo() {
   console.log("facility.getDefaultModelId()", facility.getDefaultModelId());
   //console.log("facility.getDefaultModel()", facility.getDefaultModel());      // TBD: currently crashes
   console.log("facility.getStreamManager()", facility.getStreamManager());    // TBD: currently returns "undefined"
+  console.log("facility.getAllRoomsInfo()", facility.getAllRoomsInfo());
 
   console.groupEnd();
 
@@ -512,6 +513,7 @@ export async function dumpDtConstants() {
   console.log("getForgeUnitSpecs()", await dtConst.getForgeUnitSpecs());
   console.log("getRevitCategories()", await dtConst.getRevitCategories());
   console.log("getParameterSetsLibrary()", await dtConst.getParameterSetsLibrary());
+  console.log("getParameterLibrary()", await dtConst.getParameterLibrary());
   console.log("getFacilityTemplatesLibrary()", await dtConst.getFacilityTemplatesLibrary());
   console.log("getClassificationsLibrary()", await dtConst.getClassificationsLibrary());
 
@@ -534,6 +536,7 @@ export async function dumpDtConstants() {
   console.log("QCOverrides", dtConst.QCOverrides);
   console.log("ColumnFamilies", dtConst.ColumnFamilies);
   console.log("ColumnNames", dtConst.ColumnNames);
+  console.log("ElementFlags", dtConst.ElementFlags);
   console.log("StandardAttributes", dtConst.StandardAttributes);
   console.log("StreamBaseParameterSet", dtConst.StreamBaseParameterSet);
   console.log("HiddenRevitCategories", dtConst.HiddenRevitCategories);
@@ -542,6 +545,9 @@ export async function dumpDtConstants() {
   console.log("DtAccessLevel", dtConst.DtAccessLevel);
   console.log("ChangeTypes", dtConst.ChangeTypes);
   console.log("SystemColumns", dtConst.SystemColumns);
+  console.log("AttributeFlags", dtConst.AttributeFlags);
+  console.log("AttributeType", dtConst.AttributeType);
+  console.log("AttributeContext", dtConst.AttributeContext);
   console.log("UNIFORMAT_UUID", dtConst.UNIFORMAT_UUID);
   console.log("MASTERFORMAT_UUID", dtConst.MASTERFORMAT_UUID);
   console.log("DT_URN_PREFIX", dtConst.DT_URN_PREFIX);
@@ -787,6 +793,13 @@ export async function showElementsInRoom() {
 **********************/
 
 async function dumpSingleModel(model) {
+  console.log("getInstanceTree()", model.getInstanceTree());
+  console.log("getBoundingBox()", model.getBoundingBox());
+  console.log("is2d()", model.is2d());
+  console.log("is3d()", model.is3d());
+  console.log("isOTG()", model.isOTG());
+  console.log("isPdf()", model.isPdf());
+
   console.log("getQueryParams()", model.getQueryParams());
   console.log("urn()", model.urn());
   console.log("isDefault()", model.isDefault());
@@ -798,18 +811,12 @@ async function dumpSingleModel(model) {
   console.log("getData()", model.getData());
   console.log("getRootId()", model.getRootId());
   console.log("getRoot()", model.getRoot());
-  //console.log("getUnitData()", model.getUnitData());  //deprecated!
   console.log("getUnitScale()", model.getUnitScale());
   console.log("getUnitString()", model.getUnitString());
   console.log("getDisplayUnit()", model.getDisplayUnit());
   console.log("getDefaultCamera()", model.getDefaultCamera());
-  //console.log("isAEC()", model.isAEC());
   console.log("getUpVector()", model.getUpVector());
-  console.log("geomPolyCount()", model.geomPolyCount());
-  console.log("instancePolyCount()", model.instancePolyCount());
   console.log("isLoadDone()", model.isLoadDone());
-  console.log("isObjectTreeCreated()", model.isObjectTreeCreated());
-  //console.log("getObjectTree()", model.getObjectTree(onsuccesscb, onerrorCb));
 
     // TBD: should fetchTopolgy() fail badly if hasTopology() is false.  Currently it does,
     // seems like it should just return null or something.
@@ -818,7 +825,6 @@ async function dumpSingleModel(model) {
   if (hasIt)
     console.log("fetchTopology()", await model.fetchTopology());
 
-  console.log("hasGeometry()", model.hasGeometry());
   console.log("getBasePath()", model.getBasePath());
 
   console.log("getLevels()");
@@ -836,7 +842,10 @@ async function dumpSingleModel(model) {
   console.log("isLoaded()", model.isLoaded());
   console.log("getSeedUrn()", model.getSeedUrn());
   console.log("canEdit()", model.canEdit());
-  console.log("getFullXConns()", model.getFullXConns());
+  console.log("hasPhysicalElements()", model.hasPhysicalElements());
+  console.log("getTaggedAssets()", await model.getTaggedAssets());
+  console.log("isGeoReferenceSet()", model.isGeoReferenceSet());
+  console.log("getElementCount()", model.getElementCount());
 
   /* other functions...
   updateFromFile(fileName, urn, phaseNames);

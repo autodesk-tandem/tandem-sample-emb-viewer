@@ -842,8 +842,9 @@ async function dumpSingleModel(model) {
   console.log("isLoaded()", model.isLoaded());
   console.log("getSeedUrn()", model.getSeedUrn());
   console.log("canEdit()", model.canEdit());
-  console.log("hasPhysicalElements()", model.hasPhysicalElements());
+  //console.log("hasPhysicalElements()", model.hasPhysicalElements());
   console.log("getTaggedAssets()", await model.getTaggedAssets());
+  console.log("getClassifiedAssets()", await model.getClassifiedAssets());
   console.log("isGeoReferenceSet()", model.isGeoReferenceSet());
   console.log("getElementCount()", model.getElementCount());
 

@@ -207,7 +207,7 @@ export async function getAppliedParameterMultipleElements(propCategory, propName
 ** FUNC: queryAppliedParameterMultipleElements()
 ** DESC: same as above, but only return elements that actually have that value, don't push NULL into the return values.
 **    this version tries to be a little more efficient because its expecting to iterate over the entire database. (still playing with best way to do this)
-** RETURN: array of objects { dbId, propValue }
+** RETURN: array of objects { modelName, dbId, propValue }
 **********************/
 
 export async function queryAppliedParameterMultipleElements(propCategory, propName, model, queryInfo) {

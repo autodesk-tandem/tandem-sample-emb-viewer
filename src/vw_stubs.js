@@ -429,8 +429,10 @@ export function exportMesh(aggrSet, useWorldSpace) {
 
 export function scrapeGeometry() {
   const aggrSet = getAggregateSelection();
-  if (aggrSet == null)
+  if (aggrSet == null) {
+    alert("No objects selected");
     return;
+  }
 
   console.group("STUB: scrapeGeometry()");
 

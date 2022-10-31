@@ -210,10 +210,12 @@ export async function getPropertySelSet(propCategory, propName) {
 /***************************************************
 ** FUNC: findElementsWherePropValueEqualsX()
 ** DESC: get a specific property across multiple items selected where the property value is what
-** we are looking for.   EXAMPLE: find all elements where "Common | Name" = "Basic Wall"
+** we are looking for.   EXAMPLE: find all elements where "Common | Name" = "Basic Wall".  You can
+** also specify whether to treat the matchStr as a Javascript regular expression, and you can specify
+** whether to only search the elements that are visible in the viewer, or search all elements in the db
 **********************/
 
-export async function findElementsWherePropValueEqualsX(propCategory, propName, matchStr) {
+export async function findElementsWherePropValueEqualsX(propCategory, propName, matchStr, isRegEx, searchVisibleOnly) {
     // we are going to try to search all elements in the database (that are loaded/visible in the viewer)
   const models = td_utils.getLoadedModels();
   if (!models) {
@@ -228,38 +230,59 @@ export async function findElementsWherePropValueEqualsX(propCategory, propName, 
   for (let i=0; i<models.length; i++) {
     console.group(`Model[${i}]--> ${models[i].label()}`);
 
-      // get all the elements that are currently visible in the viewer
-      const visObjs = models[i].getVisibleDbIds();   // NOTE: this takes an ElementType flag (null = physcial objects)(see worker/dt-schema.js line 80+)
-      //const allObjs = models[i].getElementIds();   // use this one instead if you want ALL elements in the model regardless of visibility
-
-      // TBD: not sure yet exactly how all the options work or why to use model.query() over model.getDtProperties()
-      // You can experiment by changing flags
-    const queryInfo = {
-      dbIds: visObjs,
-      //classificationId: facility.settings?.template?.classificationId,
-      includes: { standard: false, applied: true, element: true, type: false, compositeChildren: false }
-    };
-
-    const propValues = await td_utils.queryAppliedParameterMultipleElements(propCategory, propName, models[i], queryInfo);
-    if (propValues) {
-      const matchingProps = propValues.filter(prop => prop.value === matchStr);   // filter out the ones that match our query
-
-      if (matchingProps.length) {
-        console.log("Matching property values-->");
-        console.table(matchingProps);
-
-          // extract all the dbids from the array of objects returned
-        const dbIds = matchingProps.map(a => a.dbId);
-        NOP_VIEWER.isolate(dbIds, models[i]); // isolate them so we can visualize them.
-      }
-      else {
-        console.log("No elements found with that value");
-        NOP_VIEWER.isolate([0], models[i]); // ghost the entire model, because we found nothing
-      }
+    if (models[i].label() === "") {
+      console.log("skipping null model...");  // TBD: bug in the system where we have a model with no geometry
     }
     else {
-      console.log("Could not find any elements with that property: ", propName);
-      NOP_VIEWER.isolate([0], models[i]); // ghost the entire model, because we found nothing
+      let objsToSearch = null;
+      if (searchVisibleOnly) {
+          // get all the elements that are currently visible in the viewer
+        console.log("searching only elments visible in the viewer...");
+        objsToSearch = models[i].getVisibleDbIds();   // NOTE: this takes an ElementType flag (null = physcial objects)(see worker/dt-schema.js line 80+)
+      }
+      else {
+          // dearch everything in the database regardless of whether its on screen in the viewer
+        console.log("searching all elments in the database...");
+        objsToSearch = models[i].getElementIds();
+      }
+        // TBD: not sure yet exactly how all the options work or why to use model.query() over model.getDtProperties()
+        // You can experiment by changing flags
+      const queryInfo = {
+        dbIds: objsToSearch,
+        //classificationId: facility.settings?.template?.classificationId,
+        includes: { standard: true, applied: true, element: true, type: false, compositeChildren: true }
+      };
+
+      const propValues = await td_utils.queryAppliedParameterMultipleElements(propCategory, propName, models[i], queryInfo);
+      if (propValues) {
+        let matchingProps = null;
+        if (isRegEx) {
+          const regEx = new RegExp(matchStr);
+          console.log("Doing RegularExpression match for:", regEx);
+          matchingProps = propValues.filter(prop => regEx.test(prop.value)); // filter out the ones that match our query using a RegEx
+        }
+        else {
+          console.log(`Doing literal match for: "${matchStr}..."`);
+          matchingProps = propValues.filter(prop => prop.value === matchStr);   // filter out the ones that match our query exactly
+        }
+
+        if (matchingProps.length) {
+          console.log("Matching property values-->");
+          console.table(matchingProps);
+
+            // extract all the dbids from the array of objects returned
+          const dbIds = matchingProps.map(a => a.dbId);
+          NOP_VIEWER.isolate(dbIds, models[i]); // isolate them so we can visualize them.
+        }
+        else {
+          console.log("No elements found with that value");
+          NOP_VIEWER.isolate([0], models[i]); // ghost the entire model, because we found nothing
+        }
+      }
+      else {
+        console.log("Could not find any elements with that property: ", propName);
+        NOP_VIEWER.isolate([0], models[i]); // ghost the entire model, because we found nothing
+      }
     }
 
     console.groupEnd();

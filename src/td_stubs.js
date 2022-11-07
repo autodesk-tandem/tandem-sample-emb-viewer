@@ -215,7 +215,7 @@ export async function getPropertySelSet(propCategory, propName) {
 ** whether to only search the elements that are visible in the viewer, or search all elements in the db
 **********************/
 
-export async function findElementsWherePropValueEqualsX(propCategory, propName, matchStr, isRegEx, searchVisibleOnly) {
+export async function findElementsWherePropValueEqualsX(propCategory, propName, matchStr, isRegEx, searchVisibleOnly, isCaseInsensitive) {
     // we are going to try to search all elements in the database (that are loaded/visible in the viewer)
   const models = td_utils.getLoadedModels();
   if (!models) {
@@ -227,7 +227,8 @@ export async function findElementsWherePropValueEqualsX(propCategory, propName, 
 
   NOP_VIEWER.clearSelection(); // start with nothing selected so its correct when we call isoloate()
 
-  for (let i=0; i<models.length; i++) {
+  //for (let i=0; i<models.length; i++) {
+  for (let i=0; i<models.length; i++) { // TBD: switch back when bugs fixed
     console.group(`Model[${i}]--> ${models[i].label()}`);
 
     if (models[i].label() === "") {
@@ -257,13 +258,24 @@ export async function findElementsWherePropValueEqualsX(propCategory, propName, 
       if (propValues) {
         let matchingProps = null;
         if (isRegEx) {
-          const regEx = new RegExp(matchStr);
+          let regEx = null;
+          if (isCaseInsensitive)
+            regEx = new RegExp(matchStr, "i");
+          else
+            regEx = new RegExp(matchStr);
+
           console.log("Doing RegularExpression match for:", regEx);
           matchingProps = propValues.filter(prop => regEx.test(prop.value)); // filter out the ones that match our query using a RegEx
         }
         else {
-          console.log(`Doing literal match for: "${matchStr}..."`);
-          matchingProps = propValues.filter(prop => prop.value === matchStr);   // filter out the ones that match our query exactly
+          if (isCaseInsensitive) {
+            console.log(`Doing case insensitive match for: "${matchStr}..."`);
+            matchingProps = propValues.filter(prop => prop.value.toLowerCase() === matchStr.toLowerCase());   // filter out the ones that match our query exactly
+          }
+          else {
+            console.log(`Doing literal match for: "${matchStr}..."`);
+            matchingProps = propValues.filter(prop => prop.value === matchStr);   // filter out the ones that match our query exactly
+          }
         }
 
         if (matchingProps.length) {

@@ -213,10 +213,11 @@ async function main() {
     const propCategory = $("#stubInput_propCategoryFilter").val();
     const propName = $("#stubInput_propNameFilter").val();
     const matchStr = $("#stubInput_propValFilter").val();
+    const isCaseInsensitive = $("#stubInput_propValIsCaseInsensitive").is(":checked");
     const isRegEx = $("#stubInput_propValIsRegEx").is(":checked");
     const searchVisibleOnly = $("#stubInput_searchVisibleOnly").is(":checked");
 
-    td_stubs.findElementsWherePropValueEqualsX(propCategory, propName, matchStr, isRegEx, searchVisibleOnly);
+    td_stubs.findElementsWherePropValueEqualsX(propCategory, propName, matchStr, isRegEx, searchVisibleOnly, isCaseInsensitive);
   });
 
     // this gets called from above via modal dialog (#btn_findElementsWherePropValueEqualsX)

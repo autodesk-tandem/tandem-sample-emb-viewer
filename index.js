@@ -5,6 +5,7 @@ import * as vw_stubs from './src/vw_stubs.js';
 import * as td_stubs from './src/td_stubs.js';
 import * as tdApp_stubs from './src/tdApp_stubs.js';
 import * as ev_stubs from './src/ev_stubs.js';
+import * as st_stubs from './src/st_stubs.js';
 
 
 /***************************************************
@@ -37,7 +38,8 @@ async function bootstrap() {
   console.log('TandemViewer is up and running');
 
     // init app
-  const app = new Autodesk.Viewing.Private.DtApp({});
+  const app = new Autodesk.Viewing.Private.DtApp();
+  //const app = new Autodesk.Viewing.Private.DtApp( {timeSeries: true} ); // TBD: remove this when FacilityMonitoring feature released
   window.DT_APP = app;
 
   const facilities = await getAllFacilities(app);
@@ -117,7 +119,6 @@ async function main() {
   $("#btn_dumpModelInfo").click(td_stubs.dumpDtModelInfo);
   $("#btn_dumpAppInfo").click(td_stubs.dumpDtAppInfo);
   $("#btn_dumpDtConstants").click(td_stubs.dumpDtConstants);
-  $("#btn_getParameterSets").click(td_stubs.getParameterSets);
   $("#btn_getLevels").click(td_stubs.getLevels);
   $("#btn_getRooms").click(td_stubs.getRooms);
   $("#btn_showElementsInRoom").click(td_stubs.showElementsInRoom);
@@ -164,9 +165,38 @@ async function main() {
 
   $("#btn_getPreferences").click(tdApp_stubs.getPreferences);
 
+    // event stubs
   $("#btn_addEventListeners").click(ev_stubs.addEventListeners);
   $("#btn_removeEventListeners").click(ev_stubs.removeEventListeners);
 
+    // stream stubs
+  $("#btn_dumpStreamManager").click(st_stubs.dumpStreamManager);
+  $("#btn_getStreamIds").click(st_stubs.getStreamIds);
+  $("#btn_getLastReadings").click(st_stubs.getLastReadings);
+  $("#btn_refreshStreamsLastReadings").click(st_stubs.refreshStreamsLastReadings);
+  $("#btn_exportStreamsToJson").click(st_stubs.exportStreamsToJson);
+  $("#btn_getAllStreamInfos").click(st_stubs.getAllStreamInfos);
+  $("#btn_getAllStreamInfosFromCache").click(st_stubs.getAllStreamInfosFromCache);
+  $("#btn_getAllConnectedAttributes").click(st_stubs.getAllConnectedAttributes);
+  $("#btn_getStreamSecrets").click(st_stubs.getStreamSecrets);
+  $("#btn_getStreamsBulkImportTemplate").click(st_stubs.getStreamsBulkImportTemplate);
+
+  $("#btn_createStream").click(function() {
+      $('#stubInput_getKey').modal('show');
+      modalFuncCallbackNum = 0;
+    });
+  $("#btn_deleteStream").click(function() {
+      $('#stubInput_getKey').modal('show');
+      modalFuncCallbackNum = 1;
+    });
+
+  $("#btn_generateNewStreamKey").click(st_stubs.generateNewStreamKey);
+  $("#btn_resetStreamSecrets").click(function() {
+      $('#stubInput_getKey').modal('show');
+      modalFuncCallbackNum = 2;
+    });
+
+    // viewer stubs
   $("#btn_addSprites").click(vw_stubs.addSprites);
   $("#btn_removeSprites").click(vw_stubs.removeSprites);
   $("#btn_getCurrentSelSet").click(vw_stubs.getCurrentSelSet);
@@ -233,7 +263,7 @@ async function main() {
     if (modalFuncCallbackNum == 0)
       td_stubs.getDocument(urn);
     else if (modalFuncCallbackNum == 1)
-        td_stubs.deleteDocument(urn);
+      td_stubs.deleteDocument(urn);
     else {
       alert("ASSERT: modalFuncCallbackNum not expected.");
     }
@@ -245,11 +275,25 @@ async function main() {
     if (modalFuncCallbackNum == 0)
       tdApp_stubs.getSavedViewByUUID(uuid);
     else if (modalFuncCallbackNum == 1)
-        tdApp_stubs.getClassificationByUUID(uuid);
+      tdApp_stubs.getClassificationByUUID(uuid);
     else if (modalFuncCallbackNum == 2)
       tdApp_stubs.getFacilityTemplateByUUID(uuid);
     else if (modalFuncCallbackNum == 3)
       tdApp_stubs.getParameterByUUID(uuid);
+    else {
+      alert("ASSERT: modalFuncCallbackNum not expected.");
+    }
+  });
+
+  $('#stubInput_getKey_OK').click(function() {
+    const key = $("#stubInput_key").val();
+
+    if (modalFuncCallbackNum == 0)
+      st_stubs.createStream(key);
+    else if (modalFuncCallbackNum == 1)
+      st_stubs.deleteStream(key);
+    else if (modalFuncCallbackNum == 2)
+      st_stubs.resetStreamSecrets(key);
     else {
       alert("ASSERT: modalFuncCallbackNum not expected.");
     }

@@ -56,7 +56,7 @@
               <div class="row form-group mt-5">
                 <div class="col-md dropdown dropright"> <!--Dropdown menu for Tandem stubs -->
                   <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuTd" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Tandem DB Stubs
+                    Facility/Model Stubs
                   </button>
                   <div class="dropdown-menu" aria-labelledby="dropdownMenuTd">
                     <button class="dropdown-item" type="button" id="btn_getQualifiedPropName">Get Qualified Prop Name</button>
@@ -73,7 +73,6 @@
                     <button class="dropdown-item" type="button" id="btn_dumpAppInfo">Dump App Info</button>
                     <button class="dropdown-item" type="button" id="btn_dumpModelInfo">Dump Model Info</button>
                     <button class="dropdown-item" type="button" id="btn_dumpDtConstants">Dump DT constants</button>
-                    <button class="dropdown-item" type="button" id="btn_getParameterSets">Get ParameterSets</button>
                     <button class="dropdown-item" type="button" id="btn_getLevels">Get Levels</button>
                     <button class="dropdown-item" type="button" id="btn_getRooms">Get Rooms</button>
                     <button class="dropdown-item" type="button" id="btn_showElementsInRoom">Show Elements In Room</button>
@@ -87,7 +86,7 @@
               <div class="row form-group">
                 <div class="col-md dropdown dropright"> <!--Dropdown menu for Tandem Document link stubs -->
                   <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuTd" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Tandem Document Stubs
+                    Document Stubs
                   </button>
                   <div class="dropdown-menu" aria-labelledby="dropdownMenuTd">
                     <button class="dropdown-item" type="button" id="btn_getFacilityDocuments">Get Facility Documents</button>
@@ -99,7 +98,7 @@
               <div class="row form-group">
                 <div class="col-md dropdown dropright"> <!--Dropdown menu for TandemApp stubs -->
                   <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuTdApp" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Tandem App Stubs
+                    App Stubs
                   </button>
                   <div class="dropdown-menu" aria-labelledby="dropdownMenuTdApp">
                     <button class="dropdown-item" type="button" id="btn_getSavedViews">Get Saved Views</button>
@@ -122,6 +121,29 @@
                   <div class="dropdown-menu" aria-labelledby="dropdownMenuEv">
                     <button class="dropdown-item" type="button" id="btn_addEventListeners">Add Event Listeners</button>
                     <button class="dropdown-item disabled" type="button" id="btn_removeEventListeners">Remove Event Listeners</button>
+                  </div>
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-md dropdown dropright"> <!--Dropdown menu for Event stubs -->
+                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuEv" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Stream Stubs
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuEv">
+                    <button class="dropdown-item" type="button" id="btn_dumpStreamManager">Dump Stream Manager</button>
+                    <button class="dropdown-item" type="button" id="btn_getStreamIds">Get Stream IDs</button>
+                    <button class="dropdown-item" type="button" id="btn_getLastReadings">Get Last Readings</button>
+                    <button class="dropdown-item" type="button" id="btn_refreshStreamsLastReadings">Refresh Last Readings</button>
+                    <button class="dropdown-item" type="button" id="btn_exportStreamsToJson">Export Streams to JSON</button>
+                    <button class="dropdown-item" type="button" id="btn_getAllStreamInfos">Get All Stream Infos</button>
+                    <button class="dropdown-item" type="button" id="btn_getAllStreamInfosFromCache">Get All Stream Infos from Cache</button>
+                    <button class="dropdown-item" type="button" id="btn_getAllConnectedAttributes">Get All Connected Attributes</button>
+                    <button class="dropdown-item" type="button" id="btn_getStreamSecrets">Get Stream Secrets</button>
+                    <button class="dropdown-item" type="button" id="btn_resetStreamSecrets">Reset Stream Secrets</button>
+                    <button class="dropdown-item" type="button" id="btn_getStreamsBulkImportTemplate">Get Stream Bulk Import Template</button>
+                    <button class="dropdown-item" type="button" id="btn_createStream">Create Stream</button>
+                    <button class="dropdown-item" type="button" id="btn_deleteStream">Delete Stream</button>
+                    <button class="dropdown-item" type="button" id="btn_generateNewStreamKey">Generate Stream Key</button>
                   </div>
                 </div>
               </div>
@@ -168,6 +190,7 @@
            $("#stubInputInject_SetClassification").load("./stubInput/setClassification.html", "#stubInput_setClassification");
            $("#stubInputInject_GetURN").load("./stubInput/getURN.html", "#stubInput_getURN");
            $("#stubInputInject_GetUUID").load("./stubInput/getUUID.html", "#stubInput_getUUID");
+           $("#stubInputInject_GetKey").load("./stubInput/getKey.html", "#stubInput_getKey");
          });
       </script>
       <div id="stubInputInject_GetPropertyName"></div>
@@ -176,6 +199,7 @@
       <div id="stubInputInject_SetClassification"></div>
       <div id="stubInputInject_GetURN"></div>
       <div id="stubInputInject_GetUUID"></div>
+      <div id="stubInputInject_GetKey"></div>
 
         <!-- this is the JS module that kicks off login and loading of the Tandem Viewer -->
       <script type="module" src="./index.js"></script>

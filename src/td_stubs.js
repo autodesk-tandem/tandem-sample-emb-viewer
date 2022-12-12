@@ -451,7 +451,6 @@ export async function dumpDtFacilityInfo() {
 
   console.log("facility.getModels()", facility.getModels());
   console.log("facility.getPrimaryModel()", facility.getPrimaryModel());
-  console.log("facility.getParameterSets()", await facility.getParameterSets());
 
   console.log("facility.canManage()", facility.canManage());
   console.log("facility.isOwner()", facility.isOwner());
@@ -506,33 +505,6 @@ export async function dumpDtFacilityInfo() {
   show3D();
   */
 }
-
-/***************************************************
-** FUNC: getParameterSets()
-** DESC: pretty print out the ParameterSets for this facility
-**********************/
-
-export async function getParameterSets() {
-  const facility = td_utils.getCurrentFacility();
-  if (!facility) {
-    alert("NO FACILITY CURRENTL LOADED");
-    return;
-  }
-
-  console.group("STUB: getParameterSets()")
-
-  const paramSets = await facility.getParameterSets();
-  console.log("facility.getParameterSets()");
-  console.table(paramSets);
-
-  for (let i=0; i<paramSets.length; i++) {
-    console.log(`Parameters for: "${paramSets[i].name}" -->`);
-    console.table(paramSets[i].parameters);
-  }
-
-  console.groupEnd();
-}
-
 
 /***************************************************
 ** FUNC: dumpDtConstants()

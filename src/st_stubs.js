@@ -376,7 +376,8 @@ export async function generateNewStreamKey() {
   console.group("STUB: generateNewStreamKey()");
 
   //const keyFlag = Autodesk.Tandem.ElementFlags.Stream;
-  const keyFlag = Autodesk.Viewing.Private.DtConstants.ElementFlags.Stream;
+  //const keyFlag = Autodesk.Viewing.Private.DtConstants.KeyFlags.Logical;
+  const keyFlag = 0x01000000; // TBD: figure out how to pass a legit flag to this.
 
     //Big-Endian flags
   let _tmpBuf24 = new Uint8Array(24);

@@ -14,9 +14,21 @@ import * as st_stubs from './src/st_stubs.js';
 **********************/
 
 async function getAllFacilities(app) {
-  const ownedByMe = await app.getCurrentTeamsFacilities();
+  const currentTeamFacilities = await app.getCurrentTeamsFacilities();
+
+  let teamFacilities = [];
+  let tmp = null;
+  for (let i=0; i<currentTeamFacilities.length; i++) {
+    tmp = currentTeamFacilities[i];
+    teamFacilities.push({ name: tmp.settings.props["Identity Data"]["Building Name"]});
+  }
+  console.log("teamFacilities", currentTeamFacilities);
+  console.table(teamFacilities);
+
   const sharedWithMe = await app.getUsersFacilities();
-  return [].concat(ownedByMe, sharedWithMe);
+  console.log("getUsersFacilities()", sharedWithMe);
+
+  return [].concat(currentTeamFacilities, sharedWithMe);
 }
 
 /***************************************************
@@ -191,6 +203,8 @@ async function main() {
     });
 
   $("#btn_generateNewStreamKey").click(st_stubs.generateNewStreamKey);
+  $("#btn_convertToQualifiedKey").click(st_stubs.convertToQualifiedKey);
+
   $("#btn_resetStreamSecrets").click(function() {
       $('#stubInput_getKey').modal('show');
       modalFuncCallbackNum = 2;

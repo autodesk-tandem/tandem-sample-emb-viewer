@@ -277,6 +277,27 @@ export async function deleteStream(streamKey) {
 /// TBD: this is temporary code extracted from Tandem SDK to allow for generation of Keys to be used for new streams.
 /// We need to redo the API to make this encapsulated.
 
+function makeWebsafe(urn) {
+	return urn.replace(/\+/g, '-') // Convert '+' to '-' (dash)
+	    .replace(/\//g, '_') // Convert '/' to '_' (underscore)
+	    .replace(/=+$/, ''); // Remove trailing '='
+}
+
+function toQualifiedKey(shortKey, isLogicalElement) {
+    let binData = Buffer.from(shortKey, "base64");
+    let fullKey = Buffer.alloc(24);
+
+        // constants from dt-schema.js
+    // ElementFlags.SimpleElement:   0x00000000,
+    // ElementFlags.FamilyType:      0x01000000,
+
+    fullKey.writeInt32BE(isLogicalElement ? 0x01000000 : 0x00000000);
+    //fullKey.writeInt32BE(isLogicalElement ? ElementFlags.FamilyType : ElementFlags.SimpleElement);
+    binData.copy(fullKey, 4);
+
+    return makeWebsafe(fullKey.toString("base64"));
+}
+
 function uint6ToB64WebsafeGen(nUint6) {
 
 	return nUint6 < 26 ?
@@ -401,7 +422,22 @@ export async function generateNewStreamKey() {
   console.groupEnd();
 }
 
+/***************************************************
+** FUNC: convertToQualifiedKey()
+** DESC: logic extracted from Tandem code that converts a short key to a long key
+**********************/
 
+export async function convertToQualifiedKey() {
+  console.group("STUB: convertToQualifiedKey()");
+
+  const shortKey = "DpVDVT9cS2O1QaeFRZc6WgAAAAA";
+  const isLogicalElement = true;
+  const qualifiedKey = toQualifiedKey(shortKey, isLogicalElement);
+
+  console.log("New stream key-->", qualifiedKey);
+
+  console.groupEnd();
+}
 
 
 // 	formatStreamValue(stream, value, unit = undefined) {

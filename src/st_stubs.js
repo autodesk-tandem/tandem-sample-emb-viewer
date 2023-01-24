@@ -3,7 +3,7 @@ import * as td_utils from './td_utils.js';
 
 /***************************************************
 ** FUNC: dumpStreamManager()
-** DESC: dump the Stream Manager object ot the debugger window
+** DESC: dump the Stream Manager object to the debugger window
 **********************/
 
 export function dumpStreamManager() {
@@ -34,7 +34,14 @@ export async function getStreamIds() {
       console.log("getStreamIds()", streamIds);
 
       const streamKeys = await strmMgr.defaultModel.getElementIdsFromDbIds(streamIds);
-      console.log("Converted to keys -->", streamKeys);
+
+        // make a nice table for the user showing both the ID and the DbKey
+      const tableObj = [];
+      for (let i=0; i<streamIds.length; i++) {
+        tableObj.push( { streamId: streamIds[i], key: streamKeys[i]} );
+      }
+      console.log("Converted to keys -->");
+      console.table(tableObj);
     }
     else {
       console.log("No streams were found.");
@@ -57,9 +64,7 @@ export async function getLastReadings() {
     const streamIds = await strmMgr.getStreamIds();
 
     if (streamIds.length) {
-      const streamKeys = await strmMgr.defaultModel.getElementIdsFromDbIds(streamIds);
-
-      const lastReadings = await strmMgr.getLastReadings(streamKeys);
+      const lastReadings = await strmMgr.getLastReadings(streamIds);
       console.log("getLastReadings()", lastReadings);
     }
     else {
@@ -72,7 +77,7 @@ export async function getLastReadings() {
 
 /***************************************************
 ** FUNC: refreshStreamsLastReadings()
-** DESC: dump the Stream Manager object ot the debugger window
+** DESC: refresh the cache
 **********************/
 
 export async function refreshStreamsLastReadings() {
@@ -82,9 +87,7 @@ export async function refreshStreamsLastReadings() {
   if (strmMgr) {
     const streamIds = await strmMgr.getStreamIds();
     if (streamIds && streamIds.length) {
-      const streamKeys = await strmMgr.defaultModel.getElementIdsFromDbIds(streamIds);
-
-      await strmMgr.refreshStreamsLastReadings(streamKeys);
+      await strmMgr.refreshStreamsLastReadings(streamIds);
       console.log("Called refreshStreamsLastReadings()");
     }
     else {
@@ -97,7 +100,7 @@ export async function refreshStreamsLastReadings() {
 
 /***************************************************
 ** FUNC: exportStreamsToJson()
-** DESC: dump the Stream Manager object ot the debugger window
+** DESC: get all the stream info and export JSON object (first row is the "schema")
 **********************/
 
 export async function exportStreamsToJson() {
@@ -115,7 +118,7 @@ export async function exportStreamsToJson() {
 
 /***************************************************
 ** FUNC: getAllStreamInfos()
-** DESC: dump the Stream Manager object ot the debugger window
+** DESC: dump all the info about streams
 **********************/
 
 export async function getAllStreamInfos() {
@@ -134,7 +137,7 @@ export async function getAllStreamInfos() {
 
 /***************************************************
 ** FUNC: getAllStreamInfosFromCache()
-** DESC: dump the Stream Manager object ot the debugger window
+** DESC: dump all the info about streams in the cache
 **********************/
 
 export async function getAllStreamInfosFromCache() {
@@ -153,7 +156,7 @@ export async function getAllStreamInfosFromCache() {
 
 /***************************************************
 ** FUNC: getAllConnectedAttributes()
-** DESC: dump the Stream Manager object ot the debugger window
+** DESC: get info about all the connected attributes.
 **********************/
 
 export async function getAllConnectedAttributes() {
@@ -171,8 +174,29 @@ export async function getAllConnectedAttributes() {
 }
 
 /***************************************************
+** FUNC: getAttributeCandidates()
+** DESC: get info about all the connected attributes.
+**********************/
+
+export async function getAttributeCandidates() {
+  console.group("STUB: getAttributeCandidates()");
+
+  const strmMgr = td_utils.getCurrentFacility()?.getStreamManager();
+  if (strmMgr) {
+        // normally done one at a time, but we need to look up all the streamIds anyway, so lets get them
+        // all and print out a nice table for the user.
+    const jsonObj = await strmMgr.getAllStreamInfos();
+    for (let i=0; i<jsonObj.length; i++) {
+      const attrCandidates = await strmMgr.getAttrCandidates(jsonObj[i], null);
+      console.log(`Candidate Attributes for [${jsonObj[i].dbId}, ${jsonObj[i].fullId}] -->`, attrCandidates);
+    }
+  }
+  console.groupEnd();
+}
+
+/***************************************************
 ** FUNC: getStreamSecrets()
-** DESC: dump the Stream Manager object ot the debugger window
+** DESC: dump out all the Stream secrets
 **********************/
 
 export async function getStreamSecrets() {
@@ -203,7 +227,9 @@ export async function getStreamSecrets() {
 
 /***************************************************
 ** FUNC: resetStreamSecrets()
-** DESC: reset the secretd for the given keys (can be comma separated list)
+** DESC: reset the secret for the given keys (can be comma separated list)
+** NOTE: this function should not be needed.  It is called automatically by createStream().
+**    Only necessary in some kind of "emergency" for key rotation.
 **********************/
 
 export async function resetStreamSecrets(streamKeys) {
@@ -212,16 +238,43 @@ export async function resetStreamSecrets(streamKeys) {
 
   const strmMgr = td_utils.getCurrentFacility()?.getStreamManager();
   if (strmMgr) {
-    await strmMgr.resetStreamSecrets(streamKeysArray, true);
-    console.log("resetStreamSecrets()", "called with hardReset=true");
+    await strmMgr._resetStreamSecrets(streamKeysArray, true);
+    console.log("_resetStreamSecrets()", "called with hardReset=true");
   }
 
   console.groupEnd();
 }
 
 /***************************************************
+** FUNC: getStreamIngestionUrls()
+** DESC: get the ingestionURLs for the streams.  These can be used to pipe data into the Stream
+**********************/
+
+export async function getStreamIngestionUrls() {
+  console.group("STUB: getStreamIngestionUrls()");
+
+  const strmMgr = td_utils.getCurrentFacility()?.getStreamManager();
+  if (strmMgr) {
+        // normally done one at a time, but we need to look up all the streamIds anyway, so lets get them
+        // all and print out a nice table for the user.
+    const jsonObj = await strmMgr.getAllStreamInfos();
+    let ingestUrls = [];
+    let tmpStream = null;
+    let tmpIngestUrl = "";
+    for (let i=0; i<jsonObj.length; i++) {
+      tmpStream = jsonObj[i];
+      tmpIngestUrl = await strmMgr.getStreamIngestionUrl(tmpStream);
+      ingestUrls.push( { streamId: tmpStream.dbId, fullId: tmpStream.fullId, ingestUrl: tmpIngestUrl} );
+    }
+    console.table(ingestUrls);
+
+  }
+  console.groupEnd();
+}
+
+/***************************************************
 ** FUNC: getStreamsBulkImportTemplate()
-** DESC: dump the Stream Manager object ot the debugger window
+** DESC: basically gets the "schema" for streams info
 **********************/
 
 export async function getStreamsBulkImportTemplate() {
@@ -260,13 +313,14 @@ export async function getStreamsBulkImportTemplate() {
 ** DESC: dump the Stream Manager object ot the debugger window
 **********************/
 
-export async function deleteStream(streamKey) {
+export async function deleteStream(streamId) {
   console.group("STUB: deleteStream()");
 
   const strmMgr = td_utils.getCurrentFacility()?.getStreamManager();
   if (strmMgr) {
-    const streamKeys = [streamKey]; // technically we could delete multiple in one shot
-    await strmMgr.deleteStreams(streamKeys);
+    const streamIds = [streamId]; // technically we could delete multiple in one shot
+    console.log("Deleting stream IDs", streamIds);
+    await strmMgr.deleteStreams(streamIds);
   }
 
   console.groupEnd();

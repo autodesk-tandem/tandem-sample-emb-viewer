@@ -30,6 +30,10 @@ function event_DtFacetsLoaded(e) {
   dumpEventInfo("DT_FACETS_LOADED", e);
 }
 
+function event_DtFacetsReset(e) {
+  dumpEventInfo("DT_FACETS_RESET", e);
+}
+
 function event_DtActiveTeamChanged(e) {
   dumpEventInfo("DT_ACTIVE_TEAM_CHANGED_EVENT", e);
 }
@@ -70,6 +74,37 @@ function event_DtStreamMarkerClicked(e) {
   dumpEventInfo("DT_STREAM_MARKER_CLICKED", e);
 }
 
+function event_DtStreamMarkerMouseOver(e) {
+  dumpEventInfo("DT_STREAM_MARKER_MOUSE_OVER", e);
+}
+
+function event_DtStreamMarkerMouseOut(e) {
+  dumpEventInfo("DT_STREAM_MARKER_MOUSE_OUT", e);
+}
+
+function event_DtStreamsInfoChangedEvent(e) {
+  dumpEventInfo("DT_STREAMS_INFO_CHANGED_EVENT", e);
+}
+
+function event_DtStreamsLastReadingsChangedEvent(e) {
+  dumpEventInfo("DT_STREAMS_LAST_READINGS_CHANGED_EVENT", e);
+}
+
+function event_DtStreamsDeletedEvent(e) {
+  dumpEventInfo("DT_STREAMS_DELETED_EVENT", e);
+}
+
+function event_DtFloorPlanDoneEvent(e) {
+  dumpEventInfo("DT_FLOOR_PLAN_DONE_EVENT", e);
+}
+
+function event_DtSystemsChangedEvent(e) {
+  dumpEventInfo("DT_SYSTEMS_CHANGED_EVENT", e);
+}
+
+function event_DtSystemConnectionsChangedEvent(e) {
+  dumpEventInfo("DT_SYSTEM_CONNECTIONS_CHANGED_EVENT", e);
+}
 
 /***************************************************
 ** FUNC: addEventListeners()
@@ -84,6 +119,7 @@ export function addEventListeners() {
   dtApp.addEventListener(Autodesk.Viewing.Private.DT_MODEL_METADATA_CHANGED_EVENT, event_DtMetadataChanged);
   dtApp.addEventListener(Autodesk.Viewing.Private.DT_FACETS_UPDATED, event_DtFacetsUpdated);
   dtApp.addEventListener(Autodesk.Viewing.Private.DT_FACETS_LOADED, event_DtFacetsLoaded);
+  dtApp.addEventListener(Autodesk.Viewing.Private.DT_FACETS_RESET, event_DtFacetsReset);
   dtApp.addEventListener(Autodesk.Viewing.Private.DT_ACTIVE_TEAM_CHANGED_EVENT, event_DtActiveTeamChanged);
   dtApp.addEventListener(Autodesk.Viewing.Private.DT_TEAMS_CHANGED_EVENT, event_DtTeamsChanged);
   dtApp.addEventListener(Autodesk.Viewing.Private.DT_TEAM_USERS_CHANGED_EVENT, event_DtTeamUsersChanged);
@@ -94,6 +130,13 @@ export function addEventListeners() {
   dtApp.addEventListener(Autodesk.Viewing.Private.DT_PRIMARY_MODEL_LOADED, event_DtPrimaryModelLoaded);
   dtApp.addEventListener(Autodesk.Viewing.Private.DT_MSG_WS_RECONNETED, event_DtMsgWsReconnected);
   dtApp.addEventListener(Autodesk.Viewing.Private.DT_STREAM_MARKER_CLICKED, event_DtStreamMarkerClicked);
+  dtApp.addEventListener(Autodesk.Viewing.Private.DT_STREAM_MARKER_MOUSE_OVER, event_DtStreamMarkerMouseOver);
+  dtApp.addEventListener(Autodesk.Viewing.Private.DT_STREAM_MARKER_MOUSE_OUT, event_DtStreamMarkerMouseOut);
+  dtApp.addEventListener(Autodesk.Viewing.Private.DT_STREAMS_INFO_CHANGED_EVENT, event_DtStreamsInfoChangedEvent);
+  dtApp.addEventListener(Autodesk.Viewing.Private.DT_STREAMS_LAST_READINGS_CHANGED_EVENT, event_DtStreamsLastReadingsChangedEvent);
+  dtApp.addEventListener(Autodesk.Viewing.Private.DT_STREAMS_DELETED_EVENT, event_DtStreamsDeletedEvent);
+  dtApp.addEventListener(Autodesk.Viewing.Private.DT_SYSTEMS_CHANGED_EVENT, event_DtSystemsChangedEvent);
+  dtApp.addEventListener(Autodesk.Viewing.Private.DT_SYSTEM_CONNECTIONS_CHANGED_EVENT, event_DtSystemConnectionsChangedEvent);
 
     // toggle the menu itme in the HTML
   document.getElementById("btn_addEventListeners").classList.add('disabled');
@@ -115,6 +158,7 @@ export function removeEventListeners() {
   dtApp.removeEventListener(Autodesk.Viewing.Private.DT_MODEL_METADATA_CHANGED_EVENT, event_DtMetadataChanged);
   dtApp.removeEventListener(Autodesk.Viewing.Private.DT_FACETS_UPDATED, event_DtFacetsUpdated);
   dtApp.removeEventListener(Autodesk.Viewing.Private.DT_FACETS_LOADED, event_DtFacetsLoaded);
+  dtApp.removeEventListener(Autodesk.Viewing.Private.DT_FACETS_RESET, event_DtFacetsReset);
   dtApp.removeEventListener(Autodesk.Viewing.Private.DT_ACTIVE_TEAM_CHANGED_EVENT, event_DtActiveTeamChanged);
   dtApp.removeEventListener(Autodesk.Viewing.Private.DT_TEAMS_CHANGED_EVENT, event_DtTeamsChanged);
   dtApp.removeEventListener(Autodesk.Viewing.Private.DT_TEAM_USERS_CHANGED_EVENT, event_DtTeamUsersChanged);
@@ -124,6 +168,13 @@ export function removeEventListeners() {
   dtApp.removeEventListener(Autodesk.Viewing.Private.DT_PRIMARY_MODEL_LOADED, event_DtPrimaryModelLoaded);
   dtApp.removeEventListener(Autodesk.Viewing.Private.DT_MSG_WS_RECONNETED, event_DtMsgWsReconnected);
   dtApp.removeEventListener(Autodesk.Viewing.Private.DT_STREAM_MARKER_CLICKED, event_DtStreamMarkerClicked);
+  dtApp.removeEventListener(Autodesk.Viewing.Private.DT_STREAM_MARKER_MOUSE_OVER, event_DtStreamMarkerMouseOver);
+  dtApp.removeEventListener(Autodesk.Viewing.Private.DT_STREAM_MARKER_MOUSE_OUT, event_DtStreamMarkerMouseOut);
+  dtApp.removeEventListener(Autodesk.Viewing.Private.DT_STREAMS_INFO_CHANGED_EVENT, event_DtStreamsInfoChangedEvent);
+  dtApp.removeEventListener(Autodesk.Viewing.Private.DT_STREAMS_LAST_READINGS_CHANGED_EVENT, event_DtStreamsLastReadingsChangedEvent);
+  dtApp.removeEventListener(Autodesk.Viewing.Private.DT_STREAMS_DELETED_EVENT, event_DtStreamsDeletedEvent);
+  dtApp.removeEventListener(Autodesk.Viewing.Private.DT_SYSTEMS_CHANGED_EVENT, event_DtSystemsChangedEvent);
+  dtApp.removeEventListener(Autodesk.Viewing.Private.DT_SYSTEM_CONNECTIONS_CHANGED_EVENT, event_DtSystemConnectionsChangedEvent);
 
     // toggle the menu itme in the HTML
   document.getElementById("btn_addEventListeners").classList.remove('disabled');

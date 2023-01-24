@@ -440,7 +440,7 @@ export async function dumpDtFacilityInfo() {
   console.log("facility.urn()", facility.urn());
   console.log("facility.settings", facility.settings);
   console.log("facility.thumbnailUrl", facility.thumbnailUrl);
-  //console.log("facility.getThumbnail()", await facility.getThumbnail());    TBD: this fails if there is no thumbnail (even if thumnailURL returns something)
+  //console.log("facility.getThumbnail()", await facility.getThumbnail());    // you can get this, but its just bytes
   console.log("facility.getClassificationTemplate()", await facility.getClassificationTemplate());
 
   console.log("facility.getUsers()");
@@ -449,7 +449,8 @@ export async function dumpDtFacilityInfo() {
   console.log("facility.getSubjects()");
   console.table(await facility.getSubjects());
 
-  console.log("facility.getModels()", facility.getModels());
+  console.log("facility.getModels(skipDefault=false)", facility.getModels());
+  console.log("facility.getModels(skipDefault=true)", facility.getModels(true));
   console.log("facility.getPrimaryModel()", facility.getPrimaryModel());
 
   console.log("facility.canManage()", facility.canManage());
@@ -459,9 +460,10 @@ export async function dumpDtFacilityInfo() {
   console.log("facility.getSharedToLocalSpaceTransform()", facility.getSharedToLocalSpaceTransform());
   console.log("facility.getLocalToSharedSpaceTransform()", facility.getLocalToSharedSpaceTransform());
   console.log("facility.getDefaultModelId()", facility.getDefaultModelId());
-  //console.log("facility.getDefaultModel()", facility.getDefaultModel());      // TBD: currently crashes
-  console.log("facility.getStreamManager()", facility.getStreamManager());    // TBD: currently returns "undefined"
+  console.log("facility.getDefaultModel()", facility.getDefaultModel());
+  console.log("facility.getStreamManager()", facility.getStreamManager());
   console.log("facility.getAllRoomsInfo()", facility.getAllRoomsInfo());
+  console.log("facility.getAllImportedSystemClasses()", facility.getAllImportedSystemClasses());
 
   console.groupEnd();
 
@@ -545,24 +547,26 @@ export async function dumpDtConstants() {
   console.log("ColumnNames", dtConst.ColumnNames);
   console.log("ElementFlags", dtConst.ElementFlags);
   console.log("StandardAttributes", dtConst.StandardAttributes);
-  console.log("StreamBaseParameterSet", dtConst.StreamBaseParameterSet);
+  console.log("StreamsImportExportTableHeader", dtConst.StreamsImportExportTableHeader);
   console.log("HiddenRevitCategories", dtConst.HiddenRevitCategories);
   console.log("ModelImportState", dtConst.ModelImportState);
+  console.log("MutationActions", dtConst.MutationActions);
   console.log("ImportStateLabels", dtConst.ImportStateLabels);
   console.log("DtAccessLevel", dtConst.DtAccessLevel);
   console.log("ChangeTypes", dtConst.ChangeTypes);
-  console.log("SystemColumns", dtConst.SystemColumns);
+  console.log("RC", dtConst.RC);
   console.log("AttributeFlags", dtConst.AttributeFlags);
   console.log("AttributeType", dtConst.AttributeType);
   console.log("AttributeContext", dtConst.AttributeContext);
+  console.log("SystemFilterNames", dtConst.SystemFilterNames);
   console.log("UNIFORMAT_UUID", dtConst.UNIFORMAT_UUID);
   console.log("MASTERFORMAT_UUID", dtConst.MASTERFORMAT_UUID);
-  console.log("DT_URN_PREFIX", dtConst.DT_URN_PREFIX);
   console.log("DT_MODEL_URN_PREFIX", dtConst.DT_MODEL_URN_PREFIX);
   console.log("DT_TWIN_URN_PREFIX", dtConst.DT_TWIN_URN_PREFIX);
   console.log("DT_USER_URN_PREFIX", dtConst.DT_USER_URN_PREFIX);
   console.log("DT_GROUP_URN_PREFIX", dtConst.DT_GROUP_URN_PREFIX);
   console.log("DT_DOCUMENT_URN_PREFIX", dtConst.DT_DOCUMENT_URN_PREFIX);
+  console.log("DT_URN_PREFIX", dtConst.DT_URN_PREFIX);
 
   console.groupEnd();
 }
@@ -834,6 +838,7 @@ async function dumpSingleModel(model) {
 
   console.log("getBasePath()", model.getBasePath());
 
+  console.log("getAlignment()", await model.getAlignment());
   console.log("getLevels()");
   console.table(await model.getLevels());
 
@@ -854,6 +859,7 @@ async function dumpSingleModel(model) {
   console.log("getClassifiedAssets()", await model.getClassifiedAssets());
   console.log("isGeoReferenceSet()", model.isGeoReferenceSet());
   console.log("getElementCount()", model.getElementCount());
+  console.log("getAllSystemClasses()", model.getAllSystemClasses());
 
   /* other functions...
   updateFromFile(fileName, urn, phaseNames);

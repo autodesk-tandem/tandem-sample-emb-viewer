@@ -6,7 +6,7 @@ import * as td_stubs from './src/td_stubs.js';
 import * as tdApp_stubs from './src/tdApp_stubs.js';
 import * as ev_stubs from './src/ev_stubs.js';
 import * as st_stubs from './src/st_stubs.js';
-
+import * as rest_stubs from './src/rest_stubs.js';
 
 /***************************************************
 ** FUNC: getAllFacilities()
@@ -14,21 +14,29 @@ import * as st_stubs from './src/st_stubs.js';
 **********************/
 
 async function getAllFacilities(app) {
-  const currentTeamFacilities = await app.getCurrentTeamsFacilities();
+  const currentTeamFacilities = await app.getCurrentTeamsFacilities();  // Facilities we have access to based on the current team
 
-  let teamFacilities = [];
+    // we will construct a readable table to dump out the info for the user
+  let printOutFacilities = [];
   let tmp = null;
   for (let i=0; i<currentTeamFacilities.length; i++) {
     tmp = currentTeamFacilities[i];
-    teamFacilities.push({ name: tmp.settings.props["Identity Data"]["Building Name"]});
+    printOutFacilities.push({ name: tmp.settings.props["Identity Data"]["Building Name"], shared: "via current team", twinID: tmp.twinId });
   }
-  console.log("teamFacilities", currentTeamFacilities);
-  console.table(teamFacilities);
+  console.log("getCurrentTeamsFacilities()", currentTeamFacilities);  // dump out raw return result
 
-  const sharedWithMe = await app.getUsersFacilities();
-  console.log("getUsersFacilities()", sharedWithMe);
+  const sharedWithMe = await app.getUsersFacilities();  // Facilities we have access to because they've been directly shared with us
 
-  return [].concat(currentTeamFacilities, sharedWithMe);
+  for (let i=0; i<sharedWithMe.length; i++) {
+    tmp = sharedWithMe[i];
+    printOutFacilities.push({ name: tmp.settings.props["Identity Data"]["Building Name"], shared: "directly with me", twinID: tmp.twinId });
+  }
+  console.log("getUsersFacilities()", sharedWithMe);  // dump out raw return result
+
+    // now try to print out a readable table
+  console.table(printOutFacilities);
+
+  return [].concat(currentTeamFacilities, sharedWithMe);  // return the full list for the popup selector
 }
 
 /***************************************************
@@ -190,25 +198,25 @@ async function main() {
   $("#btn_getAllStreamInfos").click(st_stubs.getAllStreamInfos);
   $("#btn_getAllStreamInfosFromCache").click(st_stubs.getAllStreamInfosFromCache);
   $("#btn_getAllConnectedAttributes").click(st_stubs.getAllConnectedAttributes);
+  $("#btn_getAttributeCandidates").click(st_stubs.getAttributeCandidates);
   $("#btn_getStreamSecrets").click(st_stubs.getStreamSecrets);
   $("#btn_getStreamsBulkImportTemplate").click(st_stubs.getStreamsBulkImportTemplate);
 
   $("#btn_createStream").click(function() {
-      $('#stubInput_getKey').modal('show');
+      $('#stubInput_getName').modal('show');
       modalFuncCallbackNum = 0;
     });
   $("#btn_deleteStream").click(function() {
-      $('#stubInput_getKey').modal('show');
-      modalFuncCallbackNum = 1;
+      $('#stubInput_getInt').modal('show');
+      modalFuncCallbackNum = 0;
     });
-
-  $("#btn_generateNewStreamKey").click(st_stubs.generateNewStreamKey);
-  $("#btn_convertToQualifiedKey").click(st_stubs.convertToQualifiedKey);
-
   $("#btn_resetStreamSecrets").click(function() {
       $('#stubInput_getKey').modal('show');
-      modalFuncCallbackNum = 2;
+      modalFuncCallbackNum = 0;
     });
+
+  $("#btn_getStreamIngestionUrls").click(st_stubs.getStreamIngestionUrls);
+
 
     // viewer stubs
   $("#btn_addSprites").click(vw_stubs.addSprites);
@@ -224,6 +232,19 @@ async function main() {
   $("#btn_hideModel").click(vw_stubs.hideModel);
   $("#btn_showModel").click(vw_stubs.showModel);
   $("#btn_scrapeGeometry").click(vw_stubs.scrapeGeometry);
+
+    // REST Stubs
+  $("#btn_restGetFacilityInfo").click(rest_stubs.restGetFacilityInfo);
+  $("#btn_restGetGroups").click(rest_stubs.restGetGroups);
+
+  $("#btn_restGetSchema").click(function() {
+      $('#stubInput_getURN').modal('show');
+      modalFuncCallbackNum = 2;
+    });
+
+    $("#btn_restGetQualifiedProp").click(rest_stubs.restGetQualifiedProperty);
+    $("#btn_restScanQualifiedProp").click(rest_stubs.restScanQualifiedProperty);
+
 
     // this gets called from above via modal dialog (#btn_getQualifiedPropName, and others)
   $('#stubInput_getPropertyName_OK').click(function() {
@@ -278,6 +299,8 @@ async function main() {
       td_stubs.getDocument(urn);
     else if (modalFuncCallbackNum == 1)
       td_stubs.deleteDocument(urn);
+    else if (modalFuncCallbackNum == 2)
+      rest_stubs.restGetSchema(urn);
     else {
       alert("ASSERT: modalFuncCallbackNum not expected.");
     }
@@ -303,11 +326,27 @@ async function main() {
     const key = $("#stubInput_key").val();
 
     if (modalFuncCallbackNum == 0)
-      st_stubs.createStream(key);
-    else if (modalFuncCallbackNum == 1)
-      st_stubs.deleteStream(key);
-    else if (modalFuncCallbackNum == 2)
       st_stubs.resetStreamSecrets(key);
+    else {
+      alert("ASSERT: modalFuncCallbackNum not expected.");
+    }
+  });
+
+  $('#stubInput_getName_OK').click(function() {
+    const nameStr = $("#stubInput_name").val();
+
+    if (modalFuncCallbackNum == 0)
+      st_stubs.createStream(nameStr);
+    else {
+      alert("ASSERT: modalFuncCallbackNum not expected.");
+    }
+  });
+
+  $('#stubInput_getInt_OK').click(function() {
+    const rawStr = $("#stubInput_int").val();
+
+    if (modalFuncCallbackNum == 0)
+      st_stubs.deleteStream(parseInt(rawStr));
     else {
       alert("ASSERT: modalFuncCallbackNum not expected.");
     }

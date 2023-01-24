@@ -138,13 +138,15 @@
                     <button class="dropdown-item" type="button" id="btn_getAllStreamInfos">Get All Stream Infos</button>
                     <button class="dropdown-item" type="button" id="btn_getAllStreamInfosFromCache">Get All Stream Infos from Cache</button>
                     <button class="dropdown-item" type="button" id="btn_getAllConnectedAttributes">Get All Connected Attributes</button>
+                    <button class="dropdown-item" type="button" id="btn_getAttributeCandidates">Get Attribute Candidates</button>
                     <button class="dropdown-item" type="button" id="btn_getStreamSecrets">Get Stream Secrets</button>
                     <button class="dropdown-item" type="button" id="btn_resetStreamSecrets">Reset Stream Secrets</button>
                     <button class="dropdown-item" type="button" id="btn_getStreamsBulkImportTemplate">Get Stream Bulk Import Template</button>
                     <button class="dropdown-item" type="button" id="btn_createStream">Create Stream</button>
                     <button class="dropdown-item" type="button" id="btn_deleteStream">Delete Stream</button>
-                    <button class="dropdown-item" type="button" id="btn_generateNewStreamKey">Generate Stream Key</button>
-                    <button class="dropdown-item" type="button" id="btn_convertToQualifiedKey">Convert to Qualified Key</button>
+                    <button class="dropdown-item" type="button" id="btn_getStreamIngestionUrls">Get Stream Ingestion URLs</button>
+                    <!--<button class="dropdown-item" type="button" id="btn_generateNewStreamKey">Generate Stream Key</button>
+                    <button class="dropdown-item" type="button" id="btn_convertToQualifiedKey">Convert to Qualified Key</button>-->
                   </div>
                 </div>
               </div>
@@ -170,6 +172,20 @@
                 </div>
               </div>
             </div>
+            <div class="row form-group">
+              <div class="col-md dropdown dropright"> <!-- Dropdown menu for REST stubs -->
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuVw" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  REST Stubs
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuVw">
+                  <button class="dropdown-item" type="button" id="btn_restGetFacilityInfo">Get Facility Info</button>
+                  <button class="dropdown-item" type="button" id="btn_restGetGroups">Get Groups</button>
+                  <button class="dropdown-item" type="button" id="btn_restGetSchema">Get Schema</button>
+                  <button class="dropdown-item" type="button" id="btn_restGetQualifiedProp">Get Qualified Property</button>
+                  <button class="dropdown-item" type="button" id="btn_restScanQualifiedProp">Scan Qualified Property</button>
+                </div>
+              </div>
+            </div>
             <div class="row form-group mt-5">
               <div class="col-md-8">
                   <p class="text-muted bg-light font-italic">NOTE: output from stub functions goes to the Chrome debugger window.  Make sure to open the Chrome Developer Tools.</p>
@@ -192,6 +208,8 @@
            $("#stubInputInject_GetURN").load("./stubInput/getURN.html", "#stubInput_getURN");
            $("#stubInputInject_GetUUID").load("./stubInput/getUUID.html", "#stubInput_getUUID");
            $("#stubInputInject_GetKey").load("./stubInput/getKey.html", "#stubInput_getKey");
+           $("#stubInputInject_GetName").load("./stubInput/getName.html", "#stubInput_getName");
+           $("#stubInputInject_GetInt").load("./stubInput/getInt.html", "#stubInput_getInt");
          });
       </script>
       <div id="stubInputInject_GetPropertyName"></div>
@@ -201,6 +219,8 @@
       <div id="stubInputInject_GetURN"></div>
       <div id="stubInputInject_GetUUID"></div>
       <div id="stubInputInject_GetKey"></div>
+      <div id="stubInputInject_GetName"></div>
+      <div id="stubInputInject_GetInt"></div>
 
         <!-- this is the JS module that kicks off login and loading of the Tandem Viewer -->
       <script type="module" src="./index.js"></script>

@@ -3,10 +3,8 @@ import { checkLogin } from './login.js';
 import { initLMV, startViewer } from './lmv.js';
 import * as vw_stubs from './src/vw_stubs.js';
 import * as td_stubs from './src/td_stubs.js';
-import * as tdApp_stubs from './src/tdApp_stubs.js';
 import * as ev_stubs from './src/ev_stubs.js';
 import * as st_stubs from './src/st_stubs.js';
-import * as rest_stubs from './src/rest_stubs.js';
 
 /***************************************************
 ** FUNC: getAllFacilities()
@@ -159,32 +157,6 @@ async function main() {
       modalFuncCallbackNum = 1;
     });
 
-  $("#btn_getSavedViews").click(tdApp_stubs.getSavedViews);
-  $("#btn_getSavedViewByUUID").click(function() {
-      $('#stubInput_getUUID').modal('show');
-      modalFuncCallbackNum = 0;
-    });
-
-  $("#btn_getClassifications").click(tdApp_stubs.getClassifications);
-  $("#btn_getClassificationByUUID").click(function() {
-      $('#stubInput_getUUID').modal('show');
-      modalFuncCallbackNum = 1;
-    });
-
-  $("#btn_getFacilityTemplates").click(tdApp_stubs.getFacilityTemplates);
-  $("#btn_getFacilityTemplateByUUID").click(function() {
-      $('#stubInput_getUUID').modal('show');
-      modalFuncCallbackNum = 2;
-    });
-
-  $("#btn_getParameters").click(tdApp_stubs.getParameters);
-  $("#btn_getParameterByUUID").click(function() {
-      $('#stubInput_getUUID').modal('show');
-      modalFuncCallbackNum = 3;
-    });
-
-  $("#btn_getPreferences").click(tdApp_stubs.getPreferences);
-
     // event stubs
   $("#btn_addEventListeners").click(ev_stubs.addEventListeners);
   $("#btn_removeEventListeners").click(ev_stubs.removeEventListeners);
@@ -232,18 +204,6 @@ async function main() {
   $("#btn_hideModel").click(vw_stubs.hideModel);
   $("#btn_showModel").click(vw_stubs.showModel);
   $("#btn_scrapeGeometry").click(vw_stubs.scrapeGeometry);
-
-    // REST Stubs
-  $("#btn_restGetFacilityInfo").click(rest_stubs.restGetFacilityInfo);
-  $("#btn_restGetGroups").click(rest_stubs.restGetGroups);
-
-  $("#btn_restGetSchema").click(function() {
-      $('#stubInput_getURN').modal('show');
-      modalFuncCallbackNum = 2;
-    });
-
-    $("#btn_restGetQualifiedProp").click(rest_stubs.restGetQualifiedProperty);
-    $("#btn_restScanQualifiedProp").click(rest_stubs.restScanQualifiedProperty);
 
 
     // this gets called from above via modal dialog (#btn_getQualifiedPropName, and others)
@@ -299,24 +259,6 @@ async function main() {
       td_stubs.getDocument(urn);
     else if (modalFuncCallbackNum == 1)
       td_stubs.deleteDocument(urn);
-    else if (modalFuncCallbackNum == 2)
-      rest_stubs.restGetSchema(urn);
-    else {
-      alert("ASSERT: modalFuncCallbackNum not expected.");
-    }
-  });
-
-  $('#stubInput_getUUID_OK').click(function() {
-    const uuid = $("#stubInput_uuid").val();
-
-    if (modalFuncCallbackNum == 0)
-      tdApp_stubs.getSavedViewByUUID(uuid);
-    else if (modalFuncCallbackNum == 1)
-      tdApp_stubs.getClassificationByUUID(uuid);
-    else if (modalFuncCallbackNum == 2)
-      tdApp_stubs.getFacilityTemplateByUUID(uuid);
-    else if (modalFuncCallbackNum == 3)
-      tdApp_stubs.getParameterByUUID(uuid);
     else {
       alert("ASSERT: modalFuncCallbackNum not expected.");
     }

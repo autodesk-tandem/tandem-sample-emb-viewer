@@ -1,5 +1,5 @@
 
-import * as td_utils from './td_utils.js';
+import * as utils from './utils.js';
 
 /***************************************************
 ** FUNC: dumpStreamManager()
@@ -9,7 +9,7 @@ import * as td_utils from './td_utils.js';
 export function dumpStreamManager() {
   console.group("STUB: dumpStreamManager()");
 
-  const strmMgr = td_utils.getCurrentFacility()?.getStreamManager();
+  const strmMgr = utils.getCurrentFacility()?.getStreamManager();
   if (strmMgr) {
     console.log("facilty.getStreamManager()", strmMgr);
   }
@@ -25,7 +25,7 @@ export function dumpStreamManager() {
 export async function getStreamIds() {
   console.group("STUB: getStreamIds()");
 
-  const strmMgr = td_utils.getCurrentFacility()?.getStreamManager();
+  const strmMgr = utils.getCurrentFacility()?.getStreamManager();
   if (strmMgr) {
     const streamIds = await strmMgr.getStreamIds();
 
@@ -59,7 +59,7 @@ export async function getStreamIds() {
 export async function getLastReadings() {
   console.group("STUB: getLastReadings()");
 
-  const strmMgr = td_utils.getCurrentFacility()?.getStreamManager();
+  const strmMgr = utils.getCurrentFacility()?.getStreamManager();
   if (strmMgr) {
     const streamIds = await strmMgr.getStreamIds();
 
@@ -83,7 +83,7 @@ export async function getLastReadings() {
 export async function refreshStreamsLastReadings() {
   console.group("STUB: refreshStreamsLastReadings()");
 
-  const strmMgr = td_utils.getCurrentFacility()?.getStreamManager();
+  const strmMgr = utils.getCurrentFacility()?.getStreamManager();
   if (strmMgr) {
     const streamIds = await strmMgr.getStreamIds();
     if (streamIds && streamIds.length) {
@@ -106,7 +106,7 @@ export async function refreshStreamsLastReadings() {
 export async function exportStreamsToJson() {
   console.group("STUB: exportStreamsToJson()");
 
-  const strmMgr = td_utils.getCurrentFacility()?.getStreamManager();
+  const strmMgr = utils.getCurrentFacility()?.getStreamManager();
   if (strmMgr) {
     const jsonObj = await strmMgr.exportStreamsToJson();
     //console.log("exportStreamsToJson()", jsonObj);
@@ -124,7 +124,7 @@ export async function exportStreamsToJson() {
 export async function getAllStreamInfos() {
   console.group("STUB: getAllStreamInfos()");
 
-  const strmMgr = td_utils.getCurrentFacility()?.getStreamManager();
+  const strmMgr = utils.getCurrentFacility()?.getStreamManager();
   if (strmMgr) {
     const jsonObj = await strmMgr.getAllStreamInfos();
     //console.log("getAllStreamInfos()", jsonObj);
@@ -143,7 +143,7 @@ export async function getAllStreamInfos() {
 export async function getAllStreamInfosFromCache() {
   console.group("STUB: getAllStreamInfosFromCache()");
 
-  const strmMgr = td_utils.getCurrentFacility()?.getStreamManager();
+  const strmMgr = utils.getCurrentFacility()?.getStreamManager();
   if (strmMgr) {
     const jsonObj = await strmMgr.getAllStreamInfosFromCache();
     //console.log("getAllStreamInfos()", jsonObj);
@@ -162,7 +162,7 @@ export async function getAllStreamInfosFromCache() {
 export async function getAllConnectedAttributes() {
   console.group("STUB: getAllConnectedAttributes()");
 
-  const strmMgr = td_utils.getCurrentFacility()?.getStreamManager();
+  const strmMgr = utils.getCurrentFacility()?.getStreamManager();
   if (strmMgr) {
     const jsonObj = await strmMgr.getAllConnectedAttributes();
     //console.log("getAllStreamInfos()", jsonObj);
@@ -181,7 +181,7 @@ export async function getAllConnectedAttributes() {
 export async function getAttributeCandidates() {
   console.group("STUB: getAttributeCandidates()");
 
-  const strmMgr = td_utils.getCurrentFacility()?.getStreamManager();
+  const strmMgr = utils.getCurrentFacility()?.getStreamManager();
   if (strmMgr) {
         // normally done one at a time, but we need to look up all the streamIds anyway, so lets get them
         // all and print out a nice table for the user.
@@ -203,7 +203,7 @@ export async function getStreamSecrets() {
   console.group("STUB: getStreamSecrets()");
 
     // NOTE: the API call asks for only one, but let's just dump them all out for the user in a nice table
-  const strmMgr = td_utils.getCurrentFacility()?.getStreamManager();
+  const strmMgr = utils.getCurrentFacility()?.getStreamManager();
   if (strmMgr) {
     const streamIds = await strmMgr.getStreamIds();
     if (streamIds && streamIds.length) {
@@ -236,7 +236,7 @@ export async function resetStreamSecrets(streamKeys) {
   console.group("STUB: resetStreamSecrets()");
   const streamKeysArray = streamKeys.split(',');
 
-  const strmMgr = td_utils.getCurrentFacility()?.getStreamManager();
+  const strmMgr = utils.getCurrentFacility()?.getStreamManager();
   if (strmMgr) {
     await strmMgr._resetStreamSecrets(streamKeysArray, true);
     console.log("_resetStreamSecrets()", "called with hardReset=true");
@@ -253,7 +253,7 @@ export async function resetStreamSecrets(streamKeys) {
 export async function getStreamIngestionUrls() {
   console.group("STUB: getStreamIngestionUrls()");
 
-  const strmMgr = td_utils.getCurrentFacility()?.getStreamManager();
+  const strmMgr = utils.getCurrentFacility()?.getStreamManager();
   if (strmMgr) {
         // normally done one at a time, but we need to look up all the streamIds anyway, so lets get them
         // all and print out a nice table for the user.
@@ -280,7 +280,7 @@ export async function getStreamIngestionUrls() {
 export async function getStreamsBulkImportTemplate() {
   console.group("STUB: getStreamsBulkImportTemplate()");
 
-  const strmMgr = td_utils.getCurrentFacility()?.getStreamManager();
+  const strmMgr = utils.getCurrentFacility()?.getStreamManager();
   if (strmMgr) {
     console.log("getStreamsBulkImportTemplate()", strmMgr.getStreamsBulkImportTemplate());
   }
@@ -298,7 +298,7 @@ export async function getStreamsBulkImportTemplate() {
 
     /// async createStream(name, modelToLinkTo, dbIdToLinkTo, extraProps = {}) {
 
-    const strmMgr = td_utils.getCurrentFacility()?.getStreamManager();
+    const strmMgr = utils.getCurrentFacility()?.getStreamManager();
     if (strmMgr) {
       const streamKey = await strmMgr.createStream(streamName, null, null);
       if (streamKey)
@@ -316,7 +316,7 @@ export async function getStreamsBulkImportTemplate() {
 export async function deleteStream(streamId) {
   console.group("STUB: deleteStream()");
 
-  const strmMgr = td_utils.getCurrentFacility()?.getStreamManager();
+  const strmMgr = utils.getCurrentFacility()?.getStreamManager();
   if (strmMgr) {
     const streamIds = [streamId]; // technically we could delete multiple in one shot
     console.log("Deleting stream IDs", streamIds);

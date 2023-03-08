@@ -2,7 +2,10 @@
 import { checkLogin } from './login.js';
 import { initLMV, startViewer } from './lmv.js';
 import * as vw_stubs from './src/vw_stubs.js';
-import * as td_stubs from './src/td_stubs.js';
+import * as fac_stubs from './src/fac_stubs.js';
+import * as model_stubs from './src/model_stubs.js';
+import * as prop_stubs from './src/prop_stubs.js';
+import * as doc_stubs from './src/doc_stubs.js';
 import * as ev_stubs from './src/ev_stubs.js';
 import * as st_stubs from './src/st_stubs.js';
 
@@ -104,16 +107,32 @@ async function main() {
     // TBD: not super happy about how this callback mechanism works... I did trial and error
     // forever to get these partial HTML snippets to work for the modal input.  Will try later
     // to make a more elegant mechanism.  (JMA - 03/28/22)
-  var modalFuncCallbackNum = 0;
+  let modalFuncCallbackNum = 0;
 
+    // Facility Stubs
+  $("#btn_dumpFacilityInfo").click(fac_stubs.dumpDtFacilityInfo);
+  $("#btn_dumpAppInfo").click(fac_stubs.dumpDtAppInfo);
+  $("#btn_dumpDtConstants").click(fac_stubs.dumpDtConstants);
+  $("#btn_loadFacilityUsageMetrics").click(fac_stubs.loadFacilityUsageMetrics);
+
+    // Model stubs
+  $("#btn_dumpModelInfo").click(model_stubs.dumpDtModelInfo);
+  $("#btn_getLevels").click(model_stubs.getLevels);
+  $("#btn_getRooms").click(model_stubs.getRooms);
+  $("#btn_showElementsInRoom").click(model_stubs.showElementsInRoom);
+  $("#btn_getModelHistory").click(model_stubs.getDtModelHistory);
+  $("#btn_getModelUsageMetrics").click(model_stubs.getDtModelUsageMetrics);
+  $("#btn_dbIdsToPersistentIds").click(model_stubs.dbIdsToExternalIds);
+
+    // Prop Stubs
   $("#btn_getQualifiedPropName").click(function() {
       $('#stubInput_getPropertyName').modal('show');
       modalFuncCallbackNum = 0;
     });
 
-  $("#btn_getProperties").click(td_stubs.getDtProperties);
-  $("#btn_getPropertiesWithHistory").click(td_stubs.getDtPropertiesWithHistory);
-  $("#btn_getCommonProperties").click(td_stubs.getCommonDtProperties);
+  $("#btn_getProperties").click(prop_stubs.getDtProperties);
+  $("#btn_getPropertiesWithHistory").click(prop_stubs.getDtPropertiesWithHistory);
+  $("#btn_getCommonProperties").click(prop_stubs.getCommonDtProperties);
 
   $("#btn_getPropertySelSet").click(function() {
       $('#stubInput_getPropertyName').modal('show');
@@ -133,27 +152,16 @@ async function main() {
       $('#stubInput_setClassification').modal('show');
     });
 
-  $("#btn_dumpFacilityInfo").click(td_stubs.dumpDtFacilityInfo);
-  $("#btn_dumpModelInfo").click(td_stubs.dumpDtModelInfo);
-  $("#btn_dumpAppInfo").click(td_stubs.dumpDtAppInfo);
-  $("#btn_dumpDtConstants").click(td_stubs.dumpDtConstants);
-  $("#btn_getLevels").click(td_stubs.getLevels);
-  $("#btn_getRooms").click(td_stubs.getRooms);
-  $("#btn_showElementsInRoom").click(td_stubs.showElementsInRoom);
-  $("#btn_getModelHistory").click(td_stubs.getDtModelHistory);
-  $("#btn_getModelUsageMetrics").click(td_stubs.getDtModelUsageMetrics);
-  $("#btn_loadFacilityUsageMetrics").click(td_stubs.loadFacilityUsageMetrics);
-  $("#btn_dbIdsToPersistentIds").click(td_stubs.dbIdsToExternalIds);
-
-  $("#btn_getFacilityDocuments").click(td_stubs.getFacilityDocuments);
+    // Document Stubs
+  $("#btn_getFacilityDocuments").click(doc_stubs.getFacilityDocuments);
 
   $("#btn_getDocument").click(function() {
-      $('#stubInput_getURN').modal('show');
+    $('#stubInput_getURN').modal('show');
       modalFuncCallbackNum = 0;
     });
 
   $("#btn_deleteDocument").click(function() {
-      $('#stubInput_getURN').modal('show');
+    $('#stubInput_getURN').modal('show');
       modalFuncCallbackNum = 1;
     });
 
@@ -212,9 +220,9 @@ async function main() {
     const propName = $("#stubInput_propName").val();
 
     if (modalFuncCallbackNum == 0)
-      td_stubs.getQualifiedPropName(propCategory, propName);
+      prop_stubs.getQualifiedPropName(propCategory, propName);
     else if (modalFuncCallbackNum == 1)
-      td_stubs.getPropertySelSet(propCategory, propName);
+      prop_stubs.getPropertySelSet(propCategory, propName);
     else {
       alert("ASSERT: modalFuncCallbackNum not expected.");
     }
@@ -227,7 +235,7 @@ async function main() {
     const propVal = $("#stubInput_propValSet").val();
 
     if (modalFuncCallbackNum == 0)
-      td_stubs.setPropertySelSet(propCategory, propName, propVal);
+      prop_stubs.setPropertySelSet(propCategory, propName, propVal);
     else {
       alert("ASSERT: modalFuncCallbackNum not expected.");
     }
@@ -242,23 +250,23 @@ async function main() {
     const isRegEx = $("#stubInput_propValIsRegEx").is(":checked");
     const searchVisibleOnly = $("#stubInput_searchVisibleOnly").is(":checked");
 
-    td_stubs.findElementsWherePropValueEqualsX(propCategory, propName, matchStr, isRegEx, searchVisibleOnly, isCaseInsensitive);
+    prop_stubs.findElementsWherePropValueEqualsX(propCategory, propName, matchStr, isRegEx, searchVisibleOnly, isCaseInsensitive);
   });
 
     // this gets called from above via modal dialog (#btn_findElementsWherePropValueEqualsX)
   $('#stubInput_setClassification_OK').click(function() {
     const classificationStr = $("#stubInput_classificationStr").val();
 
-    td_stubs.assignClassification(classificationStr);
+    porp_stubs.assignClassification(classificationStr);
   });
 
   $('#stubInput_getURN_OK').click(function() {
     const urn = $("#stubInput_urn").val();
 
     if (modalFuncCallbackNum == 0)
-      td_stubs.getDocument(urn);
+      doc_stubs.getDocument(urn);
     else if (modalFuncCallbackNum == 1)
-      td_stubs.deleteDocument(urn);
+      doc_stubs.deleteDocument(urn);
     else {
       alert("ASSERT: modalFuncCallbackNum not expected.");
     }

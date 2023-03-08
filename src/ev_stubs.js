@@ -82,6 +82,10 @@ function event_DtStreamMarkerMouseOut(e) {
   dumpEventInfo("DT_STREAM_MARKER_MOUSE_OUT", e);
 }
 
+function event_DtStreamMarkerChangedEvent(e) {
+  dumpEventInfo("DT_STREAM_MARKER_CHANGED_EVENT", e);
+}
+
 function event_DtStreamsInfoChangedEvent(e) {
   dumpEventInfo("DT_STREAMS_INFO_CHANGED_EVENT", e);
 }
@@ -104,6 +108,10 @@ function event_DtSystemsChangedEvent(e) {
 
 function event_DtSystemConnectionsChangedEvent(e) {
   dumpEventInfo("DT_SYSTEM_CONNECTIONS_CHANGED_EVENT", e);
+}
+
+function event_DtHeatmapChangedEvent(e) {
+  dumpEventInfo("DT_HEATMAP_CHANGED_EVENT", e);
 }
 
 /***************************************************
@@ -132,11 +140,13 @@ export function addEventListeners() {
   dtApp.addEventListener(Autodesk.Viewing.Private.DT_STREAM_MARKER_CLICKED, event_DtStreamMarkerClicked);
   dtApp.addEventListener(Autodesk.Viewing.Private.DT_STREAM_MARKER_MOUSE_OVER, event_DtStreamMarkerMouseOver);
   dtApp.addEventListener(Autodesk.Viewing.Private.DT_STREAM_MARKER_MOUSE_OUT, event_DtStreamMarkerMouseOut);
+  dtApp.addEventListener(Autodesk.Viewing.Private.DT_STREAM_MARKER_CHANGED_EVENT, event_DtStreamMarkerChangedEvent);
   dtApp.addEventListener(Autodesk.Viewing.Private.DT_STREAMS_INFO_CHANGED_EVENT, event_DtStreamsInfoChangedEvent);
   dtApp.addEventListener(Autodesk.Viewing.Private.DT_STREAMS_LAST_READINGS_CHANGED_EVENT, event_DtStreamsLastReadingsChangedEvent);
   dtApp.addEventListener(Autodesk.Viewing.Private.DT_STREAMS_DELETED_EVENT, event_DtStreamsDeletedEvent);
   dtApp.addEventListener(Autodesk.Viewing.Private.DT_SYSTEMS_CHANGED_EVENT, event_DtSystemsChangedEvent);
   dtApp.addEventListener(Autodesk.Viewing.Private.DT_SYSTEM_CONNECTIONS_CHANGED_EVENT, event_DtSystemConnectionsChangedEvent);
+  dtApp.addEventListener(Autodesk.Viewing.Private.DT_HEATMAP_CHANGED_EVENT, event_DtHeatmapChangedEvent);
 
     // toggle the menu itme in the HTML
   document.getElementById("btn_addEventListeners").classList.add('disabled');
@@ -170,11 +180,13 @@ export function removeEventListeners() {
   dtApp.removeEventListener(Autodesk.Viewing.Private.DT_STREAM_MARKER_CLICKED, event_DtStreamMarkerClicked);
   dtApp.removeEventListener(Autodesk.Viewing.Private.DT_STREAM_MARKER_MOUSE_OVER, event_DtStreamMarkerMouseOver);
   dtApp.removeEventListener(Autodesk.Viewing.Private.DT_STREAM_MARKER_MOUSE_OUT, event_DtStreamMarkerMouseOut);
+  dtApp.removeEventListener(Autodesk.Viewing.Private.DT_STREAM_MARKER_CHANGED_EVENT, event_DtStreamMarkerChangedEvent);
   dtApp.removeEventListener(Autodesk.Viewing.Private.DT_STREAMS_INFO_CHANGED_EVENT, event_DtStreamsInfoChangedEvent);
   dtApp.removeEventListener(Autodesk.Viewing.Private.DT_STREAMS_LAST_READINGS_CHANGED_EVENT, event_DtStreamsLastReadingsChangedEvent);
   dtApp.removeEventListener(Autodesk.Viewing.Private.DT_STREAMS_DELETED_EVENT, event_DtStreamsDeletedEvent);
   dtApp.removeEventListener(Autodesk.Viewing.Private.DT_SYSTEMS_CHANGED_EVENT, event_DtSystemsChangedEvent);
   dtApp.removeEventListener(Autodesk.Viewing.Private.DT_SYSTEM_CONNECTIONS_CHANGED_EVENT, event_DtSystemConnectionsChangedEvent);
+  dtApp.removeEventListener(Autodesk.Viewing.Private.DT_HEATMAP_CHANGED_EVENT, event_DtHeatmapChangedEvent);
 
     // toggle the menu itme in the HTML
   document.getElementById("btn_addEventListeners").classList.remove('disabled');

@@ -55,12 +55,40 @@
             <div class="col-md-4" id="wo_pane">
               <div class="row form-group mt-5">
                 <div class="col-md dropdown dropright"> <!--Dropdown menu for Tandem stubs -->
-                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuTd" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Facility/Model Stubs
+                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuFacility" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Facility Stubs
                   </button>
-                  <div class="dropdown-menu" aria-labelledby="dropdownMenuTd">
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuFacility">
+                    <button class="dropdown-item" type="button" id="btn_dumpFacilityInfo">Dump Facility Info</button>
+                    <button class="dropdown-item" type="button" id="btn_dumpAppInfo">Dump App Info</button>
+                    <button class="dropdown-item" type="button" id="btn_dumpDtConstants">Dump DT constants</button>
+                    <button class="dropdown-item" type="button" id="btn_loadFacilityUsageMetrics">Load Facility Usage Metrics</button>
+                  </div>
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-md dropdown dropright"> <!--Dropdown menu for Model stubs -->
+                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuModel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Model Stubs
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuModel">
+                    <button class="dropdown-item" type="button" id="btn_dumpModelInfo">Dump Model Info</button>
+                    <button class="dropdown-item" type="button" id="btn_getModelHistory">Get Model History</button>
+                    <button class="dropdown-item" type="button" id="btn_getModelUsageMetrics">Get Model Usage Metrics</button>
+                    <button class="dropdown-item" type="button" id="btn_getLevels">Get Levels</button>
+                    <button class="dropdown-item" type="button" id="btn_getRooms">Get Rooms</button>
+                    <button class="dropdown-item" type="button" id="btn_showElementsInRoom">Show Elements In Room</button>
+                    <button class="dropdown-item" type="button" id="btn_dbIdsToPersistentIds">Viewer Ids --> Element Ids</button>
+                  </div>
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-md dropdown dropright"> <!--Dropdown menu for Property stubs -->
+                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuProps" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Property Stubs
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuProps">
                     <button class="dropdown-item" type="button" id="btn_getQualifiedPropName">Get Qualified Prop Name</button>
-
                     <button class="dropdown-item" type="button" id="btn_getProperties">Get Properties</button>
                     <button class="dropdown-item" type="button" id="btn_getPropertiesWithHistory">Get Properties (with history)</button>
                     <button class="dropdown-item" type="button" id="btn_getCommonProperties">Get Common Properties</button>
@@ -68,27 +96,15 @@
                     <button class="dropdown-item" type="button" id="btn_findElementsWherePropValueEqualsX">Find Elements Where PropValue = X</button>
                     <button class="dropdown-item" type="button" id="btn_setPropertySelSet">Set Property (selSet)</button>
                     <button class="dropdown-item" type="button" id="btn_assignClassification">Assign Classification</button>
-
-                    <button class="dropdown-item" type="button" id="btn_dumpFacilityInfo">Dump Facility Info</button>
-                    <button class="dropdown-item" type="button" id="btn_dumpAppInfo">Dump App Info</button>
-                    <button class="dropdown-item" type="button" id="btn_dumpModelInfo">Dump Model Info</button>
-                    <button class="dropdown-item" type="button" id="btn_dumpDtConstants">Dump DT constants</button>
-                    <button class="dropdown-item" type="button" id="btn_getLevels">Get Levels</button>
-                    <button class="dropdown-item" type="button" id="btn_getRooms">Get Rooms</button>
-                    <button class="dropdown-item" type="button" id="btn_showElementsInRoom">Show Elements In Room</button>
-                    <button class="dropdown-item" type="button" id="btn_getModelHistory">Get Model History</button>
-                    <button class="dropdown-item" type="button" id="btn_getModelUsageMetrics">Get Model Usage Metrics</button>
-                    <button class="dropdown-item" type="button" id="btn_loadFacilityUsageMetrics">Load Facility Usage Metrics</button>
-                    <button class="dropdown-item" type="button" id="btn_dbIdsToPersistentIds">Viewer Ids --> Element Ids</button>
                   </div>
                 </div>
               </div>
               <div class="row form-group">
                 <div class="col-md dropdown dropright"> <!--Dropdown menu for Tandem Document link stubs -->
-                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuTd" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuDocs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Document Stubs
                   </button>
-                  <div class="dropdown-menu" aria-labelledby="dropdownMenuTd">
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuDocs">
                     <button class="dropdown-item" type="button" id="btn_getFacilityDocuments">Get Facility Documents</button>
                     <button class="dropdown-item" type="button" id="btn_getDocument">Get Document</button>
                     <button class="dropdown-item" type="button" id="btn_deleteDocument">Delete Document</button>

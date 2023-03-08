@@ -1,5 +1,5 @@
 
-import * as td_utils from './td_utils.js';
+import * as utils from './utils.js';
 
 
 /***************************************************
@@ -143,7 +143,7 @@ function spheresForObjects(model, dbIds) {
     }
 
       // now see if any models need to be completely hidden (because nothing was selected from them)
-    const facility = td_utils.getCurrentFacility();
+    const facility = utils.getCurrentFacility();
     const allModels = facility.getModels();
     for (let i=0; i<allModels.length; i++) {
       const found = processedModels.find(element => (element._modelId === allModels[i]._modelId));
@@ -187,7 +187,7 @@ export function showAllObjects() {
  **********************/
 
 export function getAllElements() {
-  const models = td_utils.getLoadedModels();
+  const models = utils.getLoadedModels();
   if (!models) {
     alert("NO MODEL LOADED");
     return;
@@ -212,7 +212,7 @@ export function getAllElements() {
 **********************/
 
 export function getVisibleDbIds() {
-  const models = td_utils.getLoadedModels();
+  const models = utils.getLoadedModels();
   if (!models) {
     alert("NO MODEL LOADED");
     return;
@@ -237,7 +237,7 @@ export function getVisibleDbIds() {
 **********************/
 
 export async function selectAllVisibleElemnents() {
-  const facility = td_utils.getCurrentFacility();
+  const facility = utils.getCurrentFacility();
   if (facility == null) {
     alert("No facility loaded");
     return;
@@ -252,7 +252,7 @@ export async function selectAllVisibleElemnents() {
 **********************/
 
 export async function getHiddenElementsByModel() {
-  const facility = td_utils.getCurrentFacility();
+  const facility = utils.getCurrentFacility();
   if (facility == null) {
     alert("No facility loaded");
     return;
@@ -270,7 +270,7 @@ export async function getHiddenElementsByModel() {
 **********************/
 
 export async function hideModel() {
-  const facility = td_utils.getCurrentFacility();
+  const facility = utils.getCurrentFacility();
   if (facility == null) {
     alert("No facility loaded");
     return;
@@ -302,7 +302,7 @@ export async function hideModel() {
 **********************/
 
 export async function showModel() {
-  const facility = td_utils.getCurrentFacility();
+  const facility = utils.getCurrentFacility();
   if (facility == null) {
     alert("No facility loaded");
     return;

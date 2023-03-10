@@ -114,6 +114,8 @@ export async function dumpDtModelInfo() {
 
   for (let i=0; i<models.length; i++) {
     console.group(`Model[${i}]--> ${models[i].label()}`);
+    console.log(`Model URN: ${models[i].urn()}`);
+
     await dumpSingleModel(models[i]);
     console.groupEnd();
   }
@@ -142,6 +144,7 @@ export async function getDtModelHistory() {
     const hist = await models[i].getHistory([], startDay.getTime(), endDay.getTime(), true);
 
     console.group(`Model[${i}]--> ${models[i].label()}`);
+    console.log(`Model URN: ${models[i].urn()}`);
 
     console.table(hist);
     console.groupEnd();
@@ -178,6 +181,7 @@ export async function getDtModelUsageMetrics() {
     //const usage = await models[i].getUsageMetrics(start, end);
     const usage = await models[i].getUsageMetrics(from);
     console.group(`Model[${i}]--> ${models[i].label()}`);
+    console.log(`Model URN: ${models[i].urn()}`);
     console.log('Received metrics', JSON.stringify(usage));
 
     //console.table(usage);
@@ -206,6 +210,7 @@ export async function getLevels() {
     // loop through each model and get the data for levels
   for (let i=0; i<models.length; i++) {
     console.group(`Model[${i}]--> ${models[i].label()}`);
+    console.log(`Model URN: ${models[i].urn()}`);
 
     const levelObjs = await models[i].getLevels();
 
@@ -253,6 +258,7 @@ export async function getRooms() {
     // loop through each model and get the data for rooms
   for (let i=0; i<models.length; i++) {
     console.group(`Model[${i}]--> ${models[i].label()}`);
+    console.log(`Model URN: ${models[i].urn()}`);
 
     const roomObjs = await models[i].getRooms();
 
@@ -402,7 +408,9 @@ export async function dbIdsToExternalIds() {
     const model = aggrSet[i].model;
     const selSet = aggrSet[i].selection;
 
+    //console.group(`Model[${i}]--> []${model.label()}, ${model.urn()}]`);
     console.group(`Model[${i}]--> ${model.label()}`);
+    console.log(`Model URN: ${model.urn()}`);
 
     //DtModel.prototype.getDbIdsFromElementIds = async function(elementIds) {   NOTE: reverse function is available too
     const elementIds = await model.getElementIdsFromDbIds(selSet);

@@ -22,6 +22,7 @@ export async function getQualifiedPropName(propCategory, propName) {
     // loop through each model and get the attributes (aka properties) schema
   for (let i=0; i<models.length; i++) {
     console.group(`Model[${i}]--> ${models[i].label()}`);
+    console.log(`Model URN: ${models[i].urn()}`);
 
     const attrs = await models[i].getHash2Attr();
     if (attrs) {
@@ -59,6 +60,7 @@ export async function getDtPropertiesImpl(withHistory) {
     const selSet = aggrSet[i].selection;
 
     console.group(`Model[${i}]--> ${model.label()}`);
+    console.log(`Model URN: ${model.urn()}`);
 
       // TBD: what does options do here?
     //DtModel.prototype.getPropertiesDt = async function(dbIds, options = {}).
@@ -179,6 +181,7 @@ export async function getPropertySelSet(propCategory, propName) {
 
   for (let i=0; i<aggrSet.length; i++) {
     console.group(`Model[${i}]--> ${aggrSet[i].model.label()}`);
+    console.log(`Model URN: ${aggrSet[i].model.urn()}`);
 
       // TBD: not sure yet exactly how all the options work or why to use model.query() over model.getDtProperties()
       // You can experiment by changing flags
@@ -225,6 +228,7 @@ export async function findElementsWherePropValueEqualsX(propCategory, propName, 
   //for (let i=0; i<models.length; i++) {
   for (let i=0; i<models.length; i++) { // TBD: switch back when bugs fixed
     console.group(`Model[${i}]--> ${models[i].label()}`);
+    console.log(`Model URN: ${models[i].urn()}`);
 
     if (models[i].label() === "") {
       console.log("skipping null model...");  // TBD: bug in the system where we have a model with no geometry
@@ -340,6 +344,7 @@ export async function setPropertySelSet(propCategory, propName, propValue) {
     // loop through the models individually and set the property to something new
   for (let i=0; i<aggrSet.length; i++) {
     console.group(`Model[${i}]--> ${aggrSet[i].model.label()}`);
+    console.log(`Model URN: ${aggrSet[i].model.urn()}`);
 
     const attr = await utils.getQualifiedProperty(aggrSet[i].model, propCategory, propName);
     console.log("attr", attr);
@@ -408,6 +413,7 @@ export async function assignClassification(classificationStr) {
     // loop through the models individually and set the "Classification" property to a new value
   for (let i=0; i<aggrSet.length; i++) {
     console.group(`Model[${i}]--> ${aggrSet[i].model.label()}`);
+    console.log(`Model URN: ${aggrSet[i].model.urn()}`);
 
     setPropertyOnElements(aggrSet[i].model, aggrSet[i].selection, fullyQualifiedPropName, classificationStr);
 

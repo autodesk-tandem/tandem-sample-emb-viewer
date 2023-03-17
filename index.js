@@ -212,7 +212,11 @@ async function main() {
   $("#btn_hideModel").click(vw_stubs.hideModel);
   $("#btn_showModel").click(vw_stubs.showModel);
   $("#btn_scrapeGeometry").click(vw_stubs.scrapeGeometry);
-
+  $("#btn_getSavedViews").click(vw_stubs.getSavedViews);
+  $("#btn_gotoSavedView").click(function() {
+      $('#stubInput_getName').modal('show');
+      modalFuncCallbackNum = 1;
+    });
 
     // this gets called from above via modal dialog (#btn_getQualifiedPropName, and others)
   $('#stubInput_getPropertyName_OK').click(function() {
@@ -287,6 +291,8 @@ async function main() {
 
     if (modalFuncCallbackNum == 0)
       st_stubs.createStream(nameStr);
+    else if (modalFuncCallbackNum == 1)
+      vw_stubs.gotoSavedView(nameStr);
     else {
       alert("ASSERT: modalFuncCallbackNum not expected.");
     }

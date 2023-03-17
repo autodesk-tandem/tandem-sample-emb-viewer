@@ -44,7 +44,7 @@ export async function dumpDtFacilityInfo() {
   console.log("facility.getStreamManager()", facility.getStreamManager());
   console.log("facility.getAllRoomsInfo()", facility.getAllRoomsInfo());
   console.log("facility.getAllImportedSystemClasses()", facility.getAllImportedSystemClasses());
-  //console.log("facility.getSavedViewsList()", facility.getSavedViewsList());  // TBD-LATEST
+  console.log("facility.getSavedViewsList()", await facility.getSavedViewsList());
 
   console.groupEnd();
 

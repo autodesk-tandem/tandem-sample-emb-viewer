@@ -445,3 +445,63 @@ export function scrapeGeometry() {
 
   console.groupEnd();
 }
+
+/***************************************************
+** FUNC: getSavedViews()
+** DESC: get the list of saved views
+**********************/
+
+export async function getSavedViews() {
+
+  const facility = utils.getCurrentFacility();
+  if (!facility) {
+    alert("NO FACILITY CURRENTL LOADED");
+    return;
+  }
+
+  console.group("STUB: getSavedViews()");
+
+  let views = await facility.getSavedViewsList();
+  if (views && views.length) {
+    console.log(views);
+
+      // make a nice table so they can easily see the viewnames in order to restore a view by name
+    const viewTable = [];
+    for (let i=0; i<views.length; i++) {
+      viewTable.push({ viewName: views[i].viewName, id: views[i].id });
+    }
+    console.table(viewTable);
+  }
+  else {
+    console.log("No saved views found.");
+  }
+
+  console.groupEnd();
+}
+
+/***************************************************
+** FUNC: gotoSavedView()
+** DESC: restore a saved view
+**********************/
+
+export async function gotoSavedView(viewName) {
+
+  const facility = utils.getCurrentFacility();
+  if (!facility) {
+    alert("NO FACILITY CURRENTL LOADED");
+    return;
+  }
+
+  console.group("STUB: gotoSavedView()");
+
+  let views = await facility.getSavedViewsList();
+  let newView = views.find(v => v.viewName === viewName);
+  if (newView) {
+    await facility.goToView(newView);
+  }
+  else {
+    console.log(`ERROR: Couldn't find saved view: ${viewName}`);
+  }
+
+  console.groupEnd();
+}

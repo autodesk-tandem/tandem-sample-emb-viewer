@@ -42,6 +42,28 @@ export function getSingleSelectedItem() {
 }
 
 /***************************************************
+** FUNC: getSingleSelectedItemOptional()
+** DESC: same as above, but don't return error messages because its optional
+**********************/
+
+export function getSingleSelectedItemOptional() {
+  const aggrSet = getAggregateSelection();
+  if (!aggrSet) {
+    return null;
+  }
+
+  if (aggrSet.length > 1) {
+    return null;
+  }
+
+  if (aggrSet.length && (aggrSet[0].selection.length > 1)) {
+    return null;
+  }
+
+  return aggrSet; // have to return the whole thing and caller will dig out the first item (because we need dbId and model)
+}
+
+/***************************************************
 ** FUNC: getBounds(id)
 ** DESC: get the bounding box of the element
 **********************/

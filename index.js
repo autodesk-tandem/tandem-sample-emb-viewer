@@ -174,6 +174,7 @@ async function main() {
   $("#btn_getStreamIds").click(st_stubs.getStreamIds);
   $("#btn_getLastReadings").click(st_stubs.getLastReadings);
   $("#btn_refreshStreamsLastReadings").click(st_stubs.refreshStreamsLastReadings);
+  $("#btn_getStreamBulkRollups").click(st_stubs.getStreamBulkRollups);
   $("#btn_exportStreamsToJson").click(st_stubs.exportStreamsToJson);
   $("#btn_getAllStreamInfos").click(st_stubs.getAllStreamInfos);
   $("#btn_getAllStreamInfosFromCache").click(st_stubs.getAllStreamInfosFromCache);

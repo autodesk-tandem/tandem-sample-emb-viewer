@@ -1,4 +1,5 @@
 
+import * as vw_stubs from './vw_stubs.js';
 import * as utils from './utils.js';
 
 /***************************************************
@@ -52,6 +53,37 @@ export async function getStreamIds() {
 }
 
 /***************************************************
+** FUNC: prettyPrintStreamValues()
+** DESC: print out timeseries data in human readable form
+**********************/
+
+export function prettyPrintStreamValues(streamIds, streamKeys, streamDataObj) {
+
+  console.log("Stream IDs", streamIds);
+  if (streamIds.length != streamDataObj.length) {
+    console.warning("WARNING: streamIds.length doesn't match streamDataObj.length");
+  }
+
+    // iterate over the map structure and make a nice, readable table
+  let timeseriesData = [];
+
+  for (let i=0; i<streamDataObj.length; i++) { // one entry for each parameter used to store timeseries data
+    if (streamDataObj[i] != undefined) {  // undefined unless there are values for this index
+      for (const [propKey, propValues] of Object.entries(streamDataObj[i])) { // one entry for each parameter used to store timeseries data
+        for (const [timestampKey, propVal] of Object.entries(propValues)) { // another map with all the timestamps and values
+          const timestamp = parseInt(timestampKey); // convert timestamp to human readable date
+          const date = new Date(timestamp);
+          timeseriesData.push( { streamId: streamIds[i], streamKey: streamKeys[i], propId: propKey, value: propVal, timestamp: timestamp, date: date.toString()} );
+        }
+      }
+    }
+  }
+  if (timeseriesData.length) {
+    console.table(timeseriesData);
+  }
+}
+
+/***************************************************
 ** FUNC: getLastReadings()
 ** DESC: get the last readings for a set of streams
 **********************/
@@ -62,10 +94,12 @@ export async function getLastReadings() {
   const strmMgr = utils.getCurrentFacility()?.getStreamManager();
   if (strmMgr) {
     const streamIds = await strmMgr.getStreamIds();
+    const streamKeys = await strmMgr.defaultModel.getElementIdsFromDbIds(streamIds);
 
     if (streamIds.length) {
       const lastReadings = await strmMgr.getLastReadings(streamIds);
       console.log("getLastReadings()", lastReadings);
+      prettyPrintStreamValues(streamIds, streamKeys, lastReadings);
     }
     else {
       console.log("No streams were found.");
@@ -92,6 +126,65 @@ export async function refreshStreamsLastReadings() {
     }
     else {
       console.log("No streams were found.");
+    }
+  }
+
+  console.groupEnd();
+}
+
+/***************************************************
+** FUNC: prettyPrintRollupStreamValues()
+** DESC: print out timeseries data in human readable form
+**********************/
+
+export function prettyPrintRollupStreamValues(streamDataObj) {
+
+    // iterate over the map structure and make a nice, readable table
+  for (const [streamKey, streamValue] of Object.entries(streamDataObj)) { // one entry for each stream requested
+    let timeseriesData = [];
+
+    for (const [propKey, propValues] of Object.entries(streamValue)) { // one entry for each parameter used to store timeseries data
+      for (const [timestampKey, propVal] of Object.entries(propValues)) { // another map with all the timestamps and values
+        const timestamp = parseInt(timestampKey); // convert timestamp to human readable date
+        const date = new Date(timestamp);
+        timeseriesData.push( { streamKey: streamKey, propId: propKey, count: propVal.count, avg: propVal.avg, min: propVal.min, max: propVal.max, timestamp: timestamp, date: date.toString()} );
+      }
+    }
+    if (timeseriesData.length) {
+      console.table(timeseriesData);
+    }
+  }
+}
+
+/***************************************************
+** FUNC: getStreamBulkRollups()
+** DESC: retrieve rollup info from streams
+**********************/
+
+export async function getStreamBulkRollups() {
+  console.group("STUB: getStreamBulkRollups()");
+
+  const dateNow = new Date();
+  const timestampEnd = dateNow.getTime();
+  console.log("Time Now:", dateNow, timestampEnd);
+
+  const dateMinus365 = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+  const timestampStart = dateMinus365.getTime();
+  console.log("1 Year Ago:", dateMinus365, timestampStart);
+
+  console.log("NOTE: API allows any time range, plus options to limit returned values, sort, and isolate a specific substream parameter.")
+
+  const attrId = '';    // lets get them all (but we could limit it to just one qualified Property, like "Iw")
+
+  const strmMgr = utils.getCurrentFacility()?.getStreamManager();
+  if (strmMgr) {
+    const streamIds = await strmMgr.getStreamIds();
+    const streamKeys = await strmMgr.defaultModel.getElementIdsFromDbIds(streamIds);
+
+    if (streamKeys && streamKeys.length) {
+      const bulkResponse = await strmMgr.fetchBulkStreamRollups(streamKeys, strmMgr.defaultModel, timestampStart, timestampEnd, attrId);
+      console.log("Rollups", bulkResponse);
+      prettyPrintRollupStreamValues(bulkResponse);
     }
   }
 
@@ -290,17 +383,33 @@ export async function getStreamsBulkImportTemplate() {
 
   /***************************************************
   ** FUNC: createStream()
-  ** DESC: Create a new stream from just a name (let the defaults work for everything else)
+  ** DESC: Create a new stream from just a name (and a host if an element is selected in viewer)
   **********************/
 
   export async function createStream(streamName) {
     console.group("STUB: createStream()");
 
-    /// async createStream(name, modelToLinkTo, dbIdToLinkTo, extraProps = {}) {
+    let hostElemId = null;
+    let modelUrnOfParent = null;
+    let wantGeometry = false;
+
+      // if a single element is selected in the viewer, then we can assign it as the Host
+    const aggrSet = vw_stubs.getSingleSelectedItemOptional();
+    if (aggrSet) {
+      hostElemId = aggrSet[0].selection[0];
+      modelUrnOfParent = aggrSet[0].model.urn();
+      //wantGeometry = true;    // TBD: revisit when this flag is ready
+      console.log(`Single element selected, will use as Stream host: [${hostElemId}, ${modelUrnOfParent}]`);
+    }
+    else {
+      console.log("No element selected in Viewer, will create Stream with un-assigned host.");
+    }
+
+    ///async createStream(name, modelUrnOfParent, dbIdOfParent, extraProps = {}, wantGeometry = false) {
 
     const strmMgr = utils.getCurrentFacility()?.getStreamManager();
     if (strmMgr) {
-      const streamKey = await strmMgr.createStream(streamName, null, null);
+      const streamKey = await strmMgr.createStream(streamName, modelUrnOfParent, hostElemId, null, wantGeometry);
       if (streamKey)
         console.log("New stream key -->", streamKey);
     }
@@ -325,178 +434,3 @@ export async function deleteStream(streamId) {
 
   console.groupEnd();
 }
-
-
-
-/// TBD: this is temporary code extracted from Tandem SDK to allow for generation of Keys to be used for new streams.
-/// We need to redo the API to make this encapsulated.
-
-function makeWebsafe(urn) {
-	return urn.replace(/\+/g, '-') // Convert '+' to '-' (dash)
-	    .replace(/\//g, '_') // Convert '/' to '_' (underscore)
-	    .replace(/=+$/, ''); // Remove trailing '='
-}
-
-function toQualifiedKey(shortKey, isLogicalElement) {
-    let binData = Buffer.from(shortKey, "base64");
-    let fullKey = Buffer.alloc(24);
-
-        // constants from dt-schema.js
-    // ElementFlags.SimpleElement:   0x00000000,
-    // ElementFlags.FamilyType:      0x01000000,
-
-    fullKey.writeInt32BE(isLogicalElement ? 0x01000000 : 0x00000000);
-    //fullKey.writeInt32BE(isLogicalElement ? ElementFlags.FamilyType : ElementFlags.SimpleElement);
-    binData.copy(fullKey, 4);
-
-    return makeWebsafe(fullKey.toString("base64"));
-}
-
-function uint6ToB64WebsafeGen(nUint6) {
-
-	return nUint6 < 26 ?
-		nUint6 + 65
-		: nUint6 < 52 ?
-			nUint6 + 71
-			: nUint6 < 62 ?
-				nUint6 - 4
-				: nUint6 === 62 ?
-					45
-					: nUint6 === 63 ?
-						95
-						:
-						65;
-}
-
-let uint6ToB64Websafe = new Uint8Array(64);
-for (let i = 0; i < 64; i++) {
-	uint6ToB64Websafe[i] = uint6ToB64WebsafeGen(i);
-}
-
-let arr22 = new Array(22);
-let arr27 = new Array(27);
-let arr32 = new Array(32);
-
-//from https://cs.opensource.google/go/go/+/refs/tags/go1.18.2:src/encoding/base64/base64.go;l=125
-function base64EncArr(src, offset, length) {
-
-	let baseOffset = offset || 0;
-	let nLen = length || src.length;
-
-	//let paddingLen = (3 - (nLen % 3)) % 3; //padding length that we will ignore for web safe encoding
-	let encodedLenNoPadding = ((nLen * 8 + 5) / 6) | 0;
-
-	let dst;
-	switch (encodedLenNoPadding) {
-		case 22:
-			dst = arr22;
-			break; //for 16 byte input
-		case 27:
-			dst = arr27;
-			break; //for 20 byte input
-		case 32:
-			dst = arr32;
-			break; //for 24 byte input
-		default:
-			dst = new Array(encodedLenNoPadding);
-			break;
-	}
-
-	let di = 0, si = baseOffset;
-	let n = ((nLen / 3) | 0) * 3 + baseOffset;
-	while (si < n) {
-		// Convert 3x 8bit source bytes into 4 bytes
-		let val = (src[si]) << 16 | (src[si + 1]) << 8 | (src[si + 2])
-
-		dst[di] = uint6ToB64Websafe[val >> 18 & 0x3F]
-		dst[di + 1] = uint6ToB64Websafe[val >> 12 & 0x3F]
-		dst[di + 2] = uint6ToB64Websafe[val >> 6 & 0x3F]
-		dst[di + 3] = uint6ToB64Websafe[val & 0x3F]
-
-		si += 3
-		di += 4
-	}
-
-	let remain = nLen - si + baseOffset
-	if (remain === 0) {
-		return String.fromCharCode.apply(null, dst);
-	}
-	// Add the remaining small block
-	let val = (src[si]) << 16
-	if (remain === 2) {
-		val |= (src[si + 1]) << 8
-	}
-
-	dst[di] = uint6ToB64Websafe[val >> 18 & 0x3F]
-	dst[di + 1] = uint6ToB64Websafe[val >> 12 & 0x3F]
-
-	switch (remain) {
-		case 2:
-			dst[di + 2] = uint6ToB64Websafe[val >> 6 & 0x3F]
-		//no padding
-		case 1:
-		//no padding
-		//no padding
-	}
-
-	return String.fromCharCode.apply(null, dst);
-}
-
-/***************************************************
-** FUNC: generateNewStreamKey()
-** DESC: logic extracted from Tandem code that creates a key needed to make simple REST API call to create a stream
-**********************/
-
-export async function generateNewStreamKey() {
-  console.group("STUB: generateNewStreamKey()");
-
-  //const keyFlag = Autodesk.Tandem.ElementFlags.Stream;
-  //const keyFlag = Autodesk.Viewing.Private.DtConstants.KeyFlags.Logical;
-  const keyFlag = 0x01000000; // TBD: figure out how to pass a legit flag to this.
-
-    //Big-Endian flags
-  let _tmpBuf24 = new Uint8Array(24);
-  _tmpBuf24[0] = (keyFlag >> 24) & 0xff;
-  _tmpBuf24[1] = (keyFlag >> 16) & 0xff;
-  _tmpBuf24[2] = (keyFlag >> 8) & 0xff;
-  _tmpBuf24[3] = keyFlag & 0xff;
-
-    // generate binary uuid into buffer at offset 4
-  //uuidV4({}, _tmpBuf24, 4);   // TBD: this is the official way to do it but can't get npm to use it, so doing the hack below
-  for (let i=4; i<20; ++i) {
-    _tmpBuf24[i] = (Math.random() * 256)|0;
-  }
-
-    // fill remaining bytes (>=20) with 0
-  _tmpBuf24.fill(0, 20);
-
-  const newStreamKey = base64EncArr(_tmpBuf24);
-  console.log("New stream key-->", newStreamKey);
-
-  console.groupEnd();
-}
-
-/***************************************************
-** FUNC: convertToQualifiedKey()
-** DESC: logic extracted from Tandem code that converts a short key to a long key
-**********************/
-
-export async function convertToQualifiedKey() {
-  console.group("STUB: convertToQualifiedKey()");
-
-  const shortKey = "DpVDVT9cS2O1QaeFRZc6WgAAAAA";
-  const isLogicalElement = true;
-  const qualifiedKey = toQualifiedKey(shortKey, isLogicalElement);
-
-  console.log("New stream key-->", qualifiedKey);
-
-  console.groupEnd();
-}
-
-
-// 	formatStreamValue(stream, value, unit = undefined) {
-
-// 	async getAttrCandidates(stream, attrs) {
-// 	addStreamRefreshInterval(refreshInterval) {
-//  removeStreamRefreshInterval(refreshInterval) {
-// 	updateActiveRefreshInterval(refreshInterval) {

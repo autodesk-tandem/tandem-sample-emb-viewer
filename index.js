@@ -118,11 +118,22 @@ async function main() {
     // Model stubs
   $("#btn_dumpModelInfo").click(model_stubs.dumpDtModelInfo);
   $("#btn_getLevels").click(model_stubs.getLevels);
-  $("#btn_getRooms").click(model_stubs.getRooms);
+  $("#btn_isolateLevel").click(function() {
+      $('#stubInput_getName').modal('show');
+      modalFuncCallbackNum = 2;
+    });
+  $("#btn_isolateRooms").click(model_stubs.isolateRooms);
   $("#btn_showElementsInRoom").click(model_stubs.showElementsInRoom);
   $("#btn_getModelHistory").click(model_stubs.getDtModelHistory);
   $("#btn_getModelUsageMetrics").click(model_stubs.getDtModelUsageMetrics);
   $("#btn_dbIdsToPersistentIds").click(model_stubs.dbIdsToExternalIds);
+  $("#btn_getElementUfClass").click(model_stubs.getElementUfClass);
+  $("#btn_getElementCustomClass").click(model_stubs.getElementCustomClass);
+  $("#btn_getElementBounds").click(model_stubs.getElementBounds);
+  $("#btn_isolateTaggedAssets").click(model_stubs.isolateTaggedAssets);
+  $("#btn_isolateUnTaggedAssets").click(model_stubs.isolateUnTaggedAssets);
+  $("#btn_isolateClassifiedAssets").click(model_stubs.isolateClassifiedAssets);
+  $("#btn_isolateUnClassifiedAssets").click(model_stubs.isolateUnClassifiedAssets);
 
     // Prop Stubs
   $("#btn_getQualifiedPropName").click(function() {
@@ -294,6 +305,8 @@ async function main() {
       st_stubs.createStream(nameStr);
     else if (modalFuncCallbackNum == 1)
       vw_stubs.gotoSavedView(nameStr);
+    else if (modalFuncCallbackNum == 2)
+      model_stubs.isolateLevel(nameStr);
     else {
       alert("ASSERT: modalFuncCallbackNum not expected.");
     }

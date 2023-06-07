@@ -205,6 +205,39 @@ export async function getLevels() {
 
   console.group("STUB: getLevels()");
 
+    // loop through each model and get the data for levels
+  for (let i=0; i<models.length; i++) {
+    console.group(`Model[${i}]--> ${models[i].label()}`);
+    console.log(`Model URN: ${models[i].urn()}`);
+
+    const levelObjs = await models[i].getLevels();
+    if (levelObjs)
+      console.table(levelObjs);
+    else
+      console.log("No levels found in this model.");
+
+    console.groupEnd();
+  }
+
+  console.groupEnd();
+}
+
+/***************************************************
+** FUNC: isolateLevel()
+** DESC: Take one Level and isolate it in the viewer
+**********************/
+
+export async function isolateLevel(levelName) {
+  const models = utils.getLoadedModels();
+  if (!models) {
+    alert("NO MODEL LOADED");
+    return;
+  }
+
+  console.group("STUB: isolateLevel()");
+
+  console.log(`Isolating level "${levelName}"...`);
+
   NOP_VIEWER.clearSelection();
 
     // loop through each model and get the data for levels
@@ -214,21 +247,22 @@ export async function getLevels() {
 
     const levelObjs = await models[i].getLevels();
 
-      // extract the levelIds out of this object so we can highlight in the viewer
-    const levelIds = [];
-    for (let key in levelObjs)
-      levelIds.push(levelObjs[key].dbId);
+      // find the named level for this models
+    let levelId = null;
+    for (let key in levelObjs) {
+      if (levelObjs[key].name === levelName)
+        levelId = levelObjs[key].dbId;
+    }
 
-      // arbitrarily get the elements on the first level of first model in the array and then isolate them
-    if (levelIds.length && i==0) {
-      console.table(levelObjs);
-      console.log("isolating levels[0] in viewer...");
-      const levelElementIds = models[i].getElementsForLevel(levelIds[0]);
+      // if we found the level in this model, turn those objects on
+    if (levelId) {
+      const levelElementIds = models[i].getElementsForLevel(levelId);
+      console.log(`isolating ${levelElementIds.length} elements on this level in viewer...`);
 
       NOP_VIEWER.isolate(levelElementIds, models[i]); // isolate them so we can visualize them.
     }
     else {
-      console.log("No levels found in this model.");
+      console.log("That level not found in this model.");
       NOP_VIEWER.isolate([0], models[i]); // ghost the entire model, because we found nothing
     }
 
@@ -238,20 +272,19 @@ export async function getLevels() {
   console.groupEnd();
 }
 
-
 /***************************************************
-** FUNC: getRooms()
+** FUNC: isolateRooms()
 ** DESC: dump out the rooms for each model in the facility
 **********************/
 
-export async function getRooms() {
+export async function isolateRooms() {
   const models = utils.getLoadedModels();
   if (!models) {
     alert("NO MODEL LOADED");
     return;
   }
 
-  console.group("STUB: getRooms()");
+  console.group("STUB: isolateRooms()");
 
   NOP_VIEWER.clearSelection();
 
@@ -284,77 +317,18 @@ export async function getRooms() {
 }
 
 /***************************************************
-** FUNC: getElementsInRoom()
-** DESC: find the elements that are part of a room. We have to look for elements
-** that are part of the same model as the room, AND we have to look for elements
-** that belong to an xref model, but reside in this room.
-**********************/
-
-function getElementsInRoom(roomModel, roomDbId) {
-
-  let roomInfo = roomModel.getRooms()[roomDbId];
-  console.log("roomInfo", roomInfo);
-
-  let elementsInRoom = [];
-
-    // walk through all the models that are part of this facility
-  let models = utils.getLoadedModels();
-  for (let i=0; i<models.length; i++) {
-    let tmpModel = models[i];
-    let dbIdsPerModel = []; // keeping track of dbIds for each model separately
-
-    if (tmpModel === roomModel) {      // elements that are part of the same model as the room
-      let dbIdToRoomId = tmpModel.getData().dbId2roomIds;
-
-        // walk the list of entries and find ones with our roomId
-        // NOTE: it can return either a single dbId, or an array of dbIds
-      for (let dbId in dbIdToRoomId) {
-        let elementRooms = dbIdToRoomId[dbId];
-        if (typeof elementRooms === "number") {   // single dbId
-          if (elementRooms === roomDbId) {
-            dbIdsPerModel.push(parseInt(dbId));
-          }
-        }
-        else {      // array of dbIds
-          if (elementRooms.includes(roomDbId)) {
-            dbIdsPerModel.push(parseInt(dbId));
-          }
-        }
-      }
-    }
-    else {  // elements from an xref that are part or this room
-      let xrefs = tmpModel.getData().xrefs[roomModel.urn()]; //find the local integer ID of this room in the current model
-      let localRoomXref = xrefs[roomInfo.externalId];
-      let dbIdToXRoomId = tmpModel.getData().dbId2xroomIds;
-
-      for (let dbId in dbIdToXRoomId) {
-        let elementRooms = dbIdToXRoomId[dbId];
-        if (typeof elementRooms === "number") { // single dbId
-          if (elementRooms === localRoomXref) {
-            dbIdsPerModel.push(parseInt(dbId));
-          }
-        }
-        else {     // array of dbIds
-          if (elementRooms.includes(localRoomXref)) {
-            dbIdsPerModel.push(parseInt(dbId));
-          }
-        }
-      }
-    }
-
-      // add the dbIds we collected for this particular model
-    elementsInRoom.push({model:tmpModel, dbIds:dbIdsPerModel});
-  }
-
-  return elementsInRoom;
-}
-
-/***************************************************
 ** FUNC: showElementsInRoom()
 ** DESC: find the elements that are part of a room and isolate them in the viewer
 **********************/
 
 export async function showElementsInRoom() {
+
+  const facility = utils.getCurrentFacility();
+  if (!facility) {
+    alert("NO FACILITY CURRENTL LOADED");
+    return;
+  }
+
   const aggrSet = vw_stubs.getSingleSelectedItem();
   if (!aggrSet) {
     return;
@@ -372,7 +346,7 @@ export async function showElementsInRoom() {
 
   console.group("STUB: showElementsInRoom()");
 
-  const elementsInRoom = getElementsInRoom(aggrSet[0].model, roomDbId);
+  const elementsInRoom = await facility.getElementsInRoom(aggrSet[0].model.urn(), roomDbId);
   console.log("elementsInRoom", elementsInRoom);
 
     // now we will go through and display those in the viewer and hide everything else
@@ -396,6 +370,7 @@ export async function showElementsInRoom() {
 **********************/
 
 export async function dbIdsToExternalIds() {
+
   const aggrSet = vw_stubs.getAggregateSelection();
   if (!aggrSet) {
     alert("NOTHING SELECTED");
@@ -430,3 +405,301 @@ export async function dbIdsToExternalIds() {
 }
 
 //DtModel.prototype.getDbIdsFromElementIds = async function (elementIds) {
+
+/***************************************************
+** FUNC: getElementUfClass()
+** DESC:
+**********************/
+
+export async function getElementUfClass() {
+  const aggrSet = vw_stubs.getAggregateSelection();
+  if (!aggrSet) {
+    alert("No objects selected");
+    return;
+  }
+
+  console.group("STUB: getElementUfClass()");
+
+    // The aggregate set comes back as array of pairs (Model, SelSet)
+  for (let i=0; i<aggrSet.length; i++) {
+    const model = aggrSet[i].model;
+    const selSet = aggrSet[i].selection;
+
+    console.group(`Model[${i}]--> ${model.label()}`);
+    console.log(`Model URN: ${model.urn()}`);
+
+    const prettyPrintArray = [];
+    for (let j=0; j<selSet.length; j++) {
+      const newObj = { dbId: selSet[j], ufClass: model.getElementUfClass(selSet[j]) };
+      prettyPrintArray.push(newObj);
+    }
+
+    console.table(prettyPrintArray);
+
+    console.groupEnd();
+  }
+
+  console.groupEnd();
+}
+
+/***************************************************
+** FUNC: getElementCustomClass()
+** DESC:
+**********************/
+
+export async function getElementCustomClass() {
+  const aggrSet = vw_stubs.getAggregateSelection();
+  if (!aggrSet) {
+    alert("No objects selected");
+    return;
+  }
+
+  console.group("STUB: getElementCustomClass()");
+
+    // The aggregate set comes back as array of pairs (Model, SelSet)
+  for (let i=0; i<aggrSet.length; i++) {
+    const model = aggrSet[i].model;
+    const selSet = aggrSet[i].selection;
+
+    console.group(`Model[${i}]--> ${model.label()}`);
+    console.log(`Model URN: ${model.urn()}`);
+
+    const prettyPrintArray = [];
+    for (let j=0; j<selSet.length; j++) {
+      const newObj = { dbId: selSet[j], customClass: model.getElementCustomClass(selSet[j]) };
+      prettyPrintArray.push(newObj);
+    }
+
+    console.table(prettyPrintArray);
+
+    console.groupEnd();
+  }
+
+  console.groupEnd();
+}
+
+/***************************************************
+** FUNC: getElementBounds()
+** DESC:
+**********************/
+
+export async function getElementBounds() {
+  const aggrSet = vw_stubs.getAggregateSelection();
+  if (!aggrSet) {
+    alert("No objects selected");
+    return;
+  }
+
+  console.group("STUB: getElementBounds()");
+
+    // The aggregate set comes back as array of pairs (Model, SelSet)
+  for (let i=0; i<aggrSet.length; i++) {
+    const model = aggrSet[i].model;
+    const selSet = aggrSet[i].selection;
+
+    console.group(`Model[${i}]--> ${model.label()}`);
+    console.log(`Model URN: ${model.urn()}`);
+
+    for (let j=0; j<selSet.length; j++) {
+      console.log(`dbId: ${selSet[j]}, bounds:`, model.getElementBounds(selSet[j]));
+    }
+
+    console.groupEnd();
+  }
+
+  console.groupEnd();
+}
+
+/***************************************************
+** FUNC: isolateTaggedAssets()
+** DESC: isolate tagged assets in the viewer
+**********************/
+
+export async function isolateTaggedAssets() {
+  const models = utils.getLoadedModels();
+  if (!models) {
+    alert("NO MODEL LOADED");
+    return;
+  }
+
+  console.group("STUB: isolateTaggedAssets()");
+
+  NOP_VIEWER.clearSelection();
+
+    // loop through each model and get the data for rooms
+  for (let i=0; i<models.length; i++) {
+    console.group(`Model[${i}]--> ${models[i].label()}`);
+    console.log(`Model URN: ${models[i].urn()}`);
+
+    const taggedObjs = await models[i].getTaggedAssets();
+    console.log("Tagged Assets-->", taggedObjs);
+
+      // extract the dbIds out of this object so we can highlight in the viewer
+    const isoIds = [];
+    for (let j=0; j<taggedObjs.rows.length; j++)
+      isoIds.push(taggedObjs.rows[j]["l:d"]);
+
+    if (isoIds.length) {
+      console.log("isolating tagged assets in viewer...");
+      NOP_VIEWER.isolate(isoIds, models[i]); // isolate them so we can visualize them.
+    }
+    else {
+      console.log("No tagged assets found in this model.");
+      NOP_VIEWER.isolate([0], models[i]); // ghost the entire model, because we found nothing
+    }
+
+    console.groupEnd();
+  }
+
+  console.groupEnd();
+}
+
+/***************************************************
+** FUNC: utilSubractIdsFromAllIds()
+** DESC:
+**********************/
+
+function utilSubractElementsFromAllIds(model, subtractElems) {
+
+  const allIds = model.getElementIds();   // all elements in the model
+
+    // pull the Ids out of the rows for each element
+  const subtractIds = [];
+  for (let j=0; j<subtractElems.rows.length; j++)
+    subtractIds.push(subtractElems.rows[j]["l:d"]);
+
+  console.log("subtractIds", subtractIds);
+
+    // now filter those out of all the Ids
+  const keepIds = [];
+  for (let i=0; i<allIds.length; i++) {
+    if (subtractIds.includes(allIds[i]) == false)
+      keepIds.push(allIds[i]);
+  }
+
+  console.log("keepIds", keepIds);
+
+  return keepIds;
+}
+
+/***************************************************
+** FUNC: isolateUnTaggedAssets()
+** DESC: isolate un-tagged assets in the viewer
+**********************/
+
+export async function isolateUnTaggedAssets() {
+  const models = utils.getLoadedModels();
+  if (!models) {
+    alert("NO MODEL LOADED");
+    return;
+  }
+
+  console.group("STUB: isolateUnTaggedAssets()");
+
+  NOP_VIEWER.clearSelection();
+
+    // loop through each model and get the data for rooms
+  for (let i=0; i<models.length; i++) {
+    console.group(`Model[${i}]--> ${models[i].label()}`);
+    console.log(`Model URN: ${models[i].urn()}`);
+
+    const taggedObjs = await models[i].getTaggedAssets();
+    const isoIds = utilSubractElementsFromAllIds(models[i], taggedObjs);
+
+    if (isoIds.length) {
+      console.log("isolating un-tagged assets in viewer...");
+      NOP_VIEWER.isolate(isoIds, models[i]); // isolate them so we can visualize them.
+    }
+    else {
+      console.log("No un-tagged assets found in this model.");
+      NOP_VIEWER.isolate([0], models[i]); // ghost the entire model, because we found nothing
+    }
+
+    console.groupEnd();
+  }
+
+  console.groupEnd();
+}
+
+/***************************************************
+** FUNC: isolateClassifiedAssets()
+** DESC: isolate classified assets in the viewer
+**********************/
+
+export async function isolateClassifiedAssets() {
+  const models = utils.getLoadedModels();
+  if (!models) {
+    alert("NO MODEL LOADED");
+    return;
+  }
+
+  console.group("STUB: isolateClassifiedAssets()");
+
+  NOP_VIEWER.clearSelection();
+
+    // loop through each model and get the data for rooms
+  for (let i=0; i<models.length; i++) {
+    console.group(`Model[${i}]--> ${models[i].label()}`);
+    console.log(`Model URN: ${models[i].urn()}`);
+
+    const taggedObjs = await models[i].getClassifiedAssets();
+    console.log("Classified Assets-->", taggedObjs);
+
+      // extract the dbIds out of this object so we can highlight in the viewer
+    const isoIds = [];
+    for (let j=0; j<taggedObjs.rows.length; j++)
+      isoIds.push(taggedObjs.rows[j]["l:d"]);
+
+    if (isoIds.length) {
+      console.log("isolating classified assets in viewer...");
+      NOP_VIEWER.isolate(isoIds, models[i]); // isolate them so we can visualize them.
+    }
+    else {
+      console.log("No classified assets found in this model.");
+      NOP_VIEWER.isolate([0], models[i]); // ghost the entire model, because we found nothing
+    }
+
+    console.groupEnd();
+  }
+
+  console.groupEnd();
+}
+
+/***************************************************
+** FUNC: isolateUnClassifiedAssets()
+** DESC: isolate un-tagged assets in the viewer
+**********************/
+
+export async function isolateUnClassifiedAssets() {
+  const models = utils.getLoadedModels();
+  if (!models) {
+    alert("NO MODEL LOADED");
+    return;
+  }
+
+  console.group("STUB: isolateUnClassifiedAssets()");
+
+  NOP_VIEWER.clearSelection();
+
+    // loop through each model and get the data for rooms
+  for (let i=0; i<models.length; i++) {
+    console.group(`Model[${i}]--> ${models[i].label()}`);
+    console.log(`Model URN: ${models[i].urn()}`);
+
+    const taggedObjs = await models[i].getClassifiedAssets();
+    const isoIds = utilSubractElementsFromAllIds(models[i], taggedObjs);
+
+    if (isoIds.length) {
+      console.log("isolating un-classifiee assets in viewer...");
+      NOP_VIEWER.isolate(isoIds, models[i]); // isolate them so we can visualize them.
+    }
+    else {
+      console.log("No un-classified assets found in this model.");
+      NOP_VIEWER.isolate([0], models[i]); // ghost the entire model, because we found nothing
+    }
+
+    console.groupEnd();
+  }
+
+  console.groupEnd();
+}

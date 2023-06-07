@@ -124,6 +124,7 @@ async function main() {
     });
   $("#btn_isolateRooms").click(model_stubs.isolateRooms);
   $("#btn_showElementsInRoom").click(model_stubs.showElementsInRoom);
+  $("#btn_getRoomsOfElement").click(model_stubs.getRoomsOfElement);
   $("#btn_getModelHistory").click(model_stubs.getDtModelHistory);
   $("#btn_getModelUsageMetrics").click(model_stubs.getDtModelUsageMetrics);
   $("#btn_dbIdsToPersistentIds").click(model_stubs.dbIdsToExternalIds);

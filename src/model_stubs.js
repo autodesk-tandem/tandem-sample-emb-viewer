@@ -365,6 +365,59 @@ export async function showElementsInRoom() {
 }
 
 /***************************************************
+** FUNC: getRoomsOfElement()
+** DESC: find the rooms this element is associated with
+**********************/
+
+export async function getRoomsOfElement() {
+
+  const facility = utils.getCurrentFacility();
+  if (!facility) {
+    alert("NO FACILITY CURRENTL LOADED");
+    return;
+  }
+
+  const aggrSet = vw_stubs.getSingleSelectedItem();
+  if (!aggrSet) {
+    return;
+  }
+
+  console.group("STUB: getRoomsOfElement()");
+
+  const roomsOfElement = await facility.getRoomsOfElement(aggrSet[0].model, aggrSet[0].selection[0])
+
+  console.table(roomsOfElement);
+
+    // now we will go through and display those in the viewer and hide everything else
+    // need to get all the models in the facility so we can hide the ones that we aren't interested in
+  NOP_VIEWER.clearSelection();  // start the viewer in a clean slate
+
+  if (roomsOfElement.length) {
+    const aggrSet = [];
+    for (let i=0; i<roomsOfElement.length; i++) {
+      NOP_VIEWER.show(roomsOfElement[i].dbId, roomsOfElement[i].model);
+
+        // now put this into our aggrSet object
+      let found = false;
+      for (let j=0; j<aggrSet.length; j++) {
+        if (aggrSet[j].model === roomsOfElement[i].model) {
+          aggrSet[j].selection.push(roomsOfElement[i].dbId);
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        aggrSet.push( { model: roomsOfElement[i].model, selection: [roomsOfElement[i].dbId] });
+      }
+    }
+      // now select these rooms so they are clearly visible
+    NOP_VIEWER.setAggregateSelection(aggrSet);
+  }
+
+  console.groupEnd();
+}
+
+/***************************************************
 ** FUNC: dbIdsToExternalIds()
 ** DESC: convert dbIds from the viewer session to persistent Ids from the Tandem database
 **********************/

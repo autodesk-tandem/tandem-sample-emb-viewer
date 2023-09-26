@@ -10,7 +10,7 @@ const hide = (id) => { getElem(id).style.display="none"};
 
 
 export function login() {
-  const scope = encodeURIComponent('data:read');
+  const scope = encodeURIComponent('data:read user-profile:read');
   doRedirection(env.forgeKey, scope);
 }
 
@@ -47,7 +47,7 @@ export function checkLogin(idStr_login, idStr_logout, idStr_userProfile, idStr_v
 
 export function doRedirection(forge_clientID, scope) {
     const redirect_uri = encodeURIComponent(location.href.split('#')[0]);
-    location.href = `${env.forgeHost}/authentication/v1/authorize?response_type=token&client_id=${env.forgeKey}&redirect_uri=${redirect_uri}&scope=${scope}`;
+    location.href = `${env.forgeHost}/authentication/v2/authorize?response_type=token&client_id=${forge_clientID}&redirect_uri=${redirect_uri}&scope=${scope}`;
 }
 
 export function setTokenStorage() {
@@ -60,9 +60,9 @@ export function setTokenStorage() {
 
   // look up the profile image for this user's Autodesk ID and put in the specified <div> in the DOM
 export async function loadUserProfileImg(div) {
-    const res = await fetch( `${env.forgeHost}/userprofile/v1/users/@me`, {
-        headers : { "Authorization":`Bearer ${window.sessionStorage.token}`}
+    const res = await fetch(`https://api.userprofile.autodesk.com/userinfo`, {
+        headers : { "Authorization":`Bearer ${window.sessionStorage.token}` },
     });
     const user = await res.json();
-    getElem(div).src = user.profileImages.sizeX40;
+    getElem(div).src = user.picture;
 }

@@ -10,7 +10,7 @@ const hide = (id) => { getElem(id).style.display="none"};
 
 
 export function login() {
-  const scope = encodeURIComponent('data:read');
+  const scope = encodeURIComponent('data:read data:write user-profile:read');
   doRedirection(env.forgeKey, scope);
 }
 
@@ -47,7 +47,7 @@ export function checkLogin(idStr_login, idStr_logout, idStr_userProfile, idStr_v
 
 export function doRedirection(forge_clientID, scope) {
     const redirect_uri = encodeURIComponent(location.href.split('#')[0]);
-    location.href = `${env.forgeHost}/authentication/v1/authorize?response_type=token&client_id=${env.forgeKey}&redirect_uri=${redirect_uri}&scope=${scope}`;
+    location.href = `${env.forgeHost}/authentication/v2/authorize?response_type=token&client_id=${forge_clientID}&redirect_uri=${redirect_uri}&scope=${scope}`;
 }
 
 export function setTokenStorage() {

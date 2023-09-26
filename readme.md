@@ -29,7 +29,7 @@ If you would like to use the source to debug or extend with your own test stub f
 
 1. Clone the repository to your local machine
 2. Make sure you have an account and access to at least one facility at https://tandem.autodesk.com
-3. Create a new Application on the Forge Developer Portal to get your Client_ID: https://forge.autodesk.com
+3. Create a new Application on the APS Developer Portal to get your Client_ID: https://aps.autodesk.com
 
 ![Tandem TestBed App 010](./docs/Readme_img_010.png)
 ![Tandem TestBed App 011](./docs/Readme_img_011.png)

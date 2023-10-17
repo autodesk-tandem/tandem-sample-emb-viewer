@@ -60,9 +60,9 @@ export function setTokenStorage() {
 
   // look up the profile image for this user's Autodesk ID and put in the specified <div> in the DOM
 export async function loadUserProfileImg(div) {
-    const res = await fetch( `${env.forgeHost}/userprofile/v1/users/@me`, {
+    const res = await fetch(`https://api.userprofile.autodesk.com/userinfo`, {
         headers : { "Authorization":`Bearer ${window.sessionStorage.token}`}
     });
     const user = await res.json();
-    getElem(div).src = user.profileImages.sizeX40;
+    getElem(div).src = user.picture;
 }

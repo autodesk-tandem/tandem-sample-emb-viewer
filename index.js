@@ -59,8 +59,7 @@ async function bootstrap() {
   console.log('TandemViewer is up and running');
 
     // init app
-  const app = new Autodesk.Viewing.Private.DtApp();
-  //const app = new Autodesk.Viewing.Private.DtApp( {timeSeries: true} ); // TBD: remove this when FacilityMonitoring feature released
+  const app = new Autodesk.Tandem.DtApp();
   window.DT_APP = app;
 
   const facilities = await getAllFacilities(app);

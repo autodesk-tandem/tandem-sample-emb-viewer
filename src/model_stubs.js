@@ -247,16 +247,20 @@ export async function isolateLevel(levelName) {
 
     const levelObjs = await models[i].getLevels();
 
-      // find the named level for this models
-    let levelId = null;
+    // find the named levels for this models
+    let levelIds = [];
     for (let key in levelObjs) {
       if (levelObjs[key].name === levelName)
-        levelId = levelObjs[key].dbId;
+        levelIds.push(levelObjs[key].dbId);
     }
 
-      // if we found the level in this model, turn those objects on
-    if (levelId) {
-      const levelElementIds = models[i].getElementsForLevel(levelId);
+      // if we found levels in this model, turn those objects on
+    if (levelIds.length > 0) {
+      let levelElementIds = [];
+      for (let id in levelIds) {
+         levelElementIds.push(...models[i].getElementsForLevel(levelIds[id]));
+      }
+
       console.log(`isolating ${levelElementIds.length} elements on this level in viewer...`);
 
       NOP_VIEWER.isolate(levelElementIds, models[i]); // isolate them so we can visualize them.

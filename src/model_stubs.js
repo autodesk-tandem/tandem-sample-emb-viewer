@@ -56,7 +56,7 @@ async function dumpSingleModel(model) {
   console.log("fileName()", model.fileName());
   console.log("displayName()", model.displayName());
   console.log("isLoaded()", model.isLoaded());
-  console.log("getSeedUrn()", model.getSeedUrn());
+  //console.log("getSeedUrn()", model.getSeedUrn());
   console.log("getAttributes()", await model.getAttributes());
   console.log("canEdit()", model.canEdit());
   //console.log("hasPhysicalElements()", model.hasPhysicalElements());

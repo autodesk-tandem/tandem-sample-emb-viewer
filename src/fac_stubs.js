@@ -40,7 +40,7 @@ export async function dumpDtFacilityInfo() {
   console.log("facility.getDefaultModelId()", facility.getDefaultModelId());
   console.log("facility.getDefaultModel()", facility.getDefaultModel());
   console.log("facility.getStreamManager()", facility.getStreamManager());
-  console.log("facility.getAllRoomsInfo()", facility.getAllRoomsInfo());
+  //console.log("facility.getAllRoomsInfo()", facility.getAllRoomsInfo());  (TBD: dissappeared??)
   console.log("facility.getAllImportedSystemClasses()", facility.getAllImportedSystemClasses());
   console.log("facility.getSavedViewsList()", await facility.getSavedViewsList());
 
@@ -105,7 +105,7 @@ export async function dumpDtFacilityInfo() {
 **********************/
 
 export async function dumpDtConstants() {
-  const dtConst = Autodesk.Viewing.Private.DtConstants;
+  const dtConst = Autodesk.Tandem.DtConstants;
 
   console.group("STUB: dumpDtConstants()")
 

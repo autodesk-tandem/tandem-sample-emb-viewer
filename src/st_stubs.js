@@ -70,6 +70,30 @@ export function prettyPrintStreamValues(streamIds, streamKeys, streamDataObj) {
   for (let i=0; i<streamDataObj.length; i++) { // one entry for each parameter used to store timeseries data
     if (streamDataObj[i] != undefined) {  // undefined unless there are values for this index
       for (const [propKey, propValues] of Object.entries(streamDataObj[i])) { // one entry for each parameter used to store timeseries data
+          const timestamp = parseInt(propValues.ts); // convert timestamp to human readable date
+          const date = new Date(timestamp);
+          timeseriesData.push( { streamId: streamIds[i], streamKey: streamKeys[i], propId: propKey, value: propValues.val, timestamp: timestamp, date: date.toString()} );
+      }
+    }
+  }
+  if (timeseriesData.length) {
+    console.table(timeseriesData);
+  }
+}
+
+/*export function prettyPrintStreamValues(streamIds, streamKeys, streamDataObj) {
+
+  console.log("Stream IDs", streamIds);
+  if (streamIds.length != streamDataObj.length) {
+    console.warning("WARNING: streamIds.length doesn't match streamDataObj.length");
+  }
+
+    // iterate over the map structure and make a nice, readable table
+  let timeseriesData = [];
+
+  for (let i=0; i<streamDataObj.length; i++) { // one entry for each parameter used to store timeseries data
+    if (streamDataObj[i] != undefined) {  // undefined unless there are values for this index
+      for (const [propKey, propValues] of Object.entries(streamDataObj[i])) { // one entry for each parameter used to store timeseries data
         for (const [timestampKey, propVal] of Object.entries(propValues)) { // another map with all the timestamps and values
           const timestamp = parseInt(timestampKey); // convert timestamp to human readable date
           const date = new Date(timestamp);
@@ -81,7 +105,7 @@ export function prettyPrintStreamValues(streamIds, streamKeys, streamDataObj) {
   if (timeseriesData.length) {
     console.table(timeseriesData);
   }
-}
+}*/
 
 /***************************************************
 ** FUNC: getLastReadings()

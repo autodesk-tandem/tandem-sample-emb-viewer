@@ -15,29 +15,39 @@ import * as st_stubs from './src/st_stubs.js';
 **********************/
 
 async function getAllFacilities(app) {
-  const currentTeamFacilities = await app.getCurrentTeamsFacilities();  // Facilities we have access to based on the current team
 
-    // we will construct a readable table to dump out the info for the user
-  let printOutFacilities = [];
-  let tmp = null;
-  for (let i=0; i<currentTeamFacilities.length; i++) {
-    tmp = currentTeamFacilities[i];
-    printOutFacilities.push({ name: tmp.settings.props["Identity Data"]["Building Name"], shared: "via current team", twinID: tmp.twinId });
+  const printOutFacilities = [];
+  let teamFacilities = [];
+
+    // cycle through all the teams and get each's facilities
+  const teams = await app.getTeams();
+  let tmpTeamFacilities = null;
+  for (let i=0; i<teams.length; i++) {
+    tmpTeamFacilities = await teams[i].getFacilities();
+
+    teamFacilities = teamFacilities.concat(tmpTeamFacilities);
+    //console.log(`Facilities for team: ${teams[i].name}`, teamFacilities);  // dump out raw return result
+
+    let tmpFacility = null;
+    for (let j=0; j<tmpTeamFacilities.length; j++) {
+      tmpFacility = tmpTeamFacilities[j];
+      printOutFacilities.push({ name: tmpFacility.settings.props["Identity Data"]["Building Name"], account: teams[i].name, twinID: tmpFacility.twinId });
+    }
   }
-  console.log("getCurrentTeamsFacilities()", currentTeamFacilities);  // dump out raw return result
 
   const sharedWithMe = await app.getUsersFacilities();  // Facilities we have access to because they've been directly shared with us
 
+  let tmp = null;
   for (let i=0; i<sharedWithMe.length; i++) {
     tmp = sharedWithMe[i];
-    printOutFacilities.push({ name: tmp.settings.props["Identity Data"]["Building Name"], shared: "directly with me", twinID: tmp.twinId });
+    printOutFacilities.push({ name: tmp.settings.props["Identity Data"]["Building Name"], account: "shared directly with me", twinID: tmp.twinId });
   }
-  console.log("getUsersFacilities()", sharedWithMe);  // dump out raw return result
+  //console.log("getUsersFacilities()", sharedWithMe);  // dump out raw return result
 
     // now try to print out a readable table
   console.table(printOutFacilities);
 
-  return [].concat(currentTeamFacilities, sharedWithMe);  // return the full list for the popup selector
+  return [].concat(teamFacilities, sharedWithMe);  // return the full list for the popup selector
 }
 
 /***************************************************

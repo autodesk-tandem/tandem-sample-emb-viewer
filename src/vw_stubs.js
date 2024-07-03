@@ -469,6 +469,39 @@ export function scrapeGeometry() {
 }
 
 /***************************************************
+** FUNC: restoreColorThemeForView()
+** DESC: restoring the view doesn't necessarily apply the color theme from Tandem, so add that
+**********************/
+
+export function restoreColorThemeForView(facility, view)
+{
+  const colorMap = facility.facetsManager.generateColorMap(view.facets.colorMaps);
+  const facetId = view.facets.coloredFacetId;
+  
+  facility.facetsManager.applyTheme(facetId, colorMap[facetId]);
+}
+
+/***************************************************
+** FUNC: clearAllTheming()
+** DESC: remove all theming from the entire Facility
+**********************/
+
+export function clearAllTheming()
+{
+  const facility = utils.getCurrentFacility();
+  if (!facility) {
+    alert("NO FACILITY CURRENTL LOADED");
+    return;
+  }
+
+  console.group("STUB: clearAllTheming()");
+
+  facility.facetsManager.applyTheme(undefined, undefined);
+  
+  console.groupEnd();
+}
+
+/***************************************************
 ** FUNC: getSavedViews()
 ** DESC: get the list of saved views
 **********************/
@@ -520,9 +553,64 @@ export async function gotoSavedView(viewName) {
   let newView = views.find(v => v.viewName === viewName);
   if (newView) {
     await facility.goToView(newView);
+    restoreColorThemeForView(facility, newView);
   }
   else {
     console.log(`ERROR: Couldn't find saved view: ${viewName}`);
+  }
+
+  console.groupEnd();
+}
+
+/***************************************************
+** FUNC: setThemeColor()
+** DESC:
+**********************/
+
+export async function setThemeColor() {
+
+  const aggrSet = getAggregateSelection();
+  if (!aggrSet) {
+    alert("No objects selected");
+    return;
+  }
+
+  console.group("STUB: setThemeColor()");
+
+  for (let i=0; i<aggrSet.length; i++) {
+    //  GREEN 0.38, 0.77, 0.24, 0.75
+    //  RED 0.9, 0.74, 0.7, 0.75
+    //  BLUE 0.15, 0.74, 0.80, 1.0
+    //const color5 = new THREE.Vector4( 0.80, 0.00, 0.12, 0.51 );
+    const color5 = new THREE.Vector4( 0.15, 0.74, 0.80, 1.0 );
+    const dbIds = aggrSet[i].selection;
+    for (let j=0; j<dbIds.length; j++)
+      NOP_VIEWER.setThemingColor(dbIds[j], color5, aggrSet[i].model);
+
+  }
+
+  console.groupEnd();
+}
+
+/***************************************************
+** FUNC: unsetThemeColor()
+** DESC:
+**********************/
+
+export async function unsetThemeColor() {
+
+  const aggrSet = getAggregateSelection();
+  if (!aggrSet) {
+    alert("No objects selected");
+    return;
+  }
+
+  console.group("STUB: unsetThemeColor()");
+
+  for (let i=0; i<aggrSet.length; i++) {
+    const dbIds = aggrSet[i].selection;
+    for (let j=0; j<dbIds.length; j++)
+      NOP_VIEWER.setThemingColor(dbIds[j], undefined, aggrSet[i].model);
   }
 
   console.groupEnd();

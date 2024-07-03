@@ -234,6 +234,9 @@ async function main() {
   $("#btn_hideModel").click(vw_stubs.hideModel);
   $("#btn_showModel").click(vw_stubs.showModel);
   $("#btn_scrapeGeometry").click(vw_stubs.scrapeGeometry);
+  $("#btn_setThemeColor").click(vw_stubs.setThemeColor);
+  $("#btn_unsetThemeColor").click(vw_stubs.unsetThemeColor);
+  $("#btn_clearAllTheming").click(vw_stubs.clearAllTheming);
   $("#btn_getSavedViews").click(vw_stubs.getSavedViews);
   $("#btn_gotoSavedView").click(function() {
       $('#stubInput_getName').modal('show');

@@ -72,6 +72,8 @@ async function populateTeamsDropdown(app, viewer) {
     teamNames.push(teams[i].name);
   }
 
+  teamNames.sort((a, b) => a.localeCompare(b)); // Sort alphabetically
+
     // there are also Facilities that are just shared directly with a given user.
     // make a "fake" team to be represented in the drop down if we have some of these
   const sharedWithMe = await app.getUsersFacilities();  // Facilities we have access to because they've been directly shared with us
@@ -86,7 +88,6 @@ async function populateTeamsDropdown(app, viewer) {
     return;
   }
 
-  teamNames.sort((a, b) => a.localeCompare(b)); // Sort alphabetically
   const safePreferredTeam = teamNames.find(t=>t === preferredTeam) || teamNames[0];   // make sure we can find last used, or else use first
 
     // add all the account names to the acct dropdown picker

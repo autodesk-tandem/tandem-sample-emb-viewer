@@ -10,44 +10,145 @@ import * as ev_stubs from './src/ev_stubs.js';
 import * as st_stubs from './src/st_stubs.js';
 
 /***************************************************
-** FUNC: getAllFacilities()
-** DESC: get the list of all facilities we own directly or that are shared with us.
+** FUNC: noFacilitiesAvailable()
+** DESC: could be the case that this user doesn't even have a Tandem account, is not
+**  part of any teams and/or doesn't have access to any facilities.
 **********************/
 
-async function getAllFacilities(app) {
+function noFacilitiesAvailable(teams, sharedWithMe) {
 
-  const printOutFacilities = [];
-  let teamFacilities = [];
+    // check if we are part of any accounts
+  if (teams == null) {
+    Autodesk.Viewing.Private.AlertBox.displayError(
+      viewer.container,
+      'Make sure you have an account setup in Autodesk Tandem.',
+      'No account found',
+      'img-item-not-found'
+    );
+    return true;
+  }
 
-    // cycle through all the teams and get each's facilities
-  const teams = await app.getTeams();
-  let tmpTeamFacilities = null;
+    // first check if any facilities have been shared directly with this user
+  if (sharedWithMe != null)
+    return false; // this means we are ok
+
+  let foundOne = false;
   for (let i=0; i<teams.length; i++) {
-    tmpTeamFacilities = await teams[i].getFacilities();
-
-    teamFacilities = teamFacilities.concat(tmpTeamFacilities);
-    //console.log(`Facilities for team: ${teams[i].name}`, teamFacilities);  // dump out raw return result
-
-    let tmpFacility = null;
-    for (let j=0; j<tmpTeamFacilities.length; j++) {
-      tmpFacility = tmpTeamFacilities[j];
-      printOutFacilities.push({ name: tmpFacility.settings.props["Identity Data"]["Building Name"], account: teams[i].name, twinID: tmpFacility.twinId });
+    if (teams[i].facilities.length) {
+      foundOne = true;
+      break;
     }
   }
-
-  const sharedWithMe = await app.getUsersFacilities();  // Facilities we have access to because they've been directly shared with us
-
-  let tmp = null;
-  for (let i=0; i<sharedWithMe.length; i++) {
-    tmp = sharedWithMe[i];
-    printOutFacilities.push({ name: tmp.settings.props["Identity Data"]["Building Name"], account: "shared directly with me", twinID: tmp.twinId });
+  if (!foundOne) {
+      Autodesk.Viewing.Private.AlertBox.displayError(
+          viewer.container,
+          'Make sure you are have access to at least one facility in Autodesk Tandem.',
+          'No facilities found',
+          'img-item-not-found'
+      );
+      return true;
   }
-  //console.log("getUsersFacilities()", sharedWithMe);  // dump out raw return result
 
-    // now try to print out a readable table
-  console.table(printOutFacilities);
+  return false; // this means we are OK
+}
 
-  return [].concat(teamFacilities, sharedWithMe);  // return the full list for the popup selector
+/***************************************************
+** FUNC: populateTeamsDropdown()
+** DESC: get the list of all teams that we are a part of
+**********************/
+
+async function populateTeamsDropdown(app, viewer) {
+  
+  const acctPicker = document.getElementById('acctPicker');
+  const preferredTeam = window.localStorage.getItem('tandem-testbed-last-team');  // the last one that was used
+
+    // get the list of all teams and then sort them alphabetically
+  const teams = await app.getTeams();
+  console.log("Teams:", teams);
+
+  const teamNames = [];
+  for (let i=0; i<teams.length; i++) {
+    await teams[i].getFacilities(); // need to load the facilties we will be referencing later (will populate DtTeam.facilities property)
+    teamNames.push(teams[i].name);
+  }
+
+    // there are also Facilities that are just shared directly with a given user.
+    // make a "fake" team to be represented in the drop down if we have some of these
+  const sharedWithMe = await app.getUsersFacilities();  // Facilities we have access to because they've been directly shared with us
+  if (sharedWithMe != null) {
+    const fakeTeam = { app: app, name: "** SHARED DIRECTLY **", facilities: sharedWithMe };
+    teams.push(fakeTeam);   // always push to end, regardless of alphabetical place
+    teamNames.push(fakeTeam.name);
+  }
+
+      // bail out if they don't have access to anything
+  if (noFacilitiesAvailable(teams, sharedWithMe)) {
+    return;
+  }
+
+  teamNames.sort((a, b) => a.localeCompare(b)); // Sort alphabetically
+  const safePreferredTeam = teamNames.find(t=>t === preferredTeam) || teamNames[0];   // make sure we can find last used, or else use first
+
+    // add all the account names to the acct dropdown picker
+  for (let i=0; i<teamNames.length; i++) {
+      const option = document.createElement('option');
+      option.text = teamNames[i];
+      option.selected = teamNames[i] == safePreferredTeam;  // set initial selection in dropdown
+
+      acctPicker.appendChild(option);
+  }
+
+  populateFacilitiesDropdown(app, safePreferredTeam, viewer); // this will load the Facilities on first pass initialization
+
+    // this callback will load the Facilities when the dropdown list gets a different selection
+  acctPicker.onchange = ()=>{
+      const newTeam = acctPicker.value;
+      window.localStorage.setItem('tandem-testbed-last-team', newTeam);
+      populateFacilitiesDropdown(app, newTeam, viewer);
+  }
+  acctPicker.style.visibility = 'initial';
+}
+
+/***************************************************
+** FUNC: populateFacilitiesDropdown()
+** DESC: get the list of Facilities for a given team
+**********************/
+
+async function populateFacilitiesDropdown(app, teamName, viewer) {
+
+    // get the list of all teams
+  const teams = await app.getTeams(); 
+  const curTeam = teams.find(obj => obj.name === teamName);
+
+    // load preferred or random facility
+  const preferredFacilityUrn = window.localStorage.getItem('tandem-testbed-last-facility');
+  const preferredFacility = curTeam.facilities.find(f=>f.twinId === preferredFacilityUrn) || curTeam.facilities[0];
+  app.displayFacility(preferredFacility, false, viewer);    // initially loaded facility
+
+    // setup facility picker UI
+  await Promise.all(curTeam.facilities.map(f => f.load()));
+  const facilityPicker = document.getElementById('facilityPicker');
+
+  console.log("Facilities for current team:", curTeam.facilities);
+  curTeam.facilities.sort((a, b) => a.settings.props["Identity Data"]["Building Name"].localeCompare(b.settings.props["Identity Data"]["Building Name"])); // Sort alphabetically
+
+  facilityPicker.innerHTML = '';  // clear out any previous options
+
+  for (let facility of curTeam.facilities) {
+      const option = document.createElement('option');
+      option.text = facility.settings.props["Identity Data"]["Building Name"];
+      option.selected = facility.twinId == preferredFacility.twinId;
+
+      facilityPicker.appendChild(option);
+  }
+
+    // this callback will load the facility that the user picked in the Facility dropdown
+  facilityPicker.onchange = ()=>{
+      const newFacility = curTeam.facilities[facilityPicker.selectedIndex];
+      window.localStorage.setItem('tandem-testbed-last-facility', newFacility.twinId);
+      app.displayFacility(newFacility, undefined, viewer);
+  }
+  facilityPicker.style.visibility = 'initial';
 }
 
 /***************************************************
@@ -72,41 +173,14 @@ async function bootstrap() {
   const app = new Autodesk.Tandem.DtApp();
   window.DT_APP = app;
 
-  const facilities = await getAllFacilities(app);
-  if (facilities.length == 0) {
-      Autodesk.Viewing.Private.AlertBox.displayError(
-          viewer.container,
-          'Make sure you are have access to at least one facility in Autodesk Tandem.',
-          'No facilities found',
-          'img-item-not-found'
-      );
-      return;
-  }
-
-    // load preferred or random facility
-  const preferredFacilityUrn = window.localStorage.getItem('tandem-testbed-last-facility');
-  const preferredFacility = facilities.find(f=>f.urn() === preferredFacilityUrn) || facilities[0];
-  app.displayFacility(preferredFacility, false, viewer);
-
-    // setup facility picker UI
-  await Promise.all(facilities.map(f=>f.load()));
-  const facilityPicker = document.getElementById('facilityPicker');
-
-  for (let facility of facilities) {
-      const option = document.createElement('option');
-      option.text = facility.settings.props["Identity Data"]["Building Name"];
-      option.selected = facility == preferredFacility;
-
-      facilityPicker.appendChild(option);
-  }
-
-  facilityPicker.onchange = ()=>{
-      const newFacility = facilities[facilityPicker.selectedIndex];
-      window.localStorage.setItem('tandem-testbed-last-facility', newFacility.urn());
-      app.displayFacility(newFacility, undefined, viewer);
-  }
-  facilityPicker.style.visibility = 'initial';
+    // setup the account picker dropdown
+  await populateTeamsDropdown(app, viewer); // this will trigger loading of a current facility
 }
+
+/***************************************************
+** FUNC: main()
+** DESC: load the viewer and final UI elements, then bind all the events to menu items.
+**********************/
 
 async function main() {
     // init the Viewer and login
@@ -336,4 +410,11 @@ async function main() {
   });
 };
 
-main();
+
+
+// trigger things when the HTML is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  //console.log("DOMContentLoaded");
+  main();
+});
+

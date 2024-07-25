@@ -53,8 +53,19 @@ export function doRedirection(forge_clientID, scope) {
 export function setTokenStorage() {
     const params = location.hash.slice(1).split('&').map(i=>{
         return i.split('=') });
-    if (params[0][0]=="access_token") {
-        window.sessionStorage.token = params[0][1];
+    const token = params.find(i => i[0] === "access_token");
+
+    if (token) {
+        window.sessionStorage.token = token[1];
+    }
+    const tokenExpiration = params.find(i => i[0] === "expires_in");
+
+    if (tokenExpiration) {
+        const timeout = parseInt(tokenExpiration[1]) - 60;
+
+        setTimeout(() => {
+            login();
+        }, timeout * 1000);
     }
 }
 

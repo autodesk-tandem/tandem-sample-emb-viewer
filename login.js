@@ -9,71 +9,99 @@ const show = (id) => { getElem(id).style.display="block"};
 const hide = (id) => { getElem(id).style.display="none"};
 
 
-export function login() {
-  const scope = encodeURIComponent('data:read data:write user-profile:read');
-  doRedirection(env.forgeKey, scope);
+export function login(prompt) {
+  const scope = 'data:read data:write user-profile:read';
+  doRedirection(env.forgeKey, scope, prompt);
 }
 
 export function logout() {
-  delete(window.sessionStorage.token);
+  window.sessionStorage.removeItem('token');
   location.reload();
 };
 
   // when HTML page opens up, attach callbacks for login.logout and set values for current state UI
-export function checkLogin(idStr_login, idStr_logout, idStr_userProfile, idStr_viewer) {
+export async function checkLogin(idStr_login, idStr_logout, idStr_userProfile, idStr_viewer) {
 
-  getElem(idStr_login).addEventListener("click", login);
-  getElem(idStr_logout).addEventListener("click", logout);
+  getElem(idStr_login).addEventListener("click", () => login(true));
+  getElem(idStr_logout).addEventListener("click", () => logout());
 
   if (!!location.hash)
       setTokenStorage();
+  let isLoggedIn = false;
+  let user = undefined;
 
   if (window.sessionStorage.token) {
+    user = await checkUserProfile(window.sessionStorage.token);
+
+    if (user) {
+      isLoggedIn = true;
+    }
+  }
+  if (isLoggedIn) {
     hide(idStr_login);
     show(idStr_logout);
     show(idStr_userProfile);
-    loadUserProfileImg(idStr_userProfile);
+    loadUserProfileImg(idStr_userProfile, user);
     location.hash="";
-
-    return true;  // they are logged in
   }
   else {
     hide(idStr_logout);
     hide(idStr_userProfile);
-
-    return false; // they are not logged in
   }
+  return isLoggedIn;
 }
 
-export function doRedirection(forge_clientID, scope) {
-    const redirect_uri = encodeURIComponent(location.href.split('#')[0]);
-    location.href = `${env.forgeHost}/authentication/v2/authorize?response_type=token&client_id=${forge_clientID}&redirect_uri=${redirect_uri}&scope=${scope}`;
+export function doRedirection(forge_clientID, scope, prompt) {
+  const redirect_uri = location.href.split('#')[0];
+  const url = new URL(`${env.forgeHost}/authentication/v2/authorize`);
+
+  url.searchParams.append('response_type', 'token');
+  url.searchParams.append('client_id', forge_clientID);
+  url.searchParams.append('redirect_uri', redirect_uri);
+  url.searchParams.append('scope', scope);
+  if (prompt) {
+    url.searchParams.append('prompt', 'login');
+  }
+  location.href = url.toString();
 }
 
 export function setTokenStorage() {
-    const params = location.hash.slice(1).split('&').map(i=>{
-        return i.split('=') });
-    const token = params.find(i => i[0] === "access_token");
+  const params = location.hash.slice(1).split('&').map(i=>{
+    return i.split('=') });
+  const token = params.find(i => i[0] === "access_token");
 
-    if (token) {
-        window.sessionStorage.token = token[1];
-    }
-    const tokenExpiration = params.find(i => i[0] === "expires_in");
+  if (token) {
+    window.sessionStorage.setItem('token', token[1]);
+  }
+  const tokenExpiration = params.find(i => i[0] === "expires_in");
 
-    if (tokenExpiration) {
-        const timeout = parseInt(tokenExpiration[1]) - 60;
+  if (tokenExpiration) {
+    const timeout = parseInt(tokenExpiration[1]) - 60;
 
-        setTimeout(() => {
-            login();
-        }, timeout * 1000);
-    }
+    setTimeout(() => {
+      login(false);
+    }, timeout * 1000);
+  }
 }
 
   // look up the profile image for this user's Autodesk ID and put in the specified <div> in the DOM
-export async function loadUserProfileImg(div) {
-    const res = await fetch(`https://api.userprofile.autodesk.com/userinfo`, {
-        headers : { "Authorization":`Bearer ${window.sessionStorage.token}`}
-    });
-    const user = await res.json();
-    getElem(div).src = user.picture;
+export async function checkUserProfile(token) {
+    let result = undefined;
+
+    try {
+        const res = await fetch(`https://api.userprofile.autodesk.com/userinfo`, {
+            headers : { "Authorization":`Bearer ${token}`}
+        });
+        const user = await res.json();
+
+        result = user;
+    }
+    catch (err) {
+        console.error(err);
+    }
+    return result;
+}
+
+export async function loadUserProfileImg(div, user) {
+  getElem(div).src = user.picture;
 }

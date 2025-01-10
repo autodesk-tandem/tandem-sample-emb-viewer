@@ -180,40 +180,6 @@ export function prettyPrintRollupStreamValues(streamDataObj) {
   }
 }
 
-/***************************************************
-** FUNC: getStreamBulkRollups()
-** DESC: retrieve rollup info from streams
-**********************/
-
-export async function getStreamBulkRollups() {
-  console.group("STUB: getStreamBulkRollups()");
-
-  const dateNow = new Date();
-  const timestampEnd = dateNow.getTime();
-  console.log("Time Now:", dateNow, timestampEnd);
-
-  const dateMinus365 = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
-  const timestampStart = dateMinus365.getTime();
-  console.log("1 Year Ago:", dateMinus365, timestampStart);
-
-  console.log("NOTE: API allows any time range, plus options to limit returned values, sort, and isolate a specific substream parameter.")
-
-  const attrId = '';    // lets get them all (but we could limit it to just one qualified Property, like "Iw")
-
-  const strmMgr = utils.getCurrentFacility()?.getStreamManager();
-  if (strmMgr) {
-    const streamIds = await strmMgr.getStreamIds();
-    const streamKeys = await strmMgr.defaultModel.getElementIdsFromDbIds(streamIds);
-
-    if (streamKeys && streamKeys.length) {
-      const bulkResponse = await strmMgr.fetchBulkStreamRollups(streamKeys, strmMgr.defaultModel, timestampStart, timestampEnd, attrId);
-      console.log("Rollups", bulkResponse);
-      prettyPrintRollupStreamValues(bulkResponse);
-    }
-  }
-
-  console.groupEnd();
-}
 
 /***************************************************
 ** FUNC: exportStreamsToJson()

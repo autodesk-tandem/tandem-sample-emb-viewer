@@ -39,10 +39,13 @@ export async function dumpDtFacilityInfo() {
   console.log("facility.getLocalToSharedSpaceTransform()", facility.getLocalToSharedSpaceTransform());
   console.log("facility.getDefaultModelId()", facility.getDefaultModelId());
   console.log("facility.getDefaultModel()", facility.getDefaultModel());
+  console.log("facility.isSampleFacility()", facility.isSampleFacility());
   console.log("facility.getStreamManager()", facility.getStreamManager());
   //console.log("facility.getAllRoomsInfo()", facility.getAllRoomsInfo());  (TBD: dissappeared??)
   console.log("facility.getAllImportedSystemClasses()", facility.getAllImportedSystemClasses());
   console.log("facility.getSavedViewsList()", await facility.getSavedViewsList());
+  console.log("facility.getSchemaVersion()", await facility.getSchemaVersion());
+  console.log("facility.getBuiltInClassificationSystem()", await facility.getBuiltInClassificationSystem());
 
   console.groupEnd();
 
@@ -100,65 +103,6 @@ export async function dumpDtFacilityInfo() {
 }
 
 /***************************************************
-** FUNC: dumpDtConstants()
-** DESC: dump out all the Constants that are part of the DT data model
-**********************/
-
-export async function dumpDtConstants() {
-  const dtConst = Autodesk.Tandem.DtConstants;
-
-  console.group("STUB: dumpDtConstants()")
-
-  console.log("getForgeUnits()", await dtConst.getForgeUnits());
-  console.log("getForgeUnitSpecs()", await dtConst.getForgeUnitSpecs());
-  console.log("getRevitCategories()", await dtConst.getRevitCategories());
-  console.log("getParameterSetsLibrary()", await dtConst.getParameterSetsLibrary());
-  console.log("getParameterLibrary()", await dtConst.getParameterLibrary());
-  console.log("getFacilityTemplatesLibrary()", await dtConst.getFacilityTemplatesLibrary());
-  console.log("getClassificationsLibrary()", await dtConst.getClassificationsLibrary());
-
-  //async function getClassification(uuid) {
-
-    // TBD: following call fails "ReferenceError: CAT_TO_DISC is not defined"
-  //console.log("getRevitCategoryToDisciplineMapping()", await dtConst.getRevitCategoryToDisciplineMapping());
-  console.log("getSystemClassNames()", dtConst.getSystemClassNames());
-
-  //console.log("matchClassification()", await dtConst.matchClassification(a, b));
-  //mapUniformatToClass(uf);
-
-  console.log("QC", dtConst.QC);
-  console.log("QCOverrides", dtConst.QCOverrides);
-  console.log("ColumnFamilies", dtConst.ColumnFamilies);
-  console.log("ColumnNames", dtConst.ColumnNames);
-  console.log("ElementFlags", dtConst.ElementFlags);
-  console.log("StandardAttributes", dtConst.StandardAttributes);
-  console.log("StreamsImportExportTableHeader", dtConst.StreamsImportExportTableHeader);
-  console.log("HiddenRevitCategories", dtConst.HiddenRevitCategories);
-  console.log("ModelImportState", dtConst.ModelImportState);
-  console.log("MutationActions", dtConst.MutationActions);
-  console.log("ImportStateLabels", dtConst.ImportStateLabels);
-  console.log("DtAccessLevel", dtConst.DtAccessLevel);
-  console.log("ChangeTypes", dtConst.ChangeTypes);
-  console.log("RC", dtConst.RC);
-  console.log("AttributeFlags", dtConst.AttributeFlags);
-  console.log("AttributeType", dtConst.AttributeType);
-  console.log("AttributeContext", dtConst.AttributeContext);
-  console.log("SystemFilterNames", dtConst.SystemFilterNames);
-
-  console.log("UNIFORMAT_UUID", dtConst.UNIFORMAT_UUID);
-  console.log("MASTERFORMAT_UUID", dtConst.MASTERFORMAT_UUID);
-
-  console.log("DT_URN_PREFIX", dtConst.DT_URN_PREFIX);
-  console.log("DT_MODEL_URN_PREFIX", dtConst.DT_MODEL_URN_PREFIX);
-  console.log("DT_TWIN_URN_PREFIX", dtConst.DT_TWIN_URN_PREFIX);
-  console.log("DT_USER_URN_PREFIX", dtConst.DT_USER_URN_PREFIX);
-  console.log("DT_GROUP_URN_PREFIX", dtConst.DT_GROUP_URN_PREFIX);
-  console.log("DT_DOCUMENT_URN_PREFIX", dtConst.DT_DOCUMENT_URN_PREFIX);
-
-  console.groupEnd();
-}
-
-/***************************************************
 ** FUNC: dumpDtAppInfo()
 ** DESC: dump out all the info attached to the App object
 **********************/
@@ -172,6 +116,8 @@ export async function dumpDtAppInfo() {
   console.log("getUsersFacilities()", await dtApp.getUsersFacilities());
   console.log("getTeams()", await dtApp.getTeams());
   console.log("getActiveTeam()", await dtApp.getActiveTeam());
+  //console.log("getSampleFacility()", await dtApp.getSampleFacility());
+
 
   console.groupEnd();
 
@@ -190,6 +136,82 @@ export async function dumpDtAppInfo() {
 }
 
 /***************************************************
+** FUNC: dumpDtConstants()
+** DESC: dump out all the Constants that are part of the DT data model
+**********************/
+
+export async function dumpDtConstants() {
+  const dtConst = Autodesk.Tandem.DtConstants;
+
+  console.group("STUB: dumpDtConstants()")
+
+  console.log("getForgeUnits()", await dtConst.getForgeUnits());
+  console.log("getForgeUnitSpecs()", await dtConst.getForgeUnitSpecs());
+  console.log("getRevitCategories()", await dtConst.getRevitCategories());
+  console.log("getParameterSetsLibrary()", await dtConst.getParameterSetsLibrary());
+  console.log("getParameterLibrary()", await dtConst.getParameterLibrary());
+  console.log("getFacilityTemplatesLibrary()", await dtConst.getFacilityTemplatesLibrary());
+  console.log("getClassificationsLibrary()", await dtConst.getClassificationsLibrary());
+  //console.log("getTandemCategories()", await dtConst.getTandemCategories());
+  console.log("getSystemClassNames()", await dtConst.getSystemClassNames());
+  //console.log("matchClassification()", await dtConst.matchClassification());
+  //console.log("checkClassificationSystem()", await dtConst.checkClassificationSystem());
+  //console.log("isBuiltInClassificationSystem()", await dtConst.isBuiltInClassificationSystem());
+  //console.log("matchAttributeContext()", await dtConst.matchAttributeContext());
+
+  //async function getClassification(uuid) {
+  //function isBuiltInClassificationSystem(uuid) {
+
+    // TBD: following call fails "ReferenceError: CAT_TO_DISC is not defined"
+  //console.log("getRevitCategoryToDisciplineMapping()", await dtConst.getRevitCategoryToDisciplineMapping());
+
+
+  console.log("QC", dtConst.QC);
+  console.log("QCOverrides", dtConst.QCOverrides);
+  console.log("ColumnFamilies", dtConst.ColumnFamilies);
+  console.log("ColumnNames", dtConst.ColumnNames);
+  console.log("ElementFlags", dtConst.ElementFlags);
+  console.log("StandardAttributes", dtConst.StandardAttributes);
+  console.log("FamilyAttributes", dtConst.FamilyAttributes);
+  console.log("StreamsImportExportTableHeader", dtConst.StreamsImportExportTableHeader);
+  console.log("HiddenRevitCategories", dtConst.HiddenRevitCategories);
+  console.log("ModelImportState", dtConst.ModelImportState);
+  console.log("MutationActions", dtConst.MutationActions);
+  console.log("SystemState", dtConst.SystemState);
+  console.log("ImportStateLabels", dtConst.ImportStateLabels);
+  console.log("DtAccessLevel", dtConst.DtAccessLevel);
+  console.log("ChangeTypes", dtConst.ChangeTypes);
+  console.log("SystemFilterNames", dtConst.SystemFilterNames);
+  console.log("SystemElementFirstKey", dtConst.SystemElementFirstKey);
+  console.log("StreamState", dtConst.StreamState);
+  console.log("CenterlineCatIDs", dtConst.CenterlineCatIDs);
+  console.log("StreamStates", dtConst.StreamStates);
+  console.log("StreamOfflineTimeouts", dtConst.StreamOfflineTimeouts);
+  console.log("StreamStatePriority", dtConst.StreamStatePriority);
+  console.log("Timeline", dtConst.Timeline);
+  console.log("ClassificationAttribute2FilterKey", dtConst.ClassificationAttribute2FilterKey);
+  console.log("HUD_LAYER", dtConst.HUD_LAYER);
+  console.log("RC", dtConst.RC);
+  console.log("TC", dtConst.TC);
+  console.log("AttributeFlags", dtConst.AttributeFlags);
+  console.log("AttributeType", dtConst.AttributeType);
+  console.log("AttributeContext", dtConst.AttributeContext);
+
+  console.log("UNIFORMAT_UUID", dtConst.UNIFORMAT_UUID);
+  console.log("MASTERFORMAT_UUID", dtConst.MASTERFORMAT_UUID);
+
+  console.log("DT_URN_PREFIX", dtConst.DT_URN_PREFIX);
+  console.log("DT_MODEL_URN_PREFIX", dtConst.DT_MODEL_URN_PREFIX);
+  console.log("DT_TWIN_URN_PREFIX", dtConst.DT_TWIN_URN_PREFIX);
+  console.log("DT_USER_URN_PREFIX", dtConst.DT_USER_URN_PREFIX);
+  console.log("DT_GROUP_URN_PREFIX", dtConst.DT_GROUP_URN_PREFIX);
+  console.log("DT_DOCUMENT_URN_PREFIX", dtConst.DT_DOCUMENT_URN_PREFIX);
+
+  console.groupEnd();
+}
+
+
+/***************************************************
 ** FUNC: loadFacilityUsageMetrics()
 ** DESC: dump out the usage metrics for this facility
 **********************/
@@ -205,6 +227,36 @@ export async function loadFacilityUsageMetrics() {
 
   const metrics = await facility.loadUsageMetrics();
   console.log("Metrics", metrics);
+
+  console.groupEnd();
+}
+
+/***************************************************
+** FUNC: getFacilityHistory()
+** DESC: get history of changes on this facility
+**********************/
+
+export async function getFacilityHistory() {
+  const facility = utils.getCurrentFacility();
+  if (!facility) {
+    alert("NO FACILITY LOADED");
+    return;
+  }
+
+  console.group("STUB: getFacilityHistory()");
+
+  const dateNow = new Date();
+  const timestampEnd = dateNow.getTime();
+  console.log("Time Now:", dateNow, timestampEnd);
+
+  const dateMinus30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const timestampStart = dateMinus30.getTime();
+  console.log("30 Days Ago:", dateMinus30, timestampStart);
+
+  console.log("NOTE: API allows any time range, but using last 30 days.")
+
+  const history = await facility.getHistory([], timestampStart, timestampEnd, true);
+  console.log("History", history);
 
   console.groupEnd();
 }

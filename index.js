@@ -198,6 +198,7 @@ async function main() {
   $("#btn_dumpAppInfo").click(fac_stubs.dumpDtAppInfo);
   $("#btn_dumpDtConstants").click(fac_stubs.dumpDtConstants);
   $("#btn_loadFacilityUsageMetrics").click(fac_stubs.loadFacilityUsageMetrics);
+  $("#btn_facilityHistory").click(fac_stubs.getFacilityHistory);
 
     // Model stubs
   $("#btn_dumpModelInfo").click(model_stubs.dumpDtModelInfo);
@@ -270,7 +271,6 @@ async function main() {
   $("#btn_getStreamIds").click(st_stubs.getStreamIds);
   $("#btn_getLastReadings").click(st_stubs.getLastReadings);
   $("#btn_refreshStreamsLastReadings").click(st_stubs.refreshStreamsLastReadings);
-  $("#btn_getStreamBulkRollups").click(st_stubs.getStreamBulkRollups);
   $("#btn_exportStreamsToJson").click(st_stubs.exportStreamsToJson);
   $("#btn_getAllStreamInfos").click(st_stubs.getAllStreamInfos);
   $("#btn_getAllStreamInfosFromCache").click(st_stubs.getAllStreamInfosFromCache);

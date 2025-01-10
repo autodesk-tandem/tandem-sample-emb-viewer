@@ -8,8 +8,8 @@ import * as utils from './utils.js';
 **********************/
 
 async function dumpSingleModel(model) {
-  console.log("getInstanceTree()", model.getInstanceTree());
   console.log("getBoundingBox()", model.getBoundingBox());
+  console.log("getInstanceTree()", model.getInstanceTree());
   console.log("is2d()", model.is2d());
   console.log("is3d()", model.is3d());
   console.log("isOTG()", model.isOTG());
@@ -137,11 +137,18 @@ export async function getDtModelHistory() {
 
   console.group("STUB: getHistory()");
 
-  const startDay = new Date(2020, 0, 1);  // arbitrarily the beginning of 2020
-  const endDay = new Date();  // today
+  const dateNow = new Date();
+  const timestampEnd = dateNow.getTime();
+  console.log("Time Now:", dateNow, timestampEnd);
+
+  const dateMinus30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const timestampStart = dateMinus30.getTime();
+  console.log("30 Days Ago:", dateMinus30, timestampStart);
+
+  console.log("NOTE: API allows any time range, but using last 30 days.")
 
   for (let i=0; i<models.length; i++) {
-    const hist = await models[i].getHistory([], startDay.getTime(), endDay.getTime(), true);
+    const hist = await models[i].getHistory([], timestampStart, timestampEnd, true);
 
     console.group(`Model[${i}]--> ${models[i].label()}`);
     console.log(`Model URN: ${models[i].urn()}`);

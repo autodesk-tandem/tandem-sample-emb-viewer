@@ -282,27 +282,24 @@ export async function getAttributeCandidates() {
 ** DESC: dump out all the Stream secrets
 **********************/
 
-export async function getStreamSecrets() {
+export async function getStreamSecrets(streamKeys) {
   console.group("STUB: getStreamSecrets()");
+
+  const streamKeysArray = streamKeys.split(',');
 
     // NOTE: the API call asks for only one, but let's just dump them all out for the user in a nice table
   const strmMgr = utils.getCurrentFacility()?.getStreamManager();
   if (strmMgr) {
-    const streamIds = await strmMgr.getStreamIds();
-    if (streamIds && streamIds.length) {
-      const streamKeys = await strmMgr.defaultModel.getElementIdsFromDbIds(streamIds);
-      const streamSecrets = [];
-
         // make an array for collecting the triple ID/KEY/SECRET
-      for (let i=0; i<streamIds.length; i++) {
-        const secret = await strmMgr.getStreamSecret(streamKeys[i]);
-        streamSecrets.push( { streamId: streamIds[i], streamKey: streamKeys[i], streamSecret: secret});
+      let streamSecrets = [];
+      for (let i=0; i<streamKeysArray.length; i++) {
+        const secret = await strmMgr.getStreamSecret(streamKeysArray[i]);
+        streamSecrets.push( {streamKey: streamKeysArray[i], streamSecret: secret} );
       }
       console.table(streamSecrets);
-    }
-    else {
-      console.log("No streams were found.");
-    }
+  }
+  else {
+    console.log("No streams were found.");
   }
 
   console.groupEnd();
@@ -321,8 +318,8 @@ export async function resetStreamSecrets(streamKeys) {
 
   const strmMgr = utils.getCurrentFacility()?.getStreamManager();
   if (strmMgr) {
-    await strmMgr._resetStreamSecrets(streamKeysArray, true);
-    console.log("_resetStreamSecrets()", "called with hardReset=true");
+    await strmMgr.resetStreamSecrets(streamKeysArray, true);
+    console.log("resetStreamSecrets()", "called with hardReset=true");
   }
 
   console.groupEnd();
@@ -420,6 +417,22 @@ export async function deleteStream(streamId) {
     const streamIds = [streamId]; // technically we could delete multiple in one shot
     console.log("Deleting stream IDs", streamIds);
     await strmMgr.deleteStreams(streamIds);
+  }
+
+  console.groupEnd();
+}
+
+/***************************************************
+** FUNC: getThresholds()
+** DESC: get the threshold settings
+**********************/
+
+export async function getThresholds() {
+  console.group("STUB: getThresholds()");
+
+  const strmMgr = utils.getCurrentFacility()?.getStreamManager();
+  if (strmMgr) {
+    console.log("getThresholds()", await strmMgr.getThresholds());
   }
 
   console.groupEnd();

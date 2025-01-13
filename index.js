@@ -276,7 +276,6 @@ async function main() {
   $("#btn_getAllStreamInfosFromCache").click(st_stubs.getAllStreamInfosFromCache);
   $("#btn_getAllConnectedAttributes").click(st_stubs.getAllConnectedAttributes);
   $("#btn_getAttributeCandidates").click(st_stubs.getAttributeCandidates);
-  $("#btn_getStreamSecrets").click(st_stubs.getStreamSecrets);
   $("#btn_getStreamsBulkImportTemplate").click(st_stubs.getStreamsBulkImportTemplate);
 
   $("#btn_createStream").click(function() {
@@ -287,13 +286,17 @@ async function main() {
       $('#stubInput_getInt').modal('show');
       modalFuncCallbackNum = 0;
     });
-  $("#btn_resetStreamSecrets").click(function() {
+  $("#btn_getStreamSecrets").click(function() {
       $('#stubInput_getKey').modal('show');
       modalFuncCallbackNum = 0;
     });
+  $("#btn_resetStreamSecrets").click(function() {
+      $('#stubInput_getKey').modal('show');
+      modalFuncCallbackNum = 1;
+    });
 
   $("#btn_getStreamIngestionUrls").click(st_stubs.getStreamIngestionUrls);
-
+  $("#btn_getStreamThresholds").click(st_stubs.getThresholds);
 
     // viewer stubs
   $("#btn_addSprites").click(vw_stubs.addSprites);
@@ -380,7 +383,9 @@ async function main() {
     const key = $("#stubInput_key").val();
 
     if (modalFuncCallbackNum == 0)
-      st_stubs.resetStreamSecrets(key);
+      st_stubs.getStreamSecrets(key);
+    else if (modalFuncCallbackNum == 1)
+        st_stubs.resetStreamSecrets(key);
     else {
       alert("ASSERT: modalFuncCallbackNum not expected.");
     }

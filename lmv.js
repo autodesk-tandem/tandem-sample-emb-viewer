@@ -17,7 +17,10 @@ export function initLMV() {
         corsWorker: true,
 
         config3d: {
-          extensions: ['Autodesk.BoxSelection'],
+          extensions: [
+            'Autodesk.BoxSelection',
+            'Autodesk.CompGeom'
+          ],
           screenModeDelegate: av.NullScreenModeDelegate,
         },
       }, function () {

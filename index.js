@@ -364,7 +364,7 @@ async function main() {
   $('#stubInput_setClassification_OK').click(function() {
     const classificationStr = $("#stubInput_classificationStr").val();
 
-    porp_stubs.assignClassification(classificationStr);
+    prop_stubs.assignClassification(classificationStr);
   });
 
   $('#stubInput_getURN_OK').click(function() {

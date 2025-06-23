@@ -76,7 +76,7 @@ async function populateTeamsDropdown(app, viewer) {
 
     // there are also Facilities that are just shared directly with a given user.
     // make a "fake" team to be represented in the drop down if we have some of these
-  const sharedWithMe = await app.getUsersFacilities();  // Facilities we have access to because they've been directly shared with us
+  const sharedWithMe = await app.getSharedFacilities();  // Facilities we have access to because they've been directly shared with us
   if (sharedWithMe != null) {
     const fakeTeam = { app: app, name: "** SHARED DIRECTLY **", facilities: sharedWithMe };
     teams.push(fakeTeam);   // always push to end, regardless of alphabetical place

@@ -113,7 +113,7 @@ export async function dumpDtAppInfo() {
   console.group("STUB: dumpDtAppInfo()")
 
   console.log("getCurrentTeamsFacilities()", await dtApp.getCurrentTeamsFacilities());
-  console.log("getUsersFacilities()", await dtApp.getUsersFacilities());
+  console.log("getSharedFacilities()", await dtApp.getSharedFacilities());
   console.log("getTeams()", await dtApp.getTeams());
   console.log("getActiveTeam()", await dtApp.getActiveTeam());
   //console.log("getSampleFacility()", await dtApp.getSampleFacility());

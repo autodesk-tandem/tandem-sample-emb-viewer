@@ -1,5 +1,3 @@
-
-import * as vw_stubs from './vw_stubs.js';
 import * as utils from './utils.js';
 
 /***************************************************

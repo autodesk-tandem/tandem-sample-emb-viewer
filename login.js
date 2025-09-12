@@ -8,6 +8,8 @@ const getElem = (id) => {return document.getElementById(id)};
 const show = (id) => { getElem(id).style.display="block"};
 const hide = (id) => { getElem(id).style.display="none"};
 
+// remember timeoout handle for token refresh
+let refreshHandle = null;
 
 export async function login() {
   const scope = 'data:read data:write user-profile:read';
@@ -17,6 +19,10 @@ export async function login() {
 
 export function logout() {
   delete(window.sessionStorage.token);
+  if (refreshHandle) {
+    clearTimeout(refreshHandle);
+    refreshHandle = null;
+  }
   location.reload();
 };
 
@@ -69,11 +75,20 @@ export async function checkLogin(idStr_login, idStr_logout, idStr_userProfile, i
       window.history.replaceState({}, document.title, url.pathname + url.search);
     }
   }
+  let loggedIn = false;
+
   if (window.sessionStorage.token) {
+    try {
+      await loadUserProfileImg(idStr_userProfile);
+      loggedIn = true;
+    } catch (err) {
+      console.error('Error loading user profile:', err);
+    }
+  }
+  if (loggedIn) {
     hide(idStr_login);
     show(idStr_logout);
     show(idStr_userProfile);
-    loadUserProfileImg(idStr_userProfile);
     return true;  // they are logged in
   }
   else {
@@ -138,29 +153,39 @@ export async function loadUserProfileImg(div) {
 }
 
 async function refreshToken() {
-    const refreshToken = window.sessionStorage.refreshToken;
-    const payload = {
-        'grant_type': 'refresh_token',
-        'client_id': env.forgeKey,
-        'refresh_token': refreshToken,
-    };
-    const resp = await fetch('https://developer.api.autodesk.com/authentication/v2/token', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: Object.keys(payload).map(key => encodeURIComponent(key) + '=' + encodeURIComponent(payload[key])).join('&')
-    });
-    
-    if (!resp.ok) {
-        throw new Error(await resp.text());
+    console.log('refreshing token...');
+
+    if (refreshHandle) {
+        clearTimeout(refreshHandle);
+        refreshHandle = null;
     }
-    const token = await resp.json();
+    try {
+        const token = window.sessionStorage.refreshToken;
+        const payload = {
+            'grant_type': 'refresh_token',
+            'client_id': env.forgeKey,
+            'refresh_token': token,
+        };
+        const resp = await fetch('https://developer.api.autodesk.com/authentication/v2/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: Object.keys(payload).map(key => encodeURIComponent(key) + '=' + encodeURIComponent(payload[key])).join('&')
+        });
+      
+        if (!resp.ok) {
+            throw new Error(await resp.text());
+        }
+        const newToken = await resp.json();
 
-    window.sessionStorage.token = token['access_token'];
-    window.sessionStorage.refreshToken = token['refresh_token'];
-    // schedule token refresh
-    const nextRefresh = token['expires_in'] - 60;
+        window.sessionStorage.token = newToken['access_token'];
+        window.sessionStorage.refreshToken = newToken['refresh_token'];
+        // schedule token refresh
+        const nextRefresh = token['expires_in'] - 60;
 
-    setTimeout(() => refreshToken(), nextRefresh * 1000);
+        setTimeout(() => refreshToken(), nextRefresh * 1000);
+    } catch (err) {
+        console.error('Token refresh error:', err);
+    }
 }

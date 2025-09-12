@@ -159,7 +159,7 @@ async function populateFacilitiesDropdown(app, teamName, viewer) {
 
 async function bootstrap() {
     // login in the user and set UI elements appropriately (args are HTML elementIDs)
-  const userLoggedIn = await checkLogin("btn_login", "btn_logout", "btn_userProfile", "viewer");
+  const userLoggedIn = await checkLogin("btn_login", "btn_logout", "btn_userProfile");
   if (!userLoggedIn)
     return;   // when user does login, it will go through the bootstrap process again
 

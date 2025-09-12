@@ -27,7 +27,7 @@ export function logout() {
 };
 
   // when HTML page opens up, attach callbacks for login.logout and set values for current state UI
-export async function checkLogin(idStr_login, idStr_logout, idStr_userProfile, idStr_viewer) {
+export async function checkLogin(idStr_login, idStr_logout, idStr_userProfile) {
 
   getElem(idStr_login).addEventListener("click", async () => {
     await login();

@@ -14,11 +14,14 @@ let refreshHandle = null;
 export async function login() {
   const scope = 'data:read data:write user-profile:read';
 
-  await doRedirection(env.forgeKey, scope);
+  await doRedirection(env.apsKey, scope);
 }
 
 export function logout() {
   delete(window.sessionStorage.token);
+  delete(window.sessionStorage.refreshToken);
+  delete(window.sessionStorage.tokenExpiry);
+  
   if (refreshHandle) {
     clearTimeout(refreshHandle);
     refreshHandle = null;
@@ -36,14 +39,16 @@ export async function checkLogin(idStr_login, idStr_logout, idStr_userProfile) {
   const url = new URL(location);
 
   if (url.searchParams.has('code')) {
+    console.log('✅ OAuth callback received');
     const code = url.searchParams.get('code');
     const codeVerifier = window.localStorage.getItem('codeVerifier');
 
     if (code && codeVerifier) {
       try {
+        console.log('🔄 Exchanging authorization code for token...');
         const payload = {
           'grant_type': 'authorization_code',
-          'client_id': env.forgeKey,
+          'client_id': env.apsKey,
           'code_verifier': codeVerifier,
           'code': code,
           'redirect_uri': env.loginRedirect
@@ -58,14 +63,21 @@ export async function checkLogin(idStr_login, idStr_logout, idStr_userProfile) {
         
         if (resp.ok) {
           const token = await resp.json();
+          console.log('✅ Token received successfully');
 
           // save token
           window.sessionStorage.token = token['access_token'];
           window.sessionStorage.refreshToken = token['refresh_token'];
+          
+          // Store token expiry time for future reference
+          const expiryTime = Date.now() + (token['expires_in'] * 1000);
+          window.sessionStorage.tokenExpiry = expiryTime;
+          
           // schedule token refresh
           const nextRefresh = token['expires_in'] - 60;
+          console.log(`⏰ Scheduling token refresh in ${nextRefresh}s`);
           
-          setTimeout(() => refreshToken(), nextRefresh * 1000);
+          refreshHandle = setTimeout(() => refreshToken(), nextRefresh * 1000);
         }
       } catch (err) {
         console.error(err);
@@ -81,6 +93,21 @@ export async function checkLogin(idStr_login, idStr_logout, idStr_userProfile) {
     try {
       await loadUserProfileImg(idStr_userProfile);
       loggedIn = true;
+      
+      // Schedule token refresh if not already scheduled
+      // This handles cases where the page was refreshed or reopened
+      if (!refreshHandle && window.sessionStorage.refreshToken) {
+        const tokenExpiry = parseInt(window.sessionStorage.tokenExpiry || '0');
+        const now = Date.now();
+        const timeUntilExpiry = tokenExpiry - now;
+        
+        // If token expires in more than 1 minute, schedule refresh 1 minute before expiry
+        // Otherwise, refresh immediately
+        const refreshDelay = timeUntilExpiry > 60000 ? timeUntilExpiry - 60000 : 0;
+        
+        console.log(`⏰ Scheduling token refresh in ${Math.round(refreshDelay / 1000)}s (restored session)`);
+        refreshHandle = setTimeout(() => refreshToken(), refreshDelay);
+      }
     } catch (err) {
       console.error('Error loading user profile:', err);
     }
@@ -117,7 +144,7 @@ async function generateCodeChallenge(str) {
     return window.btoa(String.fromCharCode(...new Uint8Array(hash))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
-export async function doRedirection(forge_clientID, scope) {
+export async function doRedirection(aps_clientID, scope) {
     const redirect_uri = env.loginRedirect;
     const codeVerifier = generateRandomString(64);
     const challenge = await generateCodeChallenge(codeVerifier);
@@ -126,7 +153,7 @@ export async function doRedirection(forge_clientID, scope) {
     const url = new URL('https://developer.api.autodesk.com/authentication/v2/authorize');
       
     url.searchParams.append('response_type', 'code');
-    url.searchParams.append('client_id', forge_clientID);
+    url.searchParams.append('client_id', aps_clientID);
     url.searchParams.append('redirect_uri', redirect_uri);
     url.searchParams.append('scope', scope);
     url.searchParams.append('code_challenge', challenge);
@@ -153,17 +180,18 @@ export async function loadUserProfileImg(div) {
 }
 
 async function refreshToken() {
-    console.log('refreshing token...');
+    console.log('🔄 Refreshing token...');
 
     if (refreshHandle) {
         clearTimeout(refreshHandle);
         refreshHandle = null;
     }
+    
     try {
         const token = window.sessionStorage.refreshToken;
         const payload = {
             'grant_type': 'refresh_token',
-            'client_id': env.forgeKey,
+            'client_id': env.apsKey,
             'refresh_token': token,
         };
         const resp = await fetch('https://developer.api.autodesk.com/authentication/v2/token', {
@@ -173,19 +201,28 @@ async function refreshToken() {
             },
             body: Object.keys(payload).map(key => encodeURIComponent(key) + '=' + encodeURIComponent(payload[key])).join('&')
         });
-      
+        
         if (!resp.ok) {
             throw new Error(await resp.text());
         }
+        
         const newToken = await resp.json();
+        console.log('✅ Token refreshed successfully');
 
         window.sessionStorage.token = newToken['access_token'];
         window.sessionStorage.refreshToken = newToken['refresh_token'];
-        // schedule token refresh
-        const nextRefresh = token['expires_in'] - 60;
+        
+        // Store token expiry time for future reference
+        const expiryTime = Date.now() + (newToken['expires_in'] * 1000);
+        window.sessionStorage.tokenExpiry = expiryTime;
+        
+        // Schedule next token refresh
+        const nextRefresh = newToken['expires_in'] - 60;
+        console.log(`⏰ Scheduling next token refresh in ${nextRefresh}s`);
 
-        setTimeout(() => refreshToken(), nextRefresh * 1000);
+        refreshHandle = setTimeout(() => refreshToken(), nextRefresh * 1000);
     } catch (err) {
-        console.error('Token refresh error:', err);
+        console.error('❌ Token refresh error:', err);
+        logout();
     }
 }

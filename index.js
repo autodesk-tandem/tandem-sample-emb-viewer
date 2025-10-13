@@ -9,6 +9,9 @@ import * as doc_stubs from './src/doc_stubs.js';
 import * as ev_stubs from './src/ev_stubs.js';
 import * as st_stubs from './src/st_stubs.js';
 
+// Schema version constant - API only supports version 2
+const SchemaVersion = 2;
+
 /***************************************************
 ** FUNC: noFacilitiesAvailable()
 ** DESC: could be the case that this user doesn't even have a Tandem account, is not
@@ -111,6 +114,43 @@ async function populateTeamsDropdown(app, viewer) {
 }
 
 /***************************************************
+** FUNC: checkSchemaVersion()
+** DESC: Check if facility has compatible schema version before loading
+**********************/
+
+async function checkSchemaVersion(facility, viewer) {
+  // Load facility to get schema version
+  if (!facility.settings || facility.settings.schemaVersion === undefined) {
+    await facility.load();
+  }
+  
+  const schemaVersion = facility.settings?.schemaVersion;
+  
+  if (schemaVersion === undefined) {
+    console.warn('Unable to determine facility schema version');
+    return true; // Allow to proceed if we can't determine version
+  }
+  
+  if (schemaVersion < SchemaVersion) {
+    const errorMessage = `This facility is using schema version ${schemaVersion}. 
+The API currently only supports schema version ${SchemaVersion}. 
+Please open this facility in Autodesk Tandem first to upgrade the schema.`;
+    
+    Autodesk.Viewing.Private.AlertBox.displayError(
+      viewer.container,
+      errorMessage,
+      '⚠️ Incompatible Schema Version',
+      'img-item-not-found'
+    );
+    
+    console.warn(`⚠️ Facility schema version (${schemaVersion}) is incompatible. Required: ${SchemaVersion}`);
+    return false;
+  }
+  
+  return true;
+}
+
+/***************************************************
 ** FUNC: populateFacilitiesDropdown()
 ** DESC: get the list of Facilities for a given team
 **********************/
@@ -124,7 +164,12 @@ async function populateFacilitiesDropdown(app, teamName, viewer) {
     // load preferred or random facility
   const preferredFacilityUrn = window.localStorage.getItem('tandem-testbed-last-facility');
   const preferredFacility = curTeam.facilities.find(f=>f.twinId === preferredFacilityUrn) || curTeam.facilities[0];
-  app.displayFacility(preferredFacility, false, viewer);    // initially loaded facility
+  
+  // Check schema version before loading
+  const isCompatible = await checkSchemaVersion(preferredFacility, viewer);
+  if (isCompatible) {
+    app.displayFacility(preferredFacility, false, viewer);    // initially loaded facility
+  }
 
     // setup facility picker UI
   await Promise.all(curTeam.facilities.map(f => f.load()));
@@ -144,10 +189,15 @@ async function populateFacilitiesDropdown(app, teamName, viewer) {
   }
 
     // this callback will load the facility that the user picked in the Facility dropdown
-  facilityPicker.onchange = ()=>{
+  facilityPicker.onchange = async ()=>{
       const newFacility = curTeam.facilities[facilityPicker.selectedIndex];
       window.localStorage.setItem('tandem-testbed-last-facility', newFacility.twinId);
-      app.displayFacility(newFacility, undefined, viewer);
+      
+      // Check schema version before loading
+      const isCompatible = await checkSchemaVersion(newFacility, viewer);
+      if (isCompatible) {
+        app.displayFacility(newFacility, undefined, viewer);
+      }
   }
   facilityPicker.style.visibility = 'initial';
 }

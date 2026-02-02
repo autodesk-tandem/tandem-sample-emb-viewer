@@ -161,10 +161,26 @@ async function populateFacilitiesDropdown(app, teamName, viewer) {
   const teams = await app.getTeams(); 
   const curTeam = teams.find(obj => obj.name === teamName);
 
+  const facilityPicker = document.getElementById('facilityPicker');
+
+  // Guard: team not found or no facilities
+  if (!curTeam || !curTeam.facilities || curTeam.facilities.length === 0) {
+    facilityPicker.innerHTML = '<option value="">No facilities available</option>';
+    facilityPicker.style.visibility = 'initial';
+    return;
+  }
+
     // load preferred or random facility
   const preferredFacilityUrn = window.localStorage.getItem('tandem-testbed-last-facility');
   const preferredFacility = curTeam.facilities.find(f=>f.twinId === preferredFacilityUrn) || curTeam.facilities[0];
   
+  // Guard: preferredFacility could still be undefined (defensive)
+  if (!preferredFacility) {
+    facilityPicker.innerHTML = '<option value="">No facilities available</option>';
+    facilityPicker.style.visibility = 'initial';
+    return;
+  }
+
   // Check schema version before loading
   const isCompatible = await checkSchemaVersion(preferredFacility, viewer);
   if (isCompatible) {
@@ -173,7 +189,6 @@ async function populateFacilitiesDropdown(app, teamName, viewer) {
 
     // setup facility picker UI
   await Promise.all(curTeam.facilities.map(f => f.load()));
-  const facilityPicker = document.getElementById('facilityPicker');
 
   console.log("Facilities for current team:", curTeam.facilities);
   curTeam.facilities.sort((a, b) => a.settings.props["Identity Data"]["Building Name"].localeCompare(b.settings.props["Identity Data"]["Building Name"])); // Sort alphabetically
@@ -183,7 +198,7 @@ async function populateFacilitiesDropdown(app, teamName, viewer) {
   for (let facility of curTeam.facilities) {
       const option = document.createElement('option');
       option.text = facility.settings.props["Identity Data"]["Building Name"];
-      option.selected = facility.twinId == preferredFacility.twinId;
+      option.selected = facility.twinId === preferredFacility?.twinId;
 
       facilityPicker.appendChild(option);
   }

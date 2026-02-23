@@ -767,6 +767,7 @@ function createInputForm(config, index) {
                     values[id] = input.value;
                 }
             });
+
             
             // Build searchOptions for type-aware forms
             if (config.typeAwareOptions && typeAwareState) {
@@ -809,10 +810,10 @@ function createInputForm(config, index) {
             form.classList.add('hidden');
         } catch (error) {
             console.error('Error executing stub:', error);
+        } finally {
+            executeBtn.disabled = false;
+            executeBtn.textContent = 'Execute';
         }
-        
-        executeBtn.disabled = false;
-        executeBtn.textContent = 'Execute';
     });
     
     cancelBtn.addEventListener('click', () => {

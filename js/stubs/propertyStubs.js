@@ -111,7 +111,8 @@ export async function getCommonDtProperties() {
         return;
     }
 
-    if (aggrSet.length < 2) {
+    const totalSelected = aggrSet.reduce((sum, entry) => sum + entry.selection.length, 0);
+    if (totalSelected < 2) {
         console.warn('This function only makes sense with 2 or more objects selected.');
         return;
     }
@@ -342,12 +343,11 @@ export async function setPropertySelSet(propCategory, propName, propValue) {
         if (attr) {
             const typedValue = convertStrToDataType(attr.dataType, propValue);
             if (typedValue !== null) {
-                let fullyQualifiedPropName = '';
-                if (attr.isNative()) {
-                    fullyQualifiedPropName = Autodesk.Tandem.DtConstants.ColumnFamilies.DtProperties + ':' + attr.id;
-                } else {
-                    fullyQualifiedPropName = attr.id;
-                }
+                // attr.id is always fully qualified (family:column, e.g. "z:4wc") regardless
+                // of whether the property is native or user-defined. Do NOT prepend the column
+                // family again — doing so produces a double-prefixed key like "z:z:4wc" which
+                // the server rejects and causes data corruption.
+                const fullyQualifiedPropName = attr.id;
 
                 console.log(`Setting value for "${propCategory} | ${propName}" =`, typedValue);
                 await setPropertyOnElements(aggrSet[i].model, aggrSet[i].selection, fullyQualifiedPropName, typedValue);
@@ -367,20 +367,22 @@ export async function setPropertySelSet(propCategory, propName, propValue) {
 /**
  * Helper function to set property on elements via mutate
  */
-async function setPropertyOnElements(model, dbIds, qualifiedPropName, newValue) {
+function setPropertyOnElements(model, dbIds, qualifiedPropName, newValue) {
     const muts = [];
 
     for (let i = 0; i < dbIds.length; i++) {
         muts.push([qualifiedPropName, newValue]);
     }
 
-    await model.mutate(dbIds, muts, 'EmbeddedViewerSampleApp Update')
-        .then(() => {
-            console.info('Update succeeded');
-        })
-        .catch((err) => {
-            console.error('Update failed', err);
-        });
+    // model.mutate() dispatches the change via WebSocket and works correctly, but the
+    // returned Promise never resolves — the SDK does not settle it after acknowledgment.
+    // We fire it without awaiting to avoid blocking the caller and to prevent false
+    // timeout errors. Confirm success by watching for the "instance tree rebuild" log
+    // and the changedElements WebSocket event in the console.
+    model.mutate(dbIds, muts, 'EmbeddedViewerSampleApp Update')
+        .catch(err => console.warn('model.mutate() rejected:', err.message));
+
+    console.info('Mutation dispatched — watch console for instance tree rebuild confirmation.');
 }
 
 /**

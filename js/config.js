@@ -17,7 +17,7 @@ const stgEnvironment = {
 const prodEnvironment = {
     name: 'prod',
     apsHost: 'https://developer.api.autodesk.com',
-    apsKey: 'YOUR_APS_CLIENT_ID', // TODO: Replace with your APS Key to develop locally
+    apsKey: 'tvyaGMqCOud2PA96T0vpw5fIeZFnYXSIwSjjnE3AmGjUiTFu', // Safe to commit - PKCE flow, no secret needed
     loginRedirect: 'http://localhost:8000',
     tandemBaseURL: 'https://developer.api.autodesk.com/tandem/v1',
     dtLmvEnv: 'DtProduction'

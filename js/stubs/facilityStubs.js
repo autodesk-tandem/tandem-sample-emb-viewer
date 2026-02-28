@@ -27,11 +27,21 @@ export async function dumpFacilityInfo() {
     console.log('facility.getClassificationTemplate()');
     console.log(await facility.getClassificationTemplate());
     
+    // getUsers() and getSubjects() require ALManage (Manage or Owner access level)
+    // on the server side - calling them with lower access returns 403 Forbidden.
     console.log('facility.getUsers()');
-    console.table(await facility.getUsers());
+    if (facility.canManage()) {
+        console.table(await facility.getUsers());
+    } else {
+        console.log('(skipped - requires Manage or Owner access level)');
+    }
     
     console.log('facility.getSubjects()');
-    console.table(await facility.getSubjects());
+    if (facility.canManage()) {
+        console.table(await facility.getSubjects());
+    } else {
+        console.log('(skipped - requires Manage or Owner access level)');
+    }
     
     console.log('facility.getModels(skipDefault=false)', facility.getModels());
     console.log('facility.getModels(skipDefault=true)', facility.getModels(true));
@@ -169,8 +179,14 @@ export async function getFacilityUsageMetrics() {
     
     console.group('STUB: getFacilityUsageMetrics()');
     
-    const metrics = await facility.loadUsageMetrics();
-    console.log('Usage Metrics:', metrics);
+    // loadUsageMetrics() requires ALOwner access level on the server side -
+    // calling it with lower access returns 403 Forbidden.
+    if (facility.isOwner()) {
+        const metrics = await facility.loadUsageMetrics();
+        console.log('Usage Metrics:', metrics);
+    } else {
+        console.log('(skipped - requires Owner access level)');
+    }
     
     console.groupEnd();
 }
@@ -198,6 +214,53 @@ export async function getFacilityHistory() {
     console.log('History entries:', history?.length || 0);
     console.log('History:', history);
     
+    console.groupEnd();
+}
+
+/**
+ * Trigger a server-side asset cleanup for the current facility.
+ *
+ * When a model is re-uploaded to Tandem (e.g. a revised Revit file), elements
+ * that existed in the old model but were deleted in the new one can become
+ * "ghost" records in the Tandem database — they are no longer part of the live
+ * model geometry but still occupy storage and can appear in queries.
+ *
+ * triggerAssetCleanup() sends a POST to /twins/{facilityUrn}/cleanup, which
+ * asks the server to scan for and remove these orphaned assets.
+ *
+ * IMPORTANT:
+ *  - This is a destructive, irreversible operation. Only run it after a
+ *    deliberate model re-upload where you are sure old elements should be gone.
+ *  - The POST returns quickly (server accepted the request), but the actual
+ *    cleanup runs asynchronously server-side. The facility subscribes to
+ *    change events so the viewer can react when the server finishes.
+ *  - Requires Manage or Owner permission on the facility.
+ */
+export async function triggerAssetCleanup() {
+    const facility = getCurrentFacility();
+    if (!facility) {
+        console.warn('No facility currently loaded');
+        return;
+    }
+
+    if (!facility.canManage()) {
+        console.warn('triggerAssetCleanup() requires Manage or Owner access. Current user has insufficient permissions.');
+        return;
+    }
+
+    console.group('STUB: triggerAssetCleanup()');
+    console.log('Facility URN:', facility.urn());
+    console.warn('⚠ This is a destructive operation. Orphaned assets will be permanently removed.');
+    console.log('Sending cleanup request to server...');
+
+    try {
+        await facility.triggerAssetCleanup();
+        console.log('✓ Cleanup request accepted by server. Cleanup is now running asynchronously.');
+        console.log('The facility is now subscribed to change events and will update when the server finishes.');
+    } catch (e) {
+        console.error('Cleanup request failed:', e);
+    }
+
     console.groupEnd();
 }
 

@@ -133,9 +133,18 @@ export async function getDtModelUsageMetrics() {
         return;
     }
 
+    const facility = getCurrentFacility();
     const from = new Date().toISOString().split('T')[0].replace(/-/g, '');
 
     console.group('STUB: getDtModelUsageMetrics()');
+
+    // getUsageMetrics() requires ALOwner access level on the server side -
+    // calling it with lower access returns 403 Forbidden.
+    if (!facility?.isOwner()) {
+        console.log('(skipped - requires Owner access level)');
+        console.groupEnd();
+        return;
+    }
 
     for (let i = 0; i < models.length; i++) {
         const usage = await models[i].getUsageMetrics(from);
@@ -312,6 +321,15 @@ export async function showElementsInRoom() {
 
 /**
  * 8. Get rooms of a selected element
+ *
+ * Given a selected element, returns all rooms that contain it. The SDK checks
+ * both same-model rooms and cross-model (xref) rooms. Results are synchronous
+ * local lookups — no API call is made.
+ *
+ * NOTE: This only works if room data is present in the model AND the element
+ * has been spatially assigned to a room (i.e., room assignment has been run
+ * in Tandem). Elements outside any room, or in facilities with no rooms, will
+ * return an empty result.
  */
 export async function getRoomsOfElement() {
     const facility = getCurrentFacility();
@@ -325,48 +343,81 @@ export async function getRoomsOfElement() {
         return;
     }
 
+    const model = aggrSet[0].model;
+    const dbId = aggrSet[0].selection[0];
+
     console.group('STUB: getRoomsOfElement()');
+    console.log(`Selected element  -- dbId: ${dbId} | model: ${model.label()}`);
 
-    const roomsOfElement = await facility.getRoomsOfElement(aggrSet[0].model, aggrSet[0].selection[0]);
-    console.table(roomsOfElement);
+    // Check if the model has any rooms at all
+    const allRooms = model.getRooms();
+    const roomCount = allRooms ? Object.keys(allRooms).length / 2 : 0; // roomMap is keyed by both dbId AND externalId
+    console.log(`Rooms in model: ${roomCount}`);
 
+    const roomsOfElement = facility.getRoomsOfElement(model, dbId);
+
+    if (!roomsOfElement.length) {
+        console.warn('No rooms found for this element.');
+        console.warn('Possible reasons: element is outside all room boundaries, room assignment has not been run, or this model has no rooms.');
+        console.groupEnd();
+        return;
+    }
+
+    console.log(`Found ${roomsOfElement.length} room(s):`);
+    const rows = roomsOfElement.map(r => ({
+        dbId:       r.dbId,
+        externalId: r.externalId,
+        name:       r.name ?? '(no name)',
+        model:      r.model?.label() ?? '(unknown model)'
+    }));
+    console.table(rows);
+
+    // Select and show the containing rooms in the viewer
     const viewer = getViewer();
     viewer.clearSelection();
 
-    if (roomsOfElement.length) {
-        const newAggrSet = [];
-        for (let i = 0; i < roomsOfElement.length; i++) {
-            viewer.show(roomsOfElement[i].dbId, roomsOfElement[i].model);
+    const newAggrSet = [];
+    for (const room of roomsOfElement) {
+        viewer.show(room.dbId, room.model);
 
-            let found = false;
-            for (let j = 0; j < newAggrSet.length; j++) {
-                if (newAggrSet[j].model === roomsOfElement[i].model) {
-                    newAggrSet[j].selection.push(roomsOfElement[i].dbId);
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                newAggrSet.push({ model: roomsOfElement[i].model, selection: [roomsOfElement[i].dbId] });
-            }
+        let entry = newAggrSet.find(e => e.model === room.model);
+        if (entry) {
+            entry.selection.push(room.dbId);
+        } else {
+            newAggrSet.push({ model: room.model, selection: [room.dbId] });
         }
-        viewer.setAggregateSelection(newAggrSet);
     }
+    viewer.setAggregateSelection(newAggrSet);
 
     console.groupEnd();
 }
 
 /**
- * 9. Get element UfClass for selected elements
+ * 9. Get element classification for selected elements
+ * 
+ * Three classification systems can be assigned to any element in Tandem:
+ * 
+ *   ufClass        — Uniformat assembly code (e.g. "B2010") assigned from the
+ *                    Revit source or set manually in Tandem. Industry-standard
+ *                    hierarchical classification for building elements.
+ * 
+ *   customClass    — Custom classification from whatever classification template
+ *                    is applied to this facility (e.g. OmniClass, MasterFormat,
+ *                    or a user-defined scheme).
+ * 
+ *   tandemCategory — Tandem's own internal category code (TC.*). A coarser
+ *                    grouping used for filtering, facets, and stream assignment.
+ * 
+ * All three are synchronous local lookups — no API call is made.
  */
-export async function getElementUfClass() {
+export async function getElementClasses() {
     const aggrSet = getAggregateSelection();
     if (!aggrSet) {
         console.warn('No objects selected');
         return;
     }
 
-    console.group('STUB: getElementUfClass()');
+    console.group('STUB: getElementClasses()');
 
     for (let i = 0; i < aggrSet.length; i++) {
         const model = aggrSet[i].model;
@@ -375,12 +426,14 @@ export async function getElementUfClass() {
         console.group(`Model[${i}]--> ${model.label()}`);
         console.log(`Model URN: ${model.urn()}`);
 
-        const prettyPrintArray = selSet.map(dbId => ({
+        const rows = selSet.map(dbId => ({
             dbId,
-            ufClass: model.getElementUfClass(dbId)
+            ufClass:        model.getElementUfClass(dbId),
+            customClass:    model.getElementCustomClass(dbId),
+            tandemCategory: model.getElementTandemCategory(dbId)
         }));
 
-        console.table(prettyPrintArray);
+        console.table(rows);
         console.groupEnd();
     }
 
@@ -388,38 +441,7 @@ export async function getElementUfClass() {
 }
 
 /**
- * 10. Get element custom class for selected elements
- */
-export async function getElementCustomClass() {
-    const aggrSet = getAggregateSelection();
-    if (!aggrSet) {
-        console.warn('No objects selected');
-        return;
-    }
-
-    console.group('STUB: getElementCustomClass()');
-
-    for (let i = 0; i < aggrSet.length; i++) {
-        const model = aggrSet[i].model;
-        const selSet = aggrSet[i].selection;
-
-        console.group(`Model[${i}]--> ${model.label()}`);
-        console.log(`Model URN: ${model.urn()}`);
-
-        const prettyPrintArray = selSet.map(dbId => ({
-            dbId,
-            customClass: model.getElementCustomClass(dbId)
-        }));
-
-        console.table(prettyPrintArray);
-        console.groupEnd();
-    }
-
-    console.groupEnd();
-}
-
-/**
- * 11. Get element bounds for selected elements
+ * 10. Get element bounds for selected elements
  */
 export async function getElementBounds() {
     const aggrSet = getAggregateSelection();
@@ -463,7 +485,7 @@ function utilSubtractElementsFromAllIds(model, subtractElems) {
 }
 
 /**
- * 12. Isolate tagged assets in the viewer
+ * 11. Isolate tagged assets in the viewer
  */
 export async function isolateTaggedAssets() {
     const models = getLoadedModels();
@@ -504,7 +526,7 @@ export async function isolateTaggedAssets() {
 }
 
 /**
- * 13. Isolate un-tagged assets in the viewer
+ * 12. Isolate un-tagged assets in the viewer
  */
 export async function isolateUnTaggedAssets() {
     const models = getLoadedModels();
@@ -540,7 +562,7 @@ export async function isolateUnTaggedAssets() {
 }
 
 /**
- * 14. Isolate classified assets in the viewer
+ * 13. Isolate classified assets in the viewer
  */
 export async function isolateClassifiedAssets() {
     const models = getLoadedModels();
@@ -581,7 +603,7 @@ export async function isolateClassifiedAssets() {
 }
 
 /**
- * 15. Isolate un-classified assets in the viewer
+ * 14. Isolate un-classified assets in the viewer
  */
 export async function isolateUnClassifiedAssets() {
     const models = getLoadedModels();
@@ -617,7 +639,246 @@ export async function isolateUnClassifiedAssets() {
 }
 
 /**
- * 16. Convert dbIds to external element IDs
+ * 15. Query elements using model.query()
+ * 
+ * model.query() is a flexible, low-level API that lets you filter elements and
+ * fetch specific attribute families in a single call. It's the foundation that
+ * higher-level helpers like getTaggedAssets() and getClassifiedAssets() are built on.
+ * 
+ * The query object supports:
+ *   dbIds       - limit to specific viewer IDs (omit to query all elements)
+ *   includes    - which attribute families to fetch:
+ *                   standard  = built-in Tandem attributes (Name, CategoryId, ElementFlags, etc.)
+ *                   applied   = user-defined custom parameters (the "z" column family)
+ *                   element   = original source attributes from the Revit/IFC file
+ *                   type      = family/type-level attributes
+ *                   status    = lifecycle status flags
+ *   filter      - MongoDB-style conditions on column values (e.g. existsInRaw, $gt, $eq)
+ *   strict      - if true, only return elements that have ALL included families populated
+ * 
+ * Results shape:  { rows: [...], cols: [...] }
+ *   rows  - one entry per element; keys are "family:column" strings (e.g. "n:n" = Standard:Name)
+ *           "l:d" is always the viewer dbId for that row
+ *   cols  - attribute definitions for every key present in rows
+ */
+export async function queryElements() {
+    const models = getLoadedModels();
+    if (!models) {
+        console.warn('No models loaded');
+        return;
+    }
+
+    const facility = getCurrentFacility();
+    const model = facility.getPrimaryModel();
+    if (!model) {
+        console.warn('No primary model');
+        return;
+    }
+
+    console.group('STUB: queryElements() -- model.query()');
+
+    // -------------------------------------------------------------------------
+    // Example 1: Query ALL elements — fetch standard built-in attributes only.
+    // This is the simplest form. "standard" covers Name, CategoryId, ElementFlags,
+    // Assembly Code, Classification, etc.
+    // -------------------------------------------------------------------------
+    console.group('Example 1: All elements, standard attributes');
+    const allStandard = await model.query({
+        includes: { standard: true }
+    });
+    console.log('Result shape:', allStandard);
+    console.log(`  rows (elements found): ${allStandard.rows.length}`);
+    console.log(`  cols (attributes returned): ${allStandard.cols.length}`);
+    console.log('  Sample row[0]:', allStandard.rows[0]);
+    console.log('  Attribute definitions (cols):', allStandard.cols);
+    console.groupEnd();
+
+    // -------------------------------------------------------------------------
+    // Example 2: Query elements that have user-defined custom parameters set.
+    // "applied" = the "z" column family — these are parameters added in Tandem's
+    // Parameters panel. The filter { existsInRaw: true } means "only include
+    // elements where at least one applied parameter has a value stored".
+    // This is exactly what getTaggedAssets() does internally.
+    // -------------------------------------------------------------------------
+    console.group('Example 2: Elements with custom parameters set (applied family)');
+    const allIds = model.getElementIds();
+    const withCustomParams = await model.query({
+        dbIds: allIds,
+        includes: { standard: true, applied: true },
+        filter: {
+            [Autodesk.Tandem.DtConstants.ColumnFamilies.DtProperties]: { existsInRaw: true }
+        }
+    });
+    console.log('Elements with custom parameters:', withCustomParams.rows.length);
+    // Extract dbIds from results — "l:d" is the Refs:LmvDbId column
+    const dbIds = withCustomParams.rows.map(row => row['l:d']);
+    console.log('  dbIds:', dbIds);
+    console.log('  Full results:', withCustomParams);
+    console.groupEnd();
+
+    // -------------------------------------------------------------------------
+    // Example 3: Query the current viewer selection — fetch standard AND source
+    // (element) attributes. Source attributes are the original values from the
+    // Revit/IFC file before any Tandem overrides are applied.
+    // If nothing is selected, this falls back to all elements.
+    // -------------------------------------------------------------------------
+    console.group('Example 3: Selected elements (or all), standard + source attributes');
+    const aggrSet = getAggregateSelection();
+    const selectedDbIds = aggrSet?.flatMap(s => s.selection) ?? model.getElementIds();
+    console.log(`Querying ${selectedDbIds.length} element(s) — select some in the viewer to narrow this down`);
+
+    const selectedProps = await model.query({
+        dbIds: selectedDbIds,
+        includes: { standard: true, element: true, applied: true }
+    });
+    console.log(`Result: ${selectedProps.rows.length} element(s) found`);
+    console.table(selectedProps.rows.slice(0, 20)); // cap at 20 rows for readability
+    console.groupEnd();
+
+    console.groupEnd();
+}
+
+/**
+ * 16. Search elements by property value using model.search()
+ * 
+ * model.search() is a free-text search across property VALUES in the model.
+ * It scans the Source (original Revit/IFC) and DtProperties (user-defined) families.
+ * 
+ * Key differences from model.query():
+ *   - Input:  { text: string }   — a plain search string, not a structured filter
+ *   - Output: dbId[]             — just viewer IDs, not the {rows, cols} object
+ *   - Scope:  searches VALUES (e.g. "Concrete", "AHU-01") not property names
+ *   - Use it when you know what VALUE you're looking for but not which attribute
+ *     contains it. Use query() when you know the exact attribute to filter on.
+ * 
+ * Matching is case-insensitive and substring-based.
+ */
+export async function searchElements(searchText) {
+    const models = getLoadedModels();
+    if (!models) {
+        console.warn('No models loaded');
+        return;
+    }
+
+    const text = searchText?.trim();
+    if (!text) {
+        console.warn('No search text provided');
+        return;
+    }
+
+    console.group('STUB: searchElements() -- model.search()');
+    console.log(`Searching for: "${text}"`);
+    console.log('Searches across: Source attributes (original Revit/IFC) + user-defined DtProperties');
+    console.log('NOTE: result is a plain dbId[] — use these directly with viewer.isolate()');
+
+    const viewer = getViewer();
+    viewer.clearSelection();
+
+    for (let i = 0; i < models.length; i++) {
+        console.group(`Model[${i}]--> ${models[i].label()}`);
+        console.log(`Model URN: ${models[i].urn()}`);
+
+        // model.search() returns a plain array of viewer dbIds (numbers), not {rows, cols}
+        const matchingDbIds = await models[i].search({ text });
+
+        console.log(`Found ${matchingDbIds.length} matching element(s):`, matchingDbIds);
+
+        if (matchingDbIds.length > 0) {
+            console.log('Isolating matches in viewer...');
+            viewer.isolate(matchingDbIds, models[i]);
+        } else {
+            console.log('No matches found in this model.');
+            viewer.isolate([0], models[i]);
+        }
+
+        console.groupEnd();
+    }
+
+    console.groupEnd();
+}
+
+/**
+ * 17. Convert external element IDs back to viewer dbIds
+ * 
+ * The typical use case: you have element keys from an external source
+ * (a REST API response, a database, a QR code scan, another tool) and you
+ * want to locate and highlight those specific elements in the 3D viewer.
+ * 
+ *   elementId — a stable, persistent base64-encoded string (Tandem's permanent key).
+ *               Consistent across all sessions and API calls.
+ * 
+ *   dbId      — a session-local integer required for ALL viewer operations:
+ *               isolate(), select(), setThemingColor(), etc.
+ * 
+ * This stub accepts a comma-separated list of elementIds, searches every loaded
+ * model for matches, and isolates the found elements in the viewer.
+ * Tip: run 'Viewer Ids --> Element Ids' first to get some keys to paste in here.
+ */
+export async function externalIdsToDbIds(elementKeys) {
+    const models = getLoadedModels();
+    if (!models) {
+        console.warn('No models loaded');
+        return;
+    }
+
+    const elementIds = elementKeys.split(',').map(k => k.trim()).filter(k => k.length > 0);
+    if (elementIds.length === 0) {
+        console.warn('No element IDs provided');
+        return;
+    }
+
+    console.group('STUB: externalIdsToDbIds() -- model.getDbIdsFromElementIds()');
+    console.log('Terminology: dbId = ViewerID (session-local integer)  |  elementId = elementKey (stable base64 string)');
+    console.log('Input elementIds (elementKeys):', elementIds);
+    console.log('NOTE: call is per-model — the SDK has no cross-model awareness, so we try each model and collect hits.');
+
+    // getDbIdsFromElementIds() is per-model: it looks up each ID in that model's
+    // local property database and returns null for IDs that don't belong to it.
+    // Since each elementId is globally unique, it will only be found in one model.
+    const viewer = getViewer();
+    viewer.clearSelection();
+
+    const found = [];       // { elementId, dbId, model, modelLabel }
+    const notFound = [];    // elementIds that weren't in any model
+
+    for (let i = 0; i < models.length; i++) {
+        const model = models[i];
+        const dbIds = await model.getDbIdsFromElementIds(elementIds);
+        const hitDbIds = [];
+
+        elementIds.forEach((elementId, index) => {
+            const dbId = dbIds[index];
+            if (dbId !== null && dbId !== undefined) {
+                found.push({ elementId, dbId, model: model.label(), modelUrn: model.urn() });
+                hitDbIds.push(dbId);
+            }
+        });
+
+        if (hitDbIds.length > 0) {
+            viewer.isolate(hitDbIds, model);
+        } else {
+            viewer.isolate([0], model);
+        }
+    }
+
+    // Anything not found in any model
+    const foundIds = new Set(found.map(r => r.elementId));
+    elementIds.forEach(id => { if (!foundIds.has(id)) notFound.push(id); });
+
+    // Single clean summary — only show where elements were actually found
+    if (found.length > 0) {
+        console.log(`Found ${found.length} of ${elementIds.length} element(s):`);
+        console.table(found);
+    }
+    if (notFound.length > 0) {
+        console.warn(`${notFound.length} element ID(s) not found in any loaded model:`, notFound);
+    }
+
+    console.groupEnd();
+}
+
+/**
+ * 18. Convert dbIds to external element IDs
  */
 export async function dbIdsToExternalIds() {
     const aggrSet = getAggregateSelection();
@@ -627,6 +888,7 @@ export async function dbIdsToExternalIds() {
     }
 
     console.group('STUB: dbIdsToExternalIds()');
+    console.log('Terminology: dbid = ViewerID (session-local integer)  |  externalId = elementKey (stable base64 string)');
 
     for (let i = 0; i < aggrSet.length; i++) {
         const model = aggrSet[i].model;

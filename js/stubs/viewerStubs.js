@@ -311,25 +311,7 @@ export async function selectAllVisibleElements() {
 }
 
 /**
- * 10. Get hidden elements by model
- */
-export async function getHiddenElementsByModel() {
-    const facility = getCurrentFacility();
-    if (!facility) {
-        console.warn('No facility loaded');
-        return;
-    }
-
-    console.group('STUB: getHiddenElementsByModel()');
-    
-    const resultObjs = facility.getHiddenElementsByModel();
-    console.log('Hidden Elements', resultObjs);
-    
-    console.groupEnd();
-}
-
-/**
- * 11. Hide model
+ * 10. Hide model
  */
 export async function hideModel() {
     const facility = getCurrentFacility();
@@ -357,7 +339,7 @@ export async function hideModel() {
 }
 
 /**
- * 12. Show model
+ * 11. Show model
  */
 export async function showModel() {
     const facility = getCurrentFacility();
@@ -464,7 +446,7 @@ function exportMesh(aggrSet, useWorldSpace) {
 }
 
 /**
- * 13. Scrape geometry from selected elements
+ * 12. Scrape geometry from selected elements
  */
 export function scrapeGeometry() {
     const aggrSet = getAggregateSelection();
@@ -486,7 +468,7 @@ export function scrapeGeometry() {
 }
 
 /**
- * 14. Set theme color for selection
+ * 13. Set theme color for selection
  */
 export async function setThemeColor() {
     const aggrSet = getAggregateSelection();
@@ -513,7 +495,7 @@ export async function setThemeColor() {
 }
 
 /**
- * 15. Unset theme color for selection
+ * 14. Unset theme color for selection
  */
 export async function unsetThemeColor() {
     const aggrSet = getAggregateSelection();
@@ -548,7 +530,7 @@ function restoreColorThemeForView(facility, view) {
 }
 
 /**
- * 16. Clear all theming from facility
+ * 15. Clear all theming from facility
  */
 export function clearAllTheming() {
     const facility = getCurrentFacility();
@@ -566,7 +548,7 @@ export function clearAllTheming() {
 }
 
 /**
- * 17. Get saved views
+ * 16. Get saved views
  */
 export async function getSavedViews() {
     const facility = getCurrentFacility();
@@ -594,7 +576,7 @@ export async function getSavedViews() {
 }
 
 /**
- * 18. Go to a saved view
+ * 17. Go to a saved view
  */
 export async function gotoSavedView(viewName) {
     const facility = getCurrentFacility();

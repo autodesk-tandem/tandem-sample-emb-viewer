@@ -55,6 +55,14 @@ export async function deleteDocument(docURN) {
 
     console.group('STUB: deleteDocument()');
 
+    // deleteDocument() requires ALManage access level on the server side -
+    // calling it with lower access returns 403 Forbidden.
+    if (!facility.canManage()) {
+        console.log('(skipped - requires Manage or Owner access level)');
+        console.groupEnd();
+        return;
+    }
+
     await facility.deleteDocument(docURN);
     console.log('Document deleted');
 

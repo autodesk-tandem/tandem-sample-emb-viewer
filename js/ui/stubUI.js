@@ -851,8 +851,9 @@ export async function renderStubs(container, facility) {
         { label: 'Dump Facility Info', description: 'Display detailed facility information', action: facilityStubs.dumpFacilityInfo },
         { label: 'Dump App Info', description: 'Display DtApp object information', action: facilityStubs.dumpAppInfo },
         { label: 'Dump DT Constants', description: 'Display Tandem SDK constants', action: facilityStubs.dumpDtConstants },
-        { label: 'Load Facility Usage Metrics', description: 'Load facility usage metrics', action: facilityStubs.getFacilityUsageMetrics },
-        { label: 'Facility History', description: 'Get recent facility history (30 days)', action: facilityStubs.getFacilityHistory }
+        { label: 'Get Facility Usage Metrics', description: 'Get facility usage metrics', action: facilityStubs.getFacilityUsageMetrics },
+        { label: 'Facility History', description: 'Get recent facility history (30 days)', action: facilityStubs.getFacilityHistory },
+        { label: 'Trigger Asset Cleanup', description: 'Remove orphaned/ghost assets after model re-upload (irreversible)', action: facilityStubs.triggerAssetCleanup }
     ]);
     container.appendChild(facilityDropdown);
     
@@ -876,14 +877,36 @@ export async function renderStubs(container, facility) {
         { label: 'Isolate Rooms', description: 'Isolate rooms in viewer', action: modelStubs.isolateRooms },
         { label: 'Show Elements In Room', description: 'Show elements in selected room', action: modelStubs.showElementsInRoom },
         { label: 'Get Rooms of Element', description: 'Get rooms for selected element', action: modelStubs.getRoomsOfElement },
-        { label: 'Get Element Uf Class', description: 'Get UfClass for selection', action: modelStubs.getElementUfClass },
-        { label: 'Get Element Custom Class', description: 'Get custom class for selection', action: modelStubs.getElementCustomClass },
+        { label: 'Get Element Classes', description: 'Get ufClass, customClass, tandemCategory for selection', action: modelStubs.getElementClasses },
         { label: 'Get Element Bounds', description: 'Get bounding boxes for selection', action: modelStubs.getElementBounds },
         { label: 'Isolate Tagged Assets', description: 'Isolate tagged assets', action: modelStubs.isolateTaggedAssets },
         { label: 'Isolate Un-Tagged Assets', description: 'Isolate un-tagged assets', action: modelStubs.isolateUnTaggedAssets },
         { label: 'Isolate Classified Assets', description: 'Isolate classified assets', action: modelStubs.isolateClassifiedAssets },
         { label: 'Isolate Un-Classified Assets', description: 'Isolate un-classified assets', action: modelStubs.isolateUnClassifiedAssets },
-        { label: 'Viewer Ids --> Element Ids', description: 'Convert selection to external IDs', action: modelStubs.dbIdsToExternalIds }
+        {
+            label: 'Element Ids --> Viewer Ids',
+            description: 'Locate elements by external ID and isolate them in the viewer',
+            hasInput: true,
+            inputConfig: {
+                fields: [
+                    { id: 'elementKeys', label: 'Element IDs (comma-separated)', placeholder: 'e.g., QUFBQUE...,QUFBQUI...' }
+                ],
+                onExecute: (values) => modelStubs.externalIdsToDbIds(values.elementKeys)
+            }
+        },
+        { label: 'Viewer Ids --> Element Ids', description: 'Convert selection to external IDs', action: modelStubs.dbIdsToExternalIds },
+        { label: 'Query Elements', description: 'Query elements using model.query() with 3 progressive examples', action: modelStubs.queryElements },
+        {
+            label: 'Search Elements',
+            description: 'Free-text search across property values using model.search()',
+            hasInput: true,
+            inputConfig: {
+                fields: [
+                    { id: 'searchText', label: 'Search Text', placeholder: 'e.g., Concrete, AHU-01, Level 2' }
+                ],
+                onExecute: (values) => modelStubs.searchElements(values.searchText)
+            }
+        }
     ]);
     container.appendChild(modelDropdown);
     
@@ -1042,6 +1065,18 @@ export async function renderStubs(container, facility) {
                 onExecute: (values) => streamStubs.createStream(values.streamName)
             }
         },
+        // NOTE: createCalculatedStream is behind a feature flag — uncomment when available.
+        // {
+        //     label: 'Create Calculated Stream',
+        //     description: 'Create a virtual stream fed by computation, not IoT hardware (select element to attach)',
+        //     hasInput: true,
+        //     inputConfig: {
+        //         fields: [
+        //             { id: 'streamName', label: 'Stream Name', placeholder: 'e.g., Computed Avg Temperature' }
+        //         ],
+        //         onExecute: (values) => streamStubs.createCalculatedStream(values.streamName)
+        //     }
+        // },
         {
             label: 'Delete Stream',
             description: 'Delete a stream by ID',
@@ -1054,7 +1089,9 @@ export async function renderStubs(container, facility) {
             }
         },
         { label: 'Get Stream Ingestion URLs', description: 'Get stream ingestion URLs', action: streamStubs.getStreamIngestionUrls },
-        { label: 'Get Thresholds', description: 'Get threshold settings', action: streamStubs.getThresholds }
+        { label: 'Get Thresholds', description: 'Get threshold settings', action: streamStubs.getThresholds },
+        { label: 'Get Latest Reading', description: 'Get most recent value for every stream (no parameters needed)', action: streamStubs.getLatestReading },
+        { label: 'Get Last Readings With Alerts', description: 'Get latest values + alert states (Normal/Warning/Alert/Offline) for all streams', action: streamStubs.getLastReadingsWithAlerts }
     ]);
     container.appendChild(streamDropdown);
     
@@ -1069,7 +1106,6 @@ export async function renderStubs(container, facility) {
         { label: 'Get All Elements', description: 'Get all elements in facility', action: viewerStubs.getAllElements },
         { label: 'Get All Visible Elements', description: 'Get currently visible element IDs', action: viewerStubs.getVisibleDbIds },
         { label: 'Select All Visible Elements', description: 'Select all visible elements', action: viewerStubs.selectAllVisibleElements },
-        { label: 'Get Hidden Elements By Model', description: 'Get hidden elements per model', action: viewerStubs.getHiddenElementsByModel },
         { label: 'Hide Model', description: 'Hide the primary model', action: viewerStubs.hideModel },
         { label: 'Show Model', description: 'Show the primary model', action: viewerStubs.showModel },
         { label: 'Scrape Geometry', description: 'Export geometry as OBJ', action: viewerStubs.scrapeGeometry },

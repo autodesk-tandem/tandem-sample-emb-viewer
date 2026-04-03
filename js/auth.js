@@ -40,7 +40,7 @@ async function generateCodeChallenge(verifier) {
  */
 export async function login() {
     const env = getEnv();
-    const scope = 'data:read data:write user-profile:read';
+    const scope = 'data:read data:write user-profile:read profapi:img-profile:read';
     const codeVerifier = generateRandomString(64);
     const challenge = await generateCodeChallenge(codeVerifier);
     

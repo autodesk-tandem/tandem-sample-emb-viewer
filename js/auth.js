@@ -140,7 +140,22 @@ async function refreshToken() {
         
         storeToken(newToken);
         scheduleRefresh(newToken.expires_in);
-        
+
+        // Sync the new token into the Tandem SDK's request headers. Two places
+        // need updating:
+        // 1. endpoint.HTTP_REQUEST_HEADERS — used by main-thread ViewingService calls
+        // 2. DT_APP.loadContext.headers — used by worker calls (rawGet), which receive
+        //    a snapshot of headers at DtApp construction time and never re-read the
+        //    global endpoint object. Without this, worker-based operations (history,
+        //    streams, scans) start returning 403 after the first token refresh.
+        const bearer = 'Bearer ' + newToken.access_token;
+        if (window.Autodesk?.Tandem?.endpoint?.HTTP_REQUEST_HEADERS) {
+            window.Autodesk.Tandem.endpoint.HTTP_REQUEST_HEADERS['Authorization'] = bearer;
+        }
+        if (window.DT_APP?.loadContext?.headers) {
+            window.DT_APP.loadContext.headers['Authorization'] = bearer;
+        }
+
     } catch (error) {
         console.error('Token refresh error:', error);
         logout();

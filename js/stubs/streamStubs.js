@@ -533,6 +533,15 @@ export async function getLastReadingsWithAlerts() {
     console.log(`Found ${streamIds.length} stream(s). Fetching readings + alert states...`);
     const streamKeys = await strmMgr.defaultModel.getElementIdsFromDbIds(streamIds);
 
+    // SDK v1.0.896+ exports StreamStateBitmask and THRESHOLD_ALERTS_MASK as named constants.
+    // StreamStateBitmask covers all states: NORMAL=0, WARN=1, ALERT=2, AVAILABLE=4, ACTIVE=8, SCHEDULED=16
+    // THRESHOLD_ALERTS_MASK = WARN | ALERT (i.e. 0b00011) — useful for filtering to just alert conditions.
+    const { StreamStateBitmask, THRESHOLD_ALERTS_MASK } = Autodesk.Tandem.DtConstants;
+    console.log('StreamStateBitmask:', StreamStateBitmask);
+    console.log('THRESHOLD_ALERTS_MASK (WARN|ALERT):', THRESHOLD_ALERTS_MASK);
+    console.log('Example: to test if a currentState bitmask indicates WARN or ALERT:');
+    console.log('  (currentState & THRESHOLD_ALERTS_MASK) !== 0');
+
     // Pass dbIds in the filter so the readings Map is scoped to our streams.
     // Without dbIds, the worker returns the full unfiltered byDbId Map.
     const [lastByDbId, alerts] = await strmMgr.getLastReadingsWithAlerts({ dbIds: streamIds });
@@ -571,6 +580,56 @@ export async function getLastReadingsWithAlerts() {
     }
 
     console.table(rows);
+    console.groupEnd();
+}
+
+/**
+ * Get all stream state definitions configured in this facility.
+ *
+ * StreamManager.getStates() returns the named states that have been set up
+ * on streams — for example "Operating", "Alarm", "Offline". These are the
+ * *definitions* of how each state is computed (via expression or condition
+ * rules), not the current runtime value of each stream.
+ *
+ * Each StateItem in the result has:
+ *   name        - display name of the state (e.g., "Operating")
+ *   state       - state key within the stream settings (e.g., "state1")
+ *   expr        - formula expression used to evaluate the state
+ *   clientData  - { conditionSettings?, scheduledSettings? }
+ *   attribute   - { id, name } the channel this state is tied to
+ *   connections - array of stream connections that use this state definition
+ *   id          - unique key: "<attrId>-<state>-<name>"
+ */
+export async function getStreamStates() {
+    console.group('STUB: StreamManager.getStates()');
+
+    const strmMgr = getCurrentFacility()?.getStreamManager();
+    if (!strmMgr) {
+        console.warn('No stream manager available');
+        console.groupEnd();
+        return;
+    }
+
+    const states = await strmMgr.getStates();
+
+    if (!states.length) {
+        console.log('No stream state definitions found in this facility');
+        console.groupEnd();
+        return;
+    }
+
+    console.log(`Found ${states.length} state definition(s)`);
+
+    console.table(states.map(s => ({
+        name:        s.name,
+        state:       s.state,
+        attribute:   s.attribute?.name ?? s.attribute?.id ?? '—',
+        expr:        s.expr ?? '—',
+        connections: s.connections?.length ?? 0,
+        id:          s.id,
+    })));
+
+    console.log('Full state definitions (includes clientData/conditionRules):', states);
     console.groupEnd();
 }
 

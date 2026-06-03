@@ -53,9 +53,17 @@ export function startViewer(container) {
     });
     
     viewer.start();
-    
-    // Set authorization header for viewer requests
-    Autodesk.Tandem.endpoint.HTTP_REQUEST_HEADERS['Authorization'] = 'Bearer ' + getAccessToken();
+
+    // Set authorization header for all viewer requests. Must be kept in sync in
+    // two places: the global endpoint headers (used by main-thread ViewingService
+    // calls) and the DtApp loadContext headers (used by web worker calls such as
+    // history, scan, streams). They start as the same value but diverge after a
+    // token refresh unless both are updated (see refreshToken in auth.js).
+    const bearer = 'Bearer ' + getAccessToken();
+    Autodesk.Tandem.endpoint.HTTP_REQUEST_HEADERS['Authorization'] = bearer;
+    if (window.DT_APP?.loadContext?.headers) {
+        window.DT_APP.loadContext.headers['Authorization'] = bearer;
+    }
     
     // Store viewer globally for STUB functions
     window.viewer = viewer;

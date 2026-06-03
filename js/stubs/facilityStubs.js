@@ -141,6 +141,8 @@ export async function dumpDtConstants() {
     console.log('StreamState', dtConst.StreamState);
     console.log('StreamStates', dtConst.StreamStates);
     console.log('StreamAlertState2State', dtConst.StreamAlertState2State);
+    console.log('StreamStateBitmask', dtConst.StreamStateBitmask);
+    console.log('THRESHOLD_ALERTS_MASK', dtConst.THRESHOLD_ALERTS_MASK);
     
     // Classification and category constants
     console.log('UNIFORMAT_UUID', dtConst.UNIFORMAT_UUID);
@@ -164,6 +166,67 @@ export async function dumpDtConstants() {
     console.log('DT_GROUP_URN_PREFIX', dtConst.DT_GROUP_URN_PREFIX);
     console.log('DT_DOCUMENT_URN_PREFIX', dtConst.DT_DOCUMENT_URN_PREFIX);
     
+    console.groupEnd();
+}
+
+/**
+ * Search the facility by a text term.
+ *
+ * facility.search(term, options) searches element names, facet labels, stream
+ * names, systems, views, documents, and attributes. With deepSearch:true it
+ * also searches property *values* across all models (slower).
+ *
+ * Returns an array of result objects grouped by type:
+ *   Facets, Elements, Assets, Connections, ConnectedParameters,
+ *   Systems, Tickets, Views, Dashboards, Docs, StandardAttribute, Attribute
+ *
+ * Each result has { id, label, type, scope, data, run() } where run() executes
+ * the corresponding action in the viewer (isolate, select, navigate, etc.).
+ *
+ * @param {string} term - search text
+ * @param {boolean} deepSearch - also search property values (slower)
+ */
+export async function searchFacility(term, deepSearch = false) {
+    const facility = getCurrentFacility();
+    if (!facility) {
+        console.warn('No facility currently loaded');
+        return;
+    }
+
+    if (!term || term.trim() === '') {
+        console.warn('Please provide a search term');
+        return;
+    }
+
+    console.group(`STUB: facility.search("${term}", { deepSearch: ${deepSearch} })`);
+
+    const { results } = await facility.search(term, { deepSearch });
+
+    if (results.length === 0) {
+        console.log('No results found');
+        console.groupEnd();
+        return;
+    }
+
+    console.log(`Found ${results.length} result(s)`);
+
+    // Group results by type for readability
+    const byType = {};
+    for (const r of results) {
+        (byType[r.type] = byType[r.type] ?? []).push(r);
+    }
+
+    for (const [type, items] of Object.entries(byType)) {
+        console.group(`${type} (${items.length})`);
+        console.table(items.map(r => ({
+            label: r.label,
+            scope: r.scope,
+            id: r.id,
+        })));
+        console.groupEnd();
+    }
+
+    console.log('Full results array (call result.run() to execute action):', results);
     console.groupEnd();
 }
 

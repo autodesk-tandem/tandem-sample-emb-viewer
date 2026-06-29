@@ -17,26 +17,17 @@ let currentFacility = null;
  */
 export function initLMV() {
     return new Promise((resolve) => {
-        Autodesk.Viewing.Initializer({
+        Autodesk.Tandem.Initializer({
             env: getEnv().dtLmvEnv,
             api: 'dt',
             useCookie: false,
             useCredentials: true,
             shouldInitializeAuth: false,
-            opt_out_tracking_by_default: true,
+            optOutTrackingByDefault: true,
             productId: 'Digital Twins',
             corsWorker: true,
-            config3d: {
-                extensions: [
-                    'Autodesk.BoxSelection',
-                    'Autodesk.CompGeom'
-                ],
-                screenModeDelegate: Autodesk.Viewing.NullScreenModeDelegate,
-            },
-        }, function() {
-            Autodesk.Viewing.Private.logger.setLevel(5);
-            resolve();
-        });
+            logLevel: 5,
+        }, resolve);
     });
 }
 
@@ -51,8 +42,12 @@ export function startViewer(container) {
     viewerElement.style.height = '100%';
     container.appendChild(viewerElement);
     
-    const viewer = new Autodesk.Viewing.GuiViewer3D(viewerElement, {
-        extensions: ['Autodesk.BoxSelection'],
+    const viewer = new Autodesk.Tandem.DtGuiViewer3D(viewerElement, {
+        extensions: [
+            'Autodesk.Tandem.Measure',
+            'Autodesk.Tandem.Section',
+            'Autodesk.BimWalk'
+        ],
         screenModeDelegate: Autodesk.Viewing.NullScreenModeDelegate,
         theme: 'dark-theme',
     });

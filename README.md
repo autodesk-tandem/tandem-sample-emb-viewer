@@ -296,10 +296,6 @@ Click on elements in the 3D viewer before running selection-based stubs.
 
 Make sure Chrome DevTools console is open - that's where all output goes.
 
-## Upgrading from an Older SDK Version
-
-If you have an existing embedded viewer app built against an SDK version **prior to 1.0.926**, see [VIEWER_MIGRATION.md](VIEWER_MIGRATION.md) for the breaking changes around viewer initialization and facility switching.
-
 ## Additional Resources
 
 - [Tandem API Documentation](https://aps.autodesk.com/en/docs/tandem/v1/developers_guide/overview/)

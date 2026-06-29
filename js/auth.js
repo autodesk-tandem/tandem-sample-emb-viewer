@@ -46,7 +46,7 @@ export async function login() {
     
     window.localStorage.setItem('codeVerifier', codeVerifier);
     
-    const url = new URL(env.apsHost + '/authentication/v2/authorize');
+    const url = new URL('https://developer.api.autodesk.com/authentication/v2/authorize');
     url.searchParams.append('response_type', 'code');
     url.searchParams.append('client_id', env.apsKey);
     url.searchParams.append('redirect_uri', env.loginRedirect);
@@ -87,7 +87,7 @@ async function exchangeCodeForToken(code, codeVerifier) {
         'redirect_uri': env.loginRedirect
     };
     
-    const response = await fetch(env.apsHost + '/authentication/v2/token', {
+    const response = await fetch('https://developer.api.autodesk.com/authentication/v2/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: Object.keys(payload)
@@ -123,7 +123,7 @@ async function refreshToken() {
             'refresh_token': token
         };
         
-        const response = await fetch(env.apsHost + '/authentication/v2/token', {
+        const response = await fetch('https://developer.api.autodesk.com/authentication/v2/token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: Object.keys(payload)
@@ -140,22 +140,7 @@ async function refreshToken() {
         
         storeToken(newToken);
         scheduleRefresh(newToken.expires_in);
-
-        // Sync the new token into the Tandem SDK's request headers. Two places
-        // need updating:
-        // 1. endpoint.HTTP_REQUEST_HEADERS — used by main-thread ViewingService calls
-        // 2. DT_APP.loadContext.headers — used by worker calls (rawGet), which receive
-        //    a snapshot of headers at DtApp construction time and never re-read the
-        //    global endpoint object. Without this, worker-based operations (history,
-        //    streams, scans) start returning 403 after the first token refresh.
-        const bearer = 'Bearer ' + newToken.access_token;
-        if (window.Autodesk?.Tandem?.endpoint?.HTTP_REQUEST_HEADERS) {
-            window.Autodesk.Tandem.endpoint.HTTP_REQUEST_HEADERS['Authorization'] = bearer;
-        }
-        if (window.DT_APP?.loadContext?.headers) {
-            window.DT_APP.loadContext.headers['Authorization'] = bearer;
-        }
-
+        
     } catch (error) {
         console.error('Token refresh error:', error);
         logout();
@@ -184,8 +169,7 @@ function scheduleRefresh(expiresIn) {
  * Load user profile image
  */
 async function loadUserProfile() {
-    const env = getEnv();
-    const response = await fetch(`https://api.userprofile${env.name === 'stg' ? '-stg' : ''}.autodesk.com/userinfo`, {
+    const response = await fetch('https://api.userprofile.autodesk.com/userinfo', {
         headers: { 'Authorization': `Bearer ${window.sessionStorage.token}` }
     });
     

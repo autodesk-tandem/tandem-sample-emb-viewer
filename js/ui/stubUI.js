@@ -853,19 +853,7 @@ export async function renderStubs(container, facility) {
         { label: 'Dump DT Constants', description: 'Display Tandem SDK constants', action: facilityStubs.dumpDtConstants },
         { label: 'Get Facility Usage Metrics', description: 'Get facility usage metrics', action: facilityStubs.getFacilityUsageMetrics },
         { label: 'Facility History', description: 'Get recent facility history (30 days)', action: facilityStubs.getFacilityHistory },
-        { label: 'Trigger Asset Cleanup', description: 'Remove orphaned/ghost assets after model re-upload (irreversible)', action: facilityStubs.triggerAssetCleanup },
-        {
-            label: 'Search Facility',
-            description: 'Search elements, streams, systems, views, and more by text',
-            hasInput: true,
-            inputConfig: {
-                fields: [
-                    { id: 'searchTerm', label: 'Search Term', placeholder: 'e.g., AHU, Level 2, Temperature' },
-                    { id: 'deepSearch', type: 'checkbox', label: 'Deep Search (also searches property values, slower)', defaultValue: false }
-                ],
-                onExecute: (values) => facilityStubs.searchFacility(values.searchTerm, values.deepSearch)
-            }
-        }
+        { label: 'Trigger Asset Cleanup', description: 'Remove orphaned/ghost assets after model re-upload (irreversible)', action: facilityStubs.triggerAssetCleanup }
     ]);
     container.appendChild(facilityDropdown);
     
@@ -1103,8 +1091,7 @@ export async function renderStubs(container, facility) {
         { label: 'Get Stream Ingestion URLs', description: 'Get stream ingestion URLs', action: streamStubs.getStreamIngestionUrls },
         { label: 'Get Thresholds', description: 'Get threshold settings', action: streamStubs.getThresholds },
         { label: 'Get Latest Reading', description: 'Get most recent value for every stream (no parameters needed)', action: streamStubs.getLatestReading },
-        { label: 'Get Last Readings With Alerts', description: 'Get latest values + alert states (Normal/Warning/Alert/Offline) for all streams', action: streamStubs.getLastReadingsWithAlerts },
-        { label: 'Get Stream States', description: 'Get named state definitions configured on streams (e.g. Operating, Alarm, Offline)', action: streamStubs.getStreamStates }
+        { label: 'Get Last Readings With Alerts', description: 'Get latest values + alert states (Normal/Warning/Alert/Offline) for all streams', action: streamStubs.getLastReadingsWithAlerts }
     ]);
     container.appendChild(streamDropdown);
     

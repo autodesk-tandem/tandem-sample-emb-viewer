@@ -317,23 +317,8 @@ async function loadFacility(facility) {
         clearSchemaCache();
         
         window.localStorage.setItem('tandem-emb-viewer-ai-last-facility', facility.twinId);
-
-        // Facility switching strategy:
-        // 1. Call unloadModels() on the LIVE old viewer first — this calls model.reset()
-        //    on each model, which is required so the facility can be reloaded later.
-        // 2. Null currentFacility so displayFacility skips its internal #unloadFacility,
-        //    which would otherwise call unloadModels() again through the already
-        //    torn-down viewer and throw "forEach/clientWidth of null".
-        // 3. tearDown the old viewer, clear the DOM, start a fresh viewer.
-        if (currentApp.currentFacility) {
-            try { currentApp.currentFacility.unloadModels(); } catch(e) {}
-            currentApp.currentFacility = null;
-            try { currentViewer.tearDown(); } catch(e) {}
-            viewerContainer.innerHTML = '';
-            currentViewer = startViewer(viewerContainer);
-        }
-
-        await currentApp.displayFacility(facility, null, currentViewer);
+        
+        await currentApp.displayFacility(facility, false, currentViewer);
         console.log('Facility loaded:', facilityName);
         
         // Track successfully loaded facility

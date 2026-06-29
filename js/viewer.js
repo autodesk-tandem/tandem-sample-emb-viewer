@@ -17,17 +17,26 @@ let currentFacility = null;
  */
 export function initLMV() {
     return new Promise((resolve) => {
-        Autodesk.Tandem.Initializer({
+        Autodesk.Viewing.Initializer({
             env: getEnv().dtLmvEnv,
             api: 'dt',
             useCookie: false,
             useCredentials: true,
             shouldInitializeAuth: false,
-            optOutTrackingByDefault: true,
+            opt_out_tracking_by_default: true,
             productId: 'Digital Twins',
             corsWorker: true,
-            logLevel: 5,
-        }, resolve);
+            config3d: {
+                extensions: [
+                    'Autodesk.BoxSelection',
+                    'Autodesk.CompGeom'
+                ],
+                screenModeDelegate: Autodesk.Viewing.NullScreenModeDelegate,
+            },
+        }, function() {
+            Autodesk.Viewing.Private.logger.setLevel(5);
+            resolve();
+        });
     });
 }
 
@@ -41,29 +50,17 @@ export function startViewer(container) {
     viewerElement.style.width = '100%';
     viewerElement.style.height = '100%';
     container.appendChild(viewerElement);
-
-    const viewer = new Autodesk.Tandem.DtGuiViewer3D(viewerElement, {
-        extensions: [
-            'Autodesk.Tandem.Measure',
-            'Autodesk.Tandem.Section',
-            'Autodesk.BimWalk'
-        ],
+    
+    const viewer = new Autodesk.Viewing.GuiViewer3D(viewerElement, {
+        extensions: ['Autodesk.BoxSelection'],
         screenModeDelegate: Autodesk.Viewing.NullScreenModeDelegate,
         theme: 'dark-theme',
     });
     
     viewer.start();
-
-    // Set authorization header for all viewer requests. Must be kept in sync in
-    // two places: the global endpoint headers (used by main-thread ViewingService
-    // calls) and the DtApp loadContext headers (used by web worker calls such as
-    // history, scan, streams). They start as the same value but diverge after a
-    // token refresh unless both are updated (see refreshToken in auth.js).
-    const bearer = 'Bearer ' + getAccessToken();
-    Autodesk.Tandem.endpoint.HTTP_REQUEST_HEADERS['Authorization'] = bearer;
-    if (window.DT_APP?.loadContext?.headers) {
-        window.DT_APP.loadContext.headers['Authorization'] = bearer;
-    }
+    
+    // Set authorization header for viewer requests
+    Autodesk.Viewing.endpoint.HTTP_REQUEST_HEADERS['Authorization'] = 'Bearer ' + getAccessToken();
     
     // Store viewer globally for STUB functions
     window.viewer = viewer;

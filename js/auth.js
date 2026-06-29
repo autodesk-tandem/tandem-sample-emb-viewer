@@ -46,7 +46,7 @@ export async function login() {
     
     window.localStorage.setItem('codeVerifier', codeVerifier);
     
-    const url = new URL('https://developer.api.autodesk.com/authentication/v2/authorize');
+    const url = new URL(env.apsHost + '/authentication/v2/authorize');
     url.searchParams.append('response_type', 'code');
     url.searchParams.append('client_id', env.apsKey);
     url.searchParams.append('redirect_uri', env.loginRedirect);
@@ -87,7 +87,7 @@ async function exchangeCodeForToken(code, codeVerifier) {
         'redirect_uri': env.loginRedirect
     };
     
-    const response = await fetch('https://developer.api.autodesk.com/authentication/v2/token', {
+    const response = await fetch(env.apsHost + '/authentication/v2/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: Object.keys(payload)
@@ -123,7 +123,7 @@ async function refreshToken() {
             'refresh_token': token
         };
         
-        const response = await fetch('https://developer.api.autodesk.com/authentication/v2/token', {
+        const response = await fetch(env.apsHost + '/authentication/v2/token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: Object.keys(payload)
@@ -169,7 +169,8 @@ function scheduleRefresh(expiresIn) {
  * Load user profile image
  */
 async function loadUserProfile() {
-    const response = await fetch('https://api.userprofile.autodesk.com/userinfo', {
+    const env = getEnv();
+    const response = await fetch(`https://api.userprofile${env.name === 'stg' ? '-stg' : ''}.autodesk.com/userinfo`, {
         headers: { 'Authorization': `Bearer ${window.sessionStorage.token}` }
     });
     

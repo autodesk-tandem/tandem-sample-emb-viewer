@@ -55,7 +55,7 @@ export function startViewer(container) {
     viewer.start();
     
     // Set authorization header for viewer requests
-    Autodesk.Viewing.endpoint.HTTP_REQUEST_HEADERS['Authorization'] = 'Bearer ' + getAccessToken();
+    Autodesk.Tandem.endpoint.HTTP_REQUEST_HEADERS['Authorization'] = 'Bearer ' + getAccessToken();
     
     // Store viewer globally for STUB functions
     window.viewer = viewer;

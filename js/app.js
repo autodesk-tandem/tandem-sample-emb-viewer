@@ -318,7 +318,7 @@ async function loadFacility(facility) {
         
         window.localStorage.setItem('tandem-emb-viewer-ai-last-facility', facility.twinId);
         
-        await currentApp.displayFacility(facility, false, currentViewer);
+        await currentApp.displayFacility(facility, null, currentViewer);
         console.log('Facility loaded:', facilityName);
         
         // Track successfully loaded facility

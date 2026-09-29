@@ -495,21 +495,25 @@ export async function isolateTaggedAssets() {
     }
 
     console.group('STUB: isolateTaggedAssets()');
+    const t0 = performance.now();
 
     const viewer = getViewer();
     viewer.clearSelection();
+
+    let totalFound = 0;
 
     for (let i = 0; i < models.length; i++) {
         console.group(`Model[${i}]--> ${models[i].label()}`);
         console.log(`Model URN: ${models[i].urn()}`);
 
+        // getTaggedAssets() returns elements that have at least one user-defined
+        // DtProperty value stored. Elements that are in the Tandem asset inventory
+        // but have NOT had any property values filled in yet will NOT be returned.
         const taggedObjs = await models[i].getTaggedAssets();
         console.log('Tagged Assets-->', taggedObjs);
+        console.log(`  Found: ${taggedObjs.rows.length} element(s) with stored property values`);
 
-        const isoIds = [];
-        for (let j = 0; j < taggedObjs.rows.length; j++) {
-            isoIds.push(taggedObjs.rows[j]['l:d']);
-        }
+        const isoIds = taggedObjs.rows.map(row => row['l:d']).filter(id => id != null);
 
         if (isoIds.length) {
             console.log('Isolating tagged assets in viewer...');
@@ -519,7 +523,22 @@ export async function isolateTaggedAssets() {
             viewer.isolate([0], models[i]);
         }
 
+        totalFound += isoIds.length;
         console.groupEnd();
+    }
+
+    const elapsed = (performance.now() - t0).toFixed(0);
+    console.log(`── Summary ──────────────────────────────────────────────────`);
+    console.log(`  Isolated : ${totalFound} tagged asset(s) across ${models.length} model(s)`);
+    console.log(`  ⏱️ Total  : ${elapsed}ms`);
+    if (totalFound === 0) {
+        console.warn(`  ⚠️  No tagged assets found. Make sure elements have been tagged in`);
+        console.warn(`     the Tandem asset inventory AND have at least one property value filled in.`);
+    } else {
+        console.log(`  💡 NOTE: Only elements WITH stored property values are shown.`);
+        console.log(`     Elements tagged in the Tandem asset inventory but with NO property`);
+        console.log(`     values filled in yet will NOT appear here. Open the Tandem UI,`);
+        console.log(`     select the missing asset, and fill in at least one property value.`);
     }
 
     console.groupEnd();

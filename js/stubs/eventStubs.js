@@ -46,7 +46,11 @@ function event_DtTelemetryChangedEvent(e) { dumpEventInfo('DT_TELEMETRY_CHANGED_
 function event_DtTelemetryTickEvent(e) { dumpEventInfo('DT_TELEMETRY_TICK_EVENT', e); }
 function event_DtFacilityUserChangedEvent(e) { dumpEventInfo('DT_FACILITY_USER_CHANGED_EVENT', e); }
 function event_DtStreamAlertsChangedEvent(e) { dumpEventInfo('DT_STREAM_ALERTS_CHANGED_EVENT', e); }
+function event_DtStreamTransitionsChangedEvent(e) { dumpEventInfo('DT_STREAM_TRANSITIONS_CHANGED_EVENT', e); }
 function event_DtStreamEventsDataEvent(e) { dumpEventInfo('DT_STREAM_EVENTS_DATA_EVENT', e); }
+function event_DtDataVisibilityChangedEvent(e) { dumpEventInfo('DT_DATA_VISIBILITY_CHANGED_EVENT', e); }
+function event_DtTelemetryRegionsEvent(e) { dumpEventInfo('DT_TELEMETRY_REGIONS_EVENT', e); }
+function event_DtTelemetryInstantReadingsChangedEvent(e) { dumpEventInfo('DT_TELEMETRY_INSTANT_READINGS_CHANGED_EVENT', e); }
 
 /**
  * Add event listeners to trap DtApp events
@@ -85,7 +89,11 @@ export function addEventListeners() {
     dtApp.addEventListener(Autodesk.Tandem.DT_STREAMS_INFO_CHANGED_EVENT, event_DtStreamsInfoChangedEvent);
     dtApp.addEventListener(Autodesk.Tandem.DT_STREAMS_LAST_READINGS_CHANGED_EVENT, event_DtStreamsLastReadingsChangedEvent);
     dtApp.addEventListener(Autodesk.Tandem.DT_STREAM_ALERTS_CHANGED_EVENT, event_DtStreamAlertsChangedEvent);
+    dtApp.addEventListener(Autodesk.Tandem.DT_STREAM_TRANSITIONS_CHANGED_EVENT, event_DtStreamTransitionsChangedEvent);
     dtApp.addEventListener(Autodesk.Tandem.DT_STREAM_EVENTS_DATA_EVENT, event_DtStreamEventsDataEvent);
+    dtApp.addEventListener(Autodesk.Tandem.DT_DATA_VISIBILITY_CHANGED_EVENT, event_DtDataVisibilityChangedEvent);
+    dtApp.addEventListener(Autodesk.Tandem.DT_TELEMETRY_REGIONS_EVENT, event_DtTelemetryRegionsEvent);
+    dtApp.addEventListener(Autodesk.Tandem.DT_TELEMETRY_INSTANT_READINGS_CHANGED_EVENT, event_DtTelemetryInstantReadingsChangedEvent);
     dtApp.addEventListener(Autodesk.Tandem.DT_SYSTEMS_CHANGED_EVENT, event_DtSystemsChangedEvent);
     dtApp.addEventListener(Autodesk.Tandem.DT_SYSTEM_CONNECTIONS_CHANGED_EVENT, event_DtSystemConnectionsChangedEvent);
     dtApp.addEventListener(Autodesk.Tandem.DT_HEATMAP_CHANGED_EVENT, event_DtHeatmapChangedEvent);
@@ -138,7 +146,11 @@ export function removeEventListeners() {
     dtApp.removeEventListener(Autodesk.Tandem.DT_STREAMS_INFO_CHANGED_EVENT, event_DtStreamsInfoChangedEvent);
     dtApp.removeEventListener(Autodesk.Tandem.DT_STREAMS_LAST_READINGS_CHANGED_EVENT, event_DtStreamsLastReadingsChangedEvent);
     dtApp.removeEventListener(Autodesk.Tandem.DT_STREAM_ALERTS_CHANGED_EVENT, event_DtStreamAlertsChangedEvent);
+    dtApp.removeEventListener(Autodesk.Tandem.DT_STREAM_TRANSITIONS_CHANGED_EVENT, event_DtStreamTransitionsChangedEvent);
     dtApp.removeEventListener(Autodesk.Tandem.DT_STREAM_EVENTS_DATA_EVENT, event_DtStreamEventsDataEvent);
+    dtApp.removeEventListener(Autodesk.Tandem.DT_DATA_VISIBILITY_CHANGED_EVENT, event_DtDataVisibilityChangedEvent);
+    dtApp.removeEventListener(Autodesk.Tandem.DT_TELEMETRY_REGIONS_EVENT, event_DtTelemetryRegionsEvent);
+    dtApp.removeEventListener(Autodesk.Tandem.DT_TELEMETRY_INSTANT_READINGS_CHANGED_EVENT, event_DtTelemetryInstantReadingsChangedEvent);
     dtApp.removeEventListener(Autodesk.Tandem.DT_SYSTEMS_CHANGED_EVENT, event_DtSystemsChangedEvent);
     dtApp.removeEventListener(Autodesk.Tandem.DT_SYSTEM_CONNECTIONS_CHANGED_EVENT, event_DtSystemConnectionsChangedEvent);
     dtApp.removeEventListener(Autodesk.Tandem.DT_HEATMAP_CHANGED_EVENT, event_DtHeatmapChangedEvent);

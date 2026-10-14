@@ -1109,34 +1109,14 @@ export async function renderStubs(container, facility) {
     container.appendChild(streamDropdown);
     
     // 7. Viewer Stubs (same order as original)
+    // Console-only data stubs. Examples with visible effects (isolate, theming, saved views,
+    // markers, camera...) live in the Viewer Lab tab.
     const viewerDropdown = createDropdownMenu('Viewer Stubs', [
-        { label: 'Add Sprites (to SelSet)', description: 'Add sprites to selection', action: viewerStubs.addSprites },
-        { label: 'Remove Sprites', description: 'Remove all sprites', action: viewerStubs.removeSprites },
         { label: 'Get Current Selection', description: 'Get currently selected elements', action: viewerStubs.getCurrentSelection },
-        { label: 'Isolate Current Selection', description: 'Isolate currently selected elements', action: viewerStubs.isolateSelection },
-        { label: 'Focus / FitToView', description: 'Zoom to fit current selection', action: viewerStubs.focusSelection },
-        { label: 'Show all objects', description: 'Show all objects in the model', action: viewerStubs.showAllObjects },
         { label: 'Get All Elements', description: 'Get all elements in facility', action: viewerStubs.getAllElements },
         { label: 'Get All Visible Elements', description: 'Get currently visible element IDs', action: viewerStubs.getVisibleDbIds },
         { label: 'Select All Visible Elements', description: 'Select all visible elements', action: viewerStubs.selectAllVisibleElements },
-        { label: 'Hide Model', description: 'Hide the primary model', action: viewerStubs.hideModel },
-        { label: 'Show Model', description: 'Show the primary model', action: viewerStubs.showModel },
-        { label: 'Scrape Geometry', description: 'Export geometry as OBJ', action: viewerStubs.scrapeGeometry },
-        { label: 'Set Theme Color (SelSet)', description: 'Apply color to selection', action: viewerStubs.setThemeColor },
-        { label: 'Unset Theme Color (SelSet)', description: 'Remove color from selection', action: viewerStubs.unsetThemeColor },
-        { label: 'Clear All Theming', description: 'Clear all color theming', action: viewerStubs.clearAllTheming },
-        { label: 'Get Saved Views', description: 'List all saved views', action: viewerStubs.getSavedViews },
-        {
-            label: 'Go To Saved View',
-            description: 'Restore a saved view',
-            hasInput: true,
-            inputConfig: {
-                fields: [
-                    { id: 'viewName', label: 'View Name', placeholder: 'Enter view name' }
-                ],
-                onExecute: (values) => viewerStubs.gotoSavedView(values.viewName)
-            }
-        }
+        { label: 'Scrape Geometry', description: 'Export geometry as OBJ', action: viewerStubs.scrapeGeometry }
     ]);
     container.appendChild(viewerDropdown);
     
@@ -1148,7 +1128,8 @@ export async function renderStubs(container, facility) {
         - Open Chrome DevTools (F12) to see output<br>
         - Click dropdown menus to see available functions<br>
         - Select elements in viewer, then use Property/Model stubs<br>
-        - All responses logged to console with details
+        - All responses logged to console with details<br>
+        - Want to see viewer effects (markers, toolbar buttons, HUDs) with copy-ready code? Try the <strong class="text-dark-text">Viewer Lab</strong> tab
     `;
     container.appendChild(helpDiv);
 }

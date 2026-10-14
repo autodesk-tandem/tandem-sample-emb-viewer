@@ -12,6 +12,11 @@ This testbed is designed for **developer education**. Unlike typical end-user ap
 - See actual SDK method calls and responses
 - Copy patterns into your own embedded viewer applications
 
+The right-hand panel has two tabs:
+
+- **Stubs**: buttons that call SDK functions and log the results to the console.
+- **Viewer Lab**: interactive recipes that show an effect in the viewer, then give you a clean snippet to copy. See [Viewer Lab](#viewer-lab).
+
 ## Comparison with REST Testbed
 
 | Feature | REST Testbed | SDK Testbed (this project) |
@@ -95,6 +100,39 @@ Settings: {...}
 
 Expand objects in the console (click the triangles) to explore data structures.
 
+## Viewer Lab
+
+The embedded viewer is Autodesk's **LMV** (Large Model Viewer), also known as the **APS Viewer**, **Forge Viewer** or just **Autodesk Viewer**. Tandem extends it with a `Dt*` layer (facilities, models, streams). The Lab uses the standard LMV APIs, so public documentation, samples and blog posts about the APS or Forge Viewer apply here:
+
+- [Viewer API reference](https://aps.autodesk.com/en/docs/viewer/v7/reference/Viewing/)
+
+The **Viewer Lab** tab teaches how to control and extend the viewer. Each recipe has:
+
+1. A description of what it teaches and **what to look for**
+2. Controls to tweak it, and **Run** / **Reset** buttons so you can see the effect firsthand
+3. **Show code**: a plain, self-contained function to copy into your own app. Each one returns a `dispose()` function that undoes what it added.
+
+| Topic | Recipes |
+|-------|---------|
+| **Selection** | Select by searching values, select similar elements (by Tandem category), isolate the selection, hide a model |
+| **Camera** | Turntable around the selection, projection and field of view, saved views |
+| **Appearance** | Color the selection, color the whole model by a value (heatmap with legend) |
+| **Markers** | Overlay spheres at elements, many sprites hidden by walls, HTML pins that follow elements, markers colored by stream alert state |
+| **Toolbar & Tools** | Add a toolbar button, package tools as an extension, a custom click-to-pin tool |
+| **HUD** | Selection info card, camera bookmark bar |
+
+Drag the left edge of the panel to make it wider, which helps when reading code.
+
+Note: the Tandem SDK does not ship every LMV extension (for example, `Autodesk.DataVisualization` is not available), so a public sample that loads one may not work here.
+
+### Adding a Recipe
+
+1. Add a function to a file in `js/lab/recipes/` (or create a new topic file and import it in `js/lab/labPanel.js`). Keep it self-contained: it should only need `viewer` and plain data, and return `{ ..., dispose }`.
+2. Put a doc comment (`/** ... */`) directly above the function. The Lab shows it along with the code.
+3. Call `defineRecipe({ ... })` below it with the title, `learn` and `lookFor` text, controls, `code: [yourFunction]`, and a `run` wrapper that reads the controls and calls your function.
+
+Details are in [AGENTS.md](AGENTS.md).
+
 ## Architecture
 
 ```
@@ -114,6 +152,10 @@ tandem-sample-emb-viewer/
 │   │   ├── streamStubs.js
 │   │   ├── documentStubs.js
 │   │   └── eventStubs.js
+│   ├── lab/                # Viewer Lab (recipes with copy-ready code)
+│   │   ├── labPanel.js     # Tabs, resizable panel, recipe cards, code view
+│   │   ├── recipes.js      # Recipe registry and cleanup of active recipes
+│   │   └── recipes/        # selection.js, camera.js, appearance.js, markers.js, toolbar.js, hud.js
 │   ├── ui/
 │   │   └── stubUI.js       # UI rendering (separate from logic)
 │   └── state/
@@ -136,7 +178,8 @@ tandem-sample-emb-viewer/
 - Dump facility info, settings, and metadata
 
 ### Viewer Stubs
-- Camera controls, selection management, visibility
+- Read the current selection, list all / visible elements, select all visible, export geometry as OBJ
+- (Effects you can see in the viewer, such as isolating, theming, saved views, markers and camera moves, are in the [Viewer Lab](#viewer-lab) tab)
 
 ### Model Stubs
 - Enumerate models, get element properties by key

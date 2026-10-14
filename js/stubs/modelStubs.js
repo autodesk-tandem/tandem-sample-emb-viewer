@@ -700,9 +700,13 @@ export async function queryElements() {
     // Example 1: Query ALL elements — fetch standard built-in attributes only.
     // This is the simplest form. "standard" covers Name, CategoryId, ElementFlags,
     // Assembly Code, Classification, etc.
+    // NOTE: query() only returns rows for the dbIds you pass. Leaving dbIds out
+    // returns zero rows (not "all elements"), so pass model.getElementIds()
+    // to mean "everything".
     // -------------------------------------------------------------------------
     console.group('Example 1: All elements, standard attributes');
     const allStandard = await model.query({
+        dbIds: model.getElementIds(),
         includes: { standard: true }
     });
     console.log('Result shape:', allStandard);

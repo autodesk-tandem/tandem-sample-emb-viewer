@@ -16,6 +16,7 @@ This guide provides essential context about the Autodesk Tandem JavaScript SDK, 
 6. [Common Pitfalls](#common-pitfalls)
 7. [File Organization](#file-organization)
 8. [Adding New Stubs](#adding-new-stubs)
+9. [Viewer Lab](#viewer-lab)
 
 ---
 
@@ -387,12 +388,16 @@ tandem-sample-emb-viewer/
 │   ├── utils.js            # Shared utilities (type conversion, etc.)
 │   ├── stubs/              # STUB functions organized by domain
 │   │   ├── facilityStubs.js    # Facility info operations
-│   │   ├── viewerStubs.js      # Camera, selection, visibility
+│   │   ├── viewerStubs.js      # Selection helpers, element lists, geometry export
 │   │   ├── modelStubs.js       # Model enumeration, element queries
 │   │   ├── propertyStubs.js    # Property read/write operations
 │   │   ├── streamStubs.js      # IoT stream data
 │   │   ├── documentStubs.js    # Facility documents
 │   │   └── eventStubs.js       # Event subscriptions
+│   ├── lab/                # Viewer Lab: recipes with copy-ready code
+│   │   ├── labPanel.js         # Side panel tabs, recipe cards, code view
+│   │   ├── recipes.js          # defineRecipe() registry + cleanup ledger
+│   │   └── recipes/            # One file per topic: selection, camera, appearance, markers, toolbar, hud
 │   ├── ui/
 │   │   └── stubUI.js           # UI rendering, form handling
 │   └── state/
@@ -412,6 +417,8 @@ tandem-sample-emb-viewer/
 | `viewer.js` | Initializes DtApp, loads facilities, exports helper functions |
 | `utils.js` | Type conversion, formatting utilities |
 | `stubUI.js` | Creates dropdown menus, handles input forms, executes stubs |
+| `lab/labPanel.js` | Side panel (Stubs / Viewer Lab tabs), renders recipe cards and the Show code view |
+| `lab/recipes.js` | `defineRecipe()`, runs recipes, disposes the previous run, resets |
 | `schemaCache.js` | Collects property metadata from all models, provides lookups |
 
 ---
@@ -421,7 +428,7 @@ tandem-sample-emb-viewer/
 ### Step 1: Choose the Right Stub File
 
 - Facility operations → `facilityStubs.js`
-- Viewer/camera operations → `viewerStubs.js`
+- Viewer data dumps → `viewerStubs.js` (anything with a visible effect belongs in the Viewer Lab instead)
 - Model/element queries → `modelStubs.js`
 - Property read/write → `propertyStubs.js`
 - Stream data → `streamStubs.js`
@@ -499,6 +506,74 @@ const modelDropdown = createDropdownMenu('Model Stubs', [
     }
 }
 ```
+
+---
+
+## Viewer Lab
+
+The **Viewer Lab** tab (`js/lab/`) teaches how to control and extend the embedded viewer. Its goal is that a developer can **see the behavior firsthand**, then **copy a clean snippet** into their own app. Keep that goal in mind when adding to it.
+
+The viewer is LMV (also called the APS Viewer, Forge Viewer or Autodesk Viewer) with Tandem's `Dt*` layer on top. Public LMV docs apply: https://aps.autodesk.com/en/docs/viewer/v7/reference/Viewing/
+
+### What Makes a Good Recipe
+
+- **A visible effect.** Every recipe changes something you can see in the viewer.
+- **A "what to look for" line** that says what to watch, and a status line after Run.
+- **A copy-ready snippet**: plain functions that only need `viewer` (and plain data), import nothing from the Lab, and return `{ ..., dispose }` where `dispose()` undoes everything the function added (DOM, overlay scenes, event listeners, theming, tools).
+- **Comments for the non-obvious**: explain why, and call out gotchas. Do not restate the code.
+- A **doc comment** (`/** ... */`) directly above each snippet function. The Show code view displays it with the function.
+
+### Adding a Recipe
+
+```javascript
+// js/lab/recipes/markers.js (or a new topic file imported in labPanel.js)
+
+/**
+ * Doc comment shown above the code in the Lab.
+ * @returns {{ count: number, dispose: Function }}
+ */
+function addThing(viewer, { color = 0xff0000 } = {}) {
+    // ... add something to the viewer ...
+    const dispose = () => { /* undo it */ };
+    return { count: 1, dispose };
+}
+
+defineRecipe({
+    id: 'markers-thing',            // unique
+    topic: 'Markers',               // groups recipes into topic pills
+    title: 'Add a thing',
+    learn: 'One sentence on what this teaches.',
+    lookFor: 'What the user should watch after pressing Run.',
+    file: 'js/lab/recipes/markers.js',   // the file Show code reads the source from
+    apis: [{ name: 'Viewer3D.foo', url: DOCS + 'Viewer3D/#foo' }],
+    controls: [{ id: 'color', label: 'Color', type: 'color', default: '#ff0000' }],
+    code: [addThing],               // functions displayed (in order) in Show code
+    run({ viewer, facility, values, selection }) {
+        // values: control values; selection: viewer.getAggregateSelection() or null
+        const { count, dispose } = addThing(viewer, { color: parseInt(values.color.slice(1), 16) });
+        return { status: `${count} thing(s) added.`, dispose };   // level: 'warn' | 'error' also allowed
+    },
+});
+```
+
+Rules the code view relies on:
+
+- Snippet functions must be **top-level** `function name(` or `async function name(` declarations that end with a closing `}` in column 0. Classes may live inside them. Constants shared between snippets will NOT appear in Show code, so keep constants inside the function.
+- `controls[].type` is one of `range` (`min`, `max`, `step`), `color`, `select` (`options: [{ value, label }]`), `checkbox`, `text`.
+- `run` may be async. If it returns `dispose`, the Lab calls it on **Reset**, before the next **Run** of the same recipe, and on facility change.
+- A new topic file must be imported in `js/lab/labPanel.js` so it registers itself.
+
+### Viewer Pitfalls Learned the Hard Way
+
+- The viewer bundles an **old three.js (about r71)**. Use `box.getCenter(new THREE.Vector3())`, `THREE.SphereGeometry`, `mesh.position.set(...)`; avoid modern three.js APIs.
+- The Tandem SDK does **not** ship every LMV extension. `Autodesk.DataVisualization` returns a 404, so do not build recipes on it.
+- Facilities have several models. Selection is `[{ model, selection: [dbIds] }]`, and a `dbId` is only unique within its model.
+- `model.getUpVector()` can be `null`; use `viewer.navigation.getWorldUpVector()`.
+- Elements without fragments (rooms) have no geometry bounds from the fragment list; fall back to `model.getElementBounds(dbId, box)`.
+- Overlay scenes (`viewer.overlays.addScene/addMesh`) are depth-tested against the model unless the material sets `depthTest: false`.
+- HTML placed over the viewer is **not** occluded by the model. Position it from `CAMERA_CHANGE_EVENT`, and append it to `viewer.container`.
+- Tandem property names: read `Autodesk.Tandem.DtConstants.QC` (for example `QC.OName` then `QC.Name`) from `getPropertiesDt()` results, matching on `internalName`, and check override columns first.
+- Write data from properties into the DOM with `textContent`, never `innerHTML`.
 
 ---
 

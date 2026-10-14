@@ -9,6 +9,7 @@ import { login, logout, checkLogin, isLoggedIn } from './auth.js';
 import { initLMV, startViewer, getDtApp, setCurrentFacility } from './viewer.js';
 import { SchemaVersion } from '../tandem/constants.js';
 import { renderStubs } from './ui/stubUI.js';
+import { initSidePanel, renderLab } from './lab/labPanel.js';
 import { clearSchemaCache } from './state/schemaCache.js';
 
 // DOM Elements
@@ -22,6 +23,7 @@ const accountSelectWrapper = document.getElementById('accountSelectWrapper');
 const facilitySelectWrapper = document.getElementById('facilitySelectWrapper');
 const viewerContainer = document.getElementById('viewerContainer');
 const stubsContainer = document.getElementById('stubsContainer');
+const labContainer = document.getElementById('labContainer');
 const dashboardContent = document.getElementById('dashboardContent');
 const welcomeMessage = document.getElementById('welcomeMessage');
 const loadingOverlay = document.getElementById('loadingOverlay');
@@ -330,6 +332,9 @@ async function loadFacility(facility) {
         
         // Render stub function UI (schemas loaded lazily when needed)
         await renderStubs(stubsContainer, facility);
+
+        // Render the Viewer Lab recipes (also clears anything a previous facility left behind)
+        renderLab(labContainer);
         
     } catch (error) {
         console.error('Error loading facility:', error);
@@ -347,6 +352,9 @@ async function loadFacility(facility) {
  * Initialize the application
  */
 async function init() {
+    // Stubs | Viewer Lab tabs and the resizable side panel
+    initSidePanel();
+
     // Set up login/logout handlers
     loginBtn?.addEventListener('click', login);
     logoutBtn?.addEventListener('click', logout);

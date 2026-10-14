@@ -232,3 +232,113 @@ defineRecipe({
         return { status: 'Bar added. Save a view, move the camera, then click the bookmark.', dispose };
     },
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Recipe 10: Hover tooltip
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Show a tooltip with the name and category of whatever is under the mouse.
+ *
+ * The viewer has no hover event, so we listen to mousemove ourselves and ask the viewer
+ * what is under the cursor with clientToWorld(), which returns the hit element's `dbId`
+ * and `model`. Because property reads are async and the mouse keeps moving, each answer
+ * is checked against the latest request, and results are cached per element.
+ *
+ * Skipped while a button is held (orbiting or panning), so the tooltip never fights navigation.
+ * Values go in with textContent, never innerHTML.
+ *
+ * @param viewer  Viewer instance
+ * @returns {{ dispose: Function }}
+ */
+function addHoverTooltip(viewer) {
+    const { QC } = Autodesk.Tandem.DtConstants;
+
+    const tip = document.createElement('div');
+    tip.style.cssText = `
+        position:absolute; padding:6px 10px; border-radius:6px; background:rgba(0,0,0,.85);
+        color:#fff; font:12px sans-serif; pointer-events:none; display:none; white-space:nowrap; z-index:5;`;
+    viewer.container.appendChild(tip);
+
+    const cache = new Map();                        // "modelId:dbId" -> { name, category }
+    let latest = 0;
+    let frame = 0;
+
+    const describe = async (model, dbId) => {
+        const key = `${model.id}:${dbId}`;
+        if (!cache.has(key)) {
+            const { rows } = await model.query({ dbIds: [dbId], includes: { standard: true } });
+            const row = rows[0] ?? {};
+            cache.set(key, {
+                name: row[QC.OName] || row[QC.Name] || `Element ${dbId}`,
+                category: row[QC.OTandemCategory] || row[QC.TandemCategory] || '',
+            });
+        }
+        return cache.get(key);
+    };
+
+    const onMove = (event) => {
+        if (event.buttons) { tip.style.display = 'none'; return; }
+
+        cancelAnimationFrame(frame);                // at most one hit test per frame
+        frame = requestAnimationFrame(async () => {
+            const ticket = ++latest;
+            const canvas = viewer.impl.getCanvasBoundingClientRect();
+            const hit = viewer.clientToWorld(event.clientX - canvas.left, event.clientY - canvas.top, true);
+
+            if (!hit?.dbId || !hit.model) { tip.style.display = 'none'; return; }
+
+            const { name, category } = await describe(hit.model, hit.dbId);
+            if (ticket !== latest) return;          // the mouse moved on while we were reading properties
+
+            tip.replaceChildren();
+            const title = document.createElement('div');
+            title.textContent = name;
+            title.style.fontWeight = '600';
+            tip.appendChild(title);
+
+            if (category) {
+                const sub = document.createElement('div');
+                sub.textContent = category;
+                sub.style.opacity = '.7';
+                tip.appendChild(sub);
+            }
+
+            const box = viewer.container.getBoundingClientRect();
+            tip.style.left = `${event.clientX - box.left + 14}px`;
+            tip.style.top = `${event.clientY - box.top + 14}px`;
+            tip.style.display = 'block';
+        });
+    };
+
+    const onLeave = () => { latest++; tip.style.display = 'none'; };
+
+    viewer.container.addEventListener('mousemove', onMove);
+    viewer.container.addEventListener('mouseleave', onLeave);
+
+    const dispose = () => {
+        cancelAnimationFrame(frame);
+        viewer.container.removeEventListener('mousemove', onMove);
+        viewer.container.removeEventListener('mouseleave', onLeave);
+        tip.remove();
+    };
+
+    return { dispose };
+}
+
+defineRecipe({
+    id: 'hud-hover-tooltip',
+    topic: 'HUD',
+    title: 'Hover tooltip',
+    learn: 'React to the mouse without clicking: hit-test under the cursor with clientToWorld(), read the element\'s Tandem data, and float a tooltip next to the pointer.',
+    lookFor: 'Run, then move the mouse over the model without clicking. A tooltip follows the pointer with the element\'s name and category. It disappears over empty space and while you orbit.',
+    file: 'js/lab/recipes/hud.js',
+    apis: [
+        { name: 'Viewer3D.clientToWorld', url: DOCS + 'Viewer3D/#clienttoworld-clientx-clienty-ignoretransparent' },
+    ],
+    code: [addHoverTooltip],
+    run({ viewer }) {
+        const { dispose } = addHoverTooltip(viewer);
+        return { status: 'Tooltip active. Hover over elements.', dispose };
+    },
+});

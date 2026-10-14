@@ -16,6 +16,7 @@ import { getRecipes, runRecipe, resetRecipe, resetAll, isActive, onActiveChange 
 import './recipes/selection.js';
 import './recipes/camera.js';
 import './recipes/appearance.js';
+import './recipes/explore.js';
 import './recipes/markers.js';
 import './recipes/toolbar.js';
 import './recipes/hud.js';

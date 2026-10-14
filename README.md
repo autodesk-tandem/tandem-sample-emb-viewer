@@ -117,9 +117,10 @@ The **Viewer Lab** tab teaches how to control and extend the viewer. Each recipe
 | **Selection** | Select by searching values, select similar elements (by Tandem category), isolate the selection, hide a model |
 | **Camera** | Turntable around the selection, projection and field of view, saved views |
 | **Appearance** | Color the selection, color the whole model by a value (heatmap with legend) |
+| **Explore** | Chart of elements by category that isolates on click (viewer DockingPanel), level picker |
 | **Markers** | Overlay spheres at elements, many sprites hidden by walls, HTML pins that follow elements, markers colored by stream alert state |
-| **Toolbar & Tools** | Add a toolbar button, package tools as an extension, a custom click-to-pin tool |
-| **HUD** | Selection info card, camera bookmark bar |
+| **Toolbar & Tools** | Add a toolbar button, package tools as an extension, a custom click-to-pin tool, right-click menu items |
+| **HUD** | Selection info card, camera bookmark bar, hover tooltip |
 
 Drag the left edge of the panel to make it wider, which helps when reading code.
 

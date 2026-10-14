@@ -397,7 +397,7 @@ tandem-sample-emb-viewer/
 │   ├── lab/                # Viewer Lab: recipes with copy-ready code
 │   │   ├── labPanel.js         # Side panel tabs, recipe cards, code view
 │   │   ├── recipes.js          # defineRecipe() registry + cleanup ledger
-│   │   └── recipes/            # One file per topic: selection, camera, appearance, markers, toolbar, hud
+│   │   └── recipes/            # One file per topic: selection, camera, appearance, explore, markers, toolbar, hud
 │   ├── ui/
 │   │   └── stubUI.js           # UI rendering, form handling
 │   └── state/
@@ -574,6 +574,9 @@ Rules the code view relies on:
 - HTML placed over the viewer is **not** occluded by the model. Position it from `CAMERA_CHANGE_EVENT`, and append it to `viewer.container`.
 - Tandem property names: read `Autodesk.Tandem.DtConstants.QC` (for example `QC.OName` then `QC.Name`) from `getPropertiesDt()` results, matching on `internalName`, and check override columns first.
 - Write data from properties into the DOM with `textContent`, never `innerHTML`.
+- `Autodesk.Viewing.UI.DockingPanel` already gives a titled, draggable panel with a close button. Add content to `panel.container`, call `setVisible(true)`, and `uninitialize()` on dispose.
+- Add items to the right-click menu with `viewer.registerContextMenuCallback(id, (menu, status) => menu.push({ title, target }))`, and unregister the same id on dispose. Right-clicking does not change the selection.
+- `isolate()` works per model: isolate a model with nothing to show to the id `[0]`, or it stays fully visible.
 
 ---
 

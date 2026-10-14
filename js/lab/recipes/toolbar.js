@@ -289,3 +289,98 @@ defineRecipe({
         return { status: 'Tool active. Click on the model to drop pins. Press Reset to stop.', dispose };
     },
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Recipe 4: Right-click menu items
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Add your own items, including a submenu, to the viewer's right-click menu.
+ *
+ * You do not replace the menu. You register a callback that runs every time the menu
+ * is about to open, and push items onto the array it receives. `status` describes the
+ * click: hasSelected / numSelected / hasVisible / hasHidden, and canvasX / canvasY (where
+ * the mouse was, which you can pass to clientToWorld() to find the element under it).
+ *
+ * A menu item is `{ title, target }`. `target` is a function to run, or an array of
+ * items to make a submenu.
+ *
+ * Right-clicking does not change the selection. This example acts on the selection when
+ * there is one, and otherwise on the element under the mouse.
+ *
+ * @param viewer  Viewer instance
+ * @returns {{ dispose: Function }}
+ */
+function addContextMenuItems(viewer) {
+    const callbackId = 'lab-context-menu';
+    const painted = new Map();                      // model -> Set of dbIds we colored
+
+    // What the menu acts on: [{ model, selection: [dbId] }], like viewer.getAggregateSelection()
+    const paint = (targets, hex) => {
+        const color = new THREE.Color(hex);
+        const vector = new THREE.Vector4(color.r, color.g, color.b, 1);
+
+        for (const { model, selection } of targets) {
+            if (!painted.has(model)) painted.set(model, new Set());
+
+            for (const dbId of selection) {
+                viewer.setThemingColor(dbId, vector, model);
+                painted.get(model).add(dbId);
+            }
+        }
+    };
+
+    const clearPaint = () => {
+        for (const [model, dbIds] of painted) {
+            for (const dbId of dbIds) viewer.setThemingColor(dbId, undefined, model);   // undefined clears one element
+        }
+        painted.clear();
+    };
+
+    viewer.registerContextMenuCallback(callbackId, (menu, status) => {
+        let targets = [];
+        let label = 'selection';
+
+        if (status.hasSelected) {
+            targets = viewer.getAggregateSelection();
+        } else {
+            const hit = viewer.clientToWorld(status.canvasX, status.canvasY, true);   // the element under the mouse
+            if (hit?.dbId && hit.model) targets = [{ model: hit.model, selection: [hit.dbId] }];
+            label = 'element under mouse';
+        }
+
+        menu.push({
+            title: targets.length ? `Lab: Paint ${label}` : 'Lab: Paint (nothing here)',
+            target: [                              // an array makes a submenu
+                { title: 'Orange', target: () => paint(targets, 0xff8800) },
+                { title: 'Green',  target: () => paint(targets, 0x2e9d57) },
+                { title: 'Clear all paint', target: clearPaint },
+            ],
+        });
+    });
+
+    const dispose = () => {
+        viewer.unregisterContextMenuCallback(callbackId);
+        clearPaint();
+    };
+
+    return { dispose };
+}
+
+defineRecipe({
+    id: 'toolbar-context-menu',
+    topic: 'Toolbar & Tools',
+    title: 'Right-click menu items',
+    learn: 'Extend the right-click menu with your own commands, including a submenu, without replacing the viewer\'s menu.',
+    lookFor: 'Run, then right-click in the viewer. A "Lab: Paint ..." item appears at the bottom of the menu. With elements selected it paints the selection; with nothing selected it paints the element under the mouse. Its submenu paints orange or green, or clears. Reset removes the item and the colors.',
+    file: 'js/lab/recipes/toolbar.js',
+    apis: [
+        { name: 'Viewer3D.registerContextMenuCallback', url: DOCS + 'Viewer3D/#registercontextmenucallback-id-callback' },
+        { name: 'Viewer3D.unregisterContextMenuCallback', url: DOCS + 'Viewer3D/#unregistercontextmenucallback-id' },
+    ],
+    code: [addContextMenuItems],
+    run({ viewer }) {
+        const { dispose } = addContextMenuItems(viewer);
+        return { status: 'Menu item added. Right-click in the viewer.', dispose };
+    },
+});

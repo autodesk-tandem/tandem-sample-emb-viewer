@@ -7,6 +7,7 @@
 
 import { getCurrentFacility } from '../viewer.js';
 import { getSingleSelectedItemOptional } from './viewerStubs.js';
+import { parseCommaList } from '../utils.js';
 
 /**
  * Dump the Stream Manager object
@@ -223,7 +224,12 @@ export async function getStreamSecrets(streamKeys) {
         return;
     }
 
-    const streamKeysArray = streamKeys.split(',').map(k => k.trim());
+    const streamKeysArray = parseCommaList(streamKeys);
+    if (streamKeysArray.length === 0) {
+        console.warn('No stream keys provided');
+        console.groupEnd();
+        return;
+    }
 
     const strmMgr = facility.getStreamManager();
     if (strmMgr) {
@@ -255,7 +261,12 @@ export async function resetStreamSecrets(streamKeys) {
         return;
     }
     
-    const streamKeysArray = streamKeys.split(',').map(k => k.trim());
+    const streamKeysArray = parseCommaList(streamKeys);
+    if (streamKeysArray.length === 0) {
+        console.warn('No stream keys provided');
+        console.groupEnd();
+        return;
+    }
 
     const strmMgr = facility.getStreamManager();
     if (strmMgr) {

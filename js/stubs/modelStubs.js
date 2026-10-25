@@ -6,7 +6,7 @@
  */
 
 import { getCurrentFacility, getViewer } from '../viewer.js';
-import { getLoadedModels } from '../utils.js';
+import { getLoadedModels, parseCommaList } from '../utils.js';
 import { getAggregateSelection, getSingleSelectedItem } from './viewerStubs.js';
 
 /**
@@ -840,7 +840,7 @@ export async function externalIdsToDbIds(elementKeys) {
         return;
     }
 
-    const elementIds = elementKeys.split(',').map(k => k.trim()).filter(k => k.length > 0);
+    const elementIds = parseCommaList(elementKeys);
     if (elementIds.length === 0) {
         console.warn('No element IDs provided');
         return;
@@ -849,7 +849,7 @@ export async function externalIdsToDbIds(elementKeys) {
     console.group('STUB: externalIdsToDbIds() -- model.getDbIdsFromElementIds()');
     console.log('Terminology: dbId = ViewerID (session-local integer)  |  elementId = elementKey (stable base64 string)');
     console.log('Input elementIds (elementKeys):', elementIds);
-    console.log('NOTE: call is per-model — the SDK has no cross-model awareness, so we try each model and collect hits.');
+    console.log('NOTE: an elementId does not say which model it belongs to, so getDbIdsFromElementIds() is called on each loaded model and the hits are collected.');
 
     // getDbIdsFromElementIds() is per-model: it looks up each ID in that model's
     // local property database and returns null for IDs that don't belong to it.
